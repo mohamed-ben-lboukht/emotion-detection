@@ -95,6 +95,37 @@ function validateAndSanitizeData(type, data) {
   if (typeof data.cameraActive !== 'boolean') throw new Error('Missing cameraActive');
   if (typeof data.musicId !== 'string') throw new Error('Missing musicId');
 
+  // Vérifier et convertir les émotions
+  if (data.emotions) {
+    // Si c'est un tableau d'émotions détectées (webcam)
+    if (Array.isArray(data.emotions)) {
+      console.log("Emotions data is an array with length:", data.emotions.length);
+      
+      // Ensure each emotion has the required fields
+      data.emotions = data.emotions.map(entry => {
+        const sanitizedEntry = { ...entry };
+        if (typeof entry.timestamp !== 'number') sanitizedEntry.timestamp = 0;
+        if (typeof entry.emotion !== 'string') sanitizedEntry.emotion = 'neutral';
+        if (typeof entry.score !== 'number') sanitizedEntry.score = 0;
+        return sanitizedEntry;
+      });
+      
+      data.emotionTimeline = data.emotions;
+    } else if (typeof data.emotions === 'object') {
+      // Si c'est un objet d'émotions (manual)
+      console.log("Emotions data is an object:", data.emotions);
+      Object.keys(data.emotions).forEach(key => {
+        if (typeof data.emotions[key] !== 'number') {
+          data.emotions[key] = parseFloat(data.emotions[key]) || 0;
+        }
+      });
+    }
+  } else {
+    // Par défaut, créer un objet d'émotions vide
+    data.emotions = {};
+    data.emotionTimeline = [];
+  }
+
   // Sanitize text
   data.text = sanitizeText(data.text || '');
   // Sanitize keystrokeData si présent
@@ -195,7 +226,15 @@ const server = http.createServer((req, res) => {
       try {
         let { type, data } = JSON.parse(body);
         type = mapType(type); // Correction ici
+        console.log("Received data type:", type);
+        console.log("Emotions data:", data.emotions ? (Array.isArray(data.emotions) ? `Array with ${data.emotions.length} items` : "Object") : "None");
+        
         const sanitizedData = validateAndSanitizeData(type, data);
+        
+        // Log what's being saved
+        console.log("Saving data with emotions:", sanitizedData.emotions ? 
+          (Array.isArray(sanitizedData.emotions) ? `Array with ${sanitizedData.emotions.length} items` : "Object") : "None");
+        
         const filepath = saveSessionToJSONFile(type, sanitizedData); // Sauvegarde fichier JSON
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ 
@@ -289,8 +328,11 @@ const server = http.createServer((req, res) => {
         res.end(`Server Error: ${error.code}`);
       }
     } else {
-      // Success
-      res.writeHead(200, { 'Content-Type': contentType });
+      // Success - Add Content-Security-Policy to allow loading from CDN
+      res.writeHead(200, { 
+        'Content-Type': contentType,
+        'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * data: blob: 'unsafe-inline'"
+      });
       res.end(content, 'utf-8');
     }
   });

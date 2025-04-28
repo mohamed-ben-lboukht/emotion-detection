@@ -63,6 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const musicHandler = new MusicHandler();
   const webcamTracker = new WebcamTracker();
   
+  // Global emotion detection - initialize webcam tracker that will be used for all modes
+  const globalEmotionTracker = new WebcamTracker();
+  globalEmotionTracker.debugPanel.style.display = 'none'; // Hide debug panel for global emotion tracking
+  
   // Get DOM elements
   const optionCards = document.querySelectorAll('.option-card');
   const sections = document.querySelectorAll('.tracking-section');
@@ -82,6 +86,14 @@ document.addEventListener('DOMContentLoaded', () => {
       // Hide main options
       document.querySelector('.options').classList.add('hidden');
       
+      // Initialize emotion detection for all modes
+      if (optionId === 'manual-option' || optionId === 'music-option') {
+        // For manual and music, use global emotion tracker if not already active
+        if (!globalEmotionTracker.isActive) {
+          globalEmotionTracker.initialize();
+        }
+      }
+      
       // Show appropriate section based on option selected
       if (optionId === 'manual-option') {
         targetSection = document.getElementById('manual-tracking');
@@ -89,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         targetSection = document.getElementById('music-tracking');
       } else if (optionId === 'webcam-option') {
         targetSection = document.getElementById('webcam-tracking');
-        // Initialize webcam
+        // Initialize webcam for webcam mode
         webcamTracker.initialize();
       }
       
@@ -112,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Stop webcam if active
       webcamTracker.stop();
+      globalEmotionTracker.stop();
       
       // Stop music if playing
       musicHandler.stopMusic();
@@ -183,30 +196,63 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Veuillez taper au moins 10 caractères avant de sauvegarder');
       return;
     }
+    
     let emotions;
+    
     if (type === 'webcam') {
       // Récupérer les émotions détectées automatiquement par la webcam
-      const webcamData = webcamKeystrokeTracker.getData();
+      const webcamData = webcamTracker.getData();
+      
+      // Create and show a summary of detected emotions before saving
+      if (webcamData.emotionTimeline && webcamData.emotionTimeline.length > 0) {
+        const confirmSave = await showEmotionSummary(webcamData.emotionTimeline);
+        if (!confirmSave) return; // User cancelled the save
+      } else {
+        alert('Aucune émotion n\'a été détectée. Assurez-vous que votre visage est visible par la caméra.');
+        return;
+      }
+      
       emotions = webcamData.emotionTimeline || [];
     } else {
-      // Demander les émotions à l'utilisateur (manuel ou musique)
-      emotions = await askEmotions();
+      // Pour les modes manual et music, utiliser la détection faciale globale si active
+      if (globalEmotionTracker.isActive && globalEmotionTracker.emotionTimeline.length > 0) {
+        const confirmSave = await showEmotionSummary(globalEmotionTracker.emotionTimeline);
+        if (!confirmSave) return; // User cancelled the save
+        emotions = globalEmotionTracker.emotionTimeline;
+      } else {
+        // Sinon, demander les émotions manuellement
+        emotions = await askEmotions();
+      }
     }
+    
+    // Convert array of emotions to format expected by the server for webcam mode
+    let processedEmotions;
+    if (Array.isArray(emotions)) {
+      // For webcam emotions (array format)
+      processedEmotions = emotions;
+    } else {
+      // For manual emotions (object format from askEmotions)
+      processedEmotions = emotions;
+    }
+    
     const timings = keystrokeData.keystrokeData.map(entry => entry.timeMs);
     const data = {
       userId: getUserUUID(),
       sessionId: generateUUIDv4(),
       deviceInfo: getDeviceInfo(),
-      cameraActive: (type === 'webcam'),
+      cameraActive: (type === 'webcam' || globalEmotionTracker.isActive),
       musicId: (type === 'music' ? (window.musicHandler?.getCurrentMusic?.() || 'None') : 'None'),
       text: keystrokeData.text,
       timings,
-      emotions,
+      emotions: processedEmotions,
+      emotionTimeline: Array.isArray(processedEmotions) ? processedEmotions : [], // Ensure emotionTimeline is always available
       sessionDuration: keystrokeData.sessionDurationMs,
       keystrokeCount: keystrokeData.keystrokeCount,
       timestamp: new Date().toISOString(),
-      context: type
+      context: type,
+      detectionType: Array.isArray(processedEmotions) ? 'automatic' : 'manual'
     };
+    
     try {
       const response = await fetch('/save-data', {
         method: 'POST',
@@ -217,6 +263,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (result.success) {
         alert('Session sauvegardée avec succès !');
         tracker.reset();
+        if (type !== 'webcam') {
+          globalEmotionTracker.reset(); // Reset global emotion tracker
+        } else {
+          webcamTracker.reset();
+        }
       } else {
         alert('Erreur lors de la sauvegarde : ' + result.message);
       }
@@ -354,5 +405,85 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Error fetching data files:', error);
       dataDisplay.innerHTML = `<p>Error loading data: ${error.message}</p>`;
     }
+  }
+
+  // Fonction pour afficher un résumé des émotions détectées avant sauvegarde
+  function showEmotionSummary(emotionTimeline) {
+    return new Promise(resolve => {
+      // Count occurrences of each emotion
+      const emotionCounts = {};
+      let totalEmotions = 0;
+      
+      emotionTimeline.forEach(entry => {
+        emotionCounts[entry.emotion] = (emotionCounts[entry.emotion] || 0) + 1;
+        totalEmotions++;
+      });
+      
+      // Calculate percentages and prepare data for display
+      const emotionStats = Object.entries(emotionCounts)
+        .map(([emotion, count]) => ({
+          emotion,
+          count,
+          percentage: Math.round((count / totalEmotions) * 100)
+        }))
+        .sort((a, b) => b.percentage - a.percentage);
+      
+      // Create a modal to display the summary
+      const modalHtml = `
+        <div id="emotion-summary-modal" class="modal">
+          <div class="modal-content" style="max-width: 500px;">
+            <h2>Résumé des émotions détectées</h2>
+            <p>Total des détections: ${totalEmotions}</p>
+            <div id="emotion-summary" style="margin: 20px 0;">
+              ${emotionStats.map(stat => `
+                <div style="margin-bottom: 15px;">
+                  <div style="display: flex; justify-content: space-between;">
+                    <strong>${stat.emotion}</strong>
+                    <span>${stat.percentage}% (${stat.count} détections)</span>
+                  </div>
+                  <div style="background: #eee; height: 20px; width: 100%; border-radius: 4px; margin-top: 5px;">
+                    <div style="background: ${getEmotionColor(stat.emotion)}; height: 100%; width: ${stat.percentage}%; border-radius: 4px;"></div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <p>Voulez-vous sauvegarder ces données?</p>
+            <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+              <button id="cancel-save" style="padding: 8px 15px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Annuler</button>
+              <button id="confirm-save" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Sauvegarder</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Add the modal to the page
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const modal = document.getElementById('emotion-summary-modal');
+      
+      // Set up button handlers
+      document.getElementById('cancel-save').addEventListener('click', () => {
+        modal.remove();
+        resolve(false);
+      });
+      
+      document.getElementById('confirm-save').addEventListener('click', () => {
+        modal.remove();
+        resolve(true);
+      });
+    });
+  }
+
+  // Helper function to get color for each emotion
+  function getEmotionColor(emotion) {
+    const colors = {
+      happy: '#4CAF50',      // Green
+      sad: '#2196F3',        // Blue
+      angry: '#F44336',      // Red
+      fearful: '#9C27B0',    // Purple
+      disgusted: '#795548',  // Brown
+      surprised: '#FF9800',  // Orange
+      neutral: '#9E9E9E'     // Gray
+    };
+    return colors[emotion] || '#FFFFFF';
   }
 });

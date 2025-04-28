@@ -332,3 +332,108 @@ footer {
     width: 100%;
   }
 }
+
+/* Emotion debug panel */
+.emotion-debug-panel {
+  background-color: rgba(0,0,0,0.8);
+  color: white;
+  padding: 12px;
+  margin: 15px 0;
+  border-radius: 6px;
+  font-family: monospace;
+  max-width: 400px;
+}
+
+.emotion-debug-panel .emotion-bar {
+  margin: 5px 0;
+}
+
+.emotion-debug-panel .emotion-bar-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.emotion-debug-panel .emotion-bar-track {
+  background-color: #444;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+}
+
+.emotion-debug-panel .emotion-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+}
+
+/* Emotion summary modal */
+#emotion-summary-modal {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+#emotion-summary-modal .modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  max-width: 500px;
+  width: 90%;
+}
+
+#emotion-summary-modal h2 {
+  color: #333;
+  margin-top: 0;
+}
+
+#emotion-summary-modal .emotion-stat {
+  margin-bottom: 15px;
+}
+
+#emotion-summary-modal .emotion-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+#emotion-summary-modal .emotion-bar {
+  background: #eee;
+  height: 20px;
+  width: 100%;
+  border-radius: 4px;
+}
+
+#emotion-summary-modal .emotion-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+#emotion-summary-modal .button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+#emotion-summary-modal button {
+  padding: 8px 15px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#emotion-summary-modal #cancel-save {
+  background: #f44336;
+}
+
+#emotion-summary-modal #confirm-save {
+  background: #4CAF50;
+}

@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self';">
   <title>Keystroke Dynamics Collector</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -147,7 +146,8 @@
     </footer>
   </div>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <!-- Using locally hosted face-api.js instead of CDN -->
+  <script src="js/lib/face-api.min.js"></script>
   <script src="js/keystroke.js"></script>
   <script src="js/emotions.js"></script>
   <script src="js/webcam.js"></script>

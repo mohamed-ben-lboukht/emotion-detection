@@ -1,0 +1,1539 @@
+{
+  "userId": "44a824cb-c8ca-4587-bf3a-a13a4f717553",
+  "sessionId": "50cbedf8-93ae-4778-81a8-97845b3d8a16",
+  "deviceInfo": {
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+    "os": "MacIntel",
+    "screen": "1440x900"
+  },
+  "cameraActive": true,
+  "musicId": "None",
+  "text": "je suis amine ben et je suis mine doses ",
+  "timings": [
+    3.1000000089406967,
+    3.5,
+    0.3999999910593033,
+    1.800000011920929,
+    2.2000000029802322,
+    3.4000000059604645,
+    3.7999999970197678,
+    1.699999988079071,
+    0.09999999403953552,
+    2.5,
+    0.800000011920929,
+    2.7999999970197678,
+    3.6000000089406967,
+    3.5999999940395355,
+    0.7999999970197678,
+    1.9000000059604645,
+    2.7000000029802322,
+    2.0999999940395355,
+    0.19999998807907104,
+    1.9000000059604645,
+    2.0999999940395355,
+    2,
+    0.09999999403953552,
+    1.6000000089406967,
+    1.7000000029802322,
+    1.9000000059604645,
+    0.29999999701976776,
+    1.9000000059604645,
+    2.2000000029802322,
+    9,
+    7.0999999940395355,
+    1.5999999940395355,
+    8.699999988079071,
+    2.4000000059604645,
+    0.800000011920929,
+    1.7999999970197678,
+    2.6000000089406967,
+    2,
+    0.20000000298023224,
+    3.0999999940395355,
+    3.2999999970197678,
+    3.2999999970197678,
+    0.20000000298023224,
+    1.8999999910593033,
+    2.0999999940395355,
+    2.0999999940395355,
+    0.20000000298023224,
+    2.2999999970197678,
+    2.5,
+    2.5,
+    0.20000000298023224,
+    0.7000000029802322,
+    0.9000000059604645,
+    0.9000000059604645,
+    0.20000000298023224,
+    1,
+    1.2000000029802322,
+    1.0999999940395355,
+    0.09999999403953552,
+    1.2999999970197678,
+    1.3999999910593033,
+    1.5,
+    0.20000000298023224,
+    2.2000000029802322,
+    2.4000000059604645,
+    2.7999999970197678,
+    3,
+    0.7999999970197678,
+    0.20000000298023224,
+    1.2999999970197678,
+    0.5,
+    1.7999999970197678,
+    2.2999999970197678,
+    2.2999999970197678,
+    0.5,
+    1,
+    1.5,
+    1.1000000089406967,
+    0.10000000894069672,
+    0.7999999970197678,
+    0.9000000059604645,
+    0.8999999910593033,
+    0.09999999403953552,
+    0.7000000029802322,
+    0.7999999970197678,
+    0.800000011920929,
+    0.10000000894069672,
+    0.5999999940395355,
+    0.7000000029802322,
+    0.699999988079071,
+    0.09999999403953552,
+    0.7000000029802322,
+    0.7999999970197678,
+    0.9000000059604645,
+    0.20000000298023224,
+    0.5,
+    0.7000000029802322,
+    0.7000000029802322,
+    0.20000000298023224,
+    0.5999999940395355,
+    0.7999999970197678,
+    0.7000000029802322,
+    0.10000000894069672,
+    0.699999988079071,
+    0.7999999970197678,
+    0.7999999970197678,
+    0.10000000894069672,
+    0.5999999940395355,
+    0.7000000029802322,
+    0.7000000029802322,
+    0.10000000894069672,
+    0.5999999940395355,
+    0.7000000029802322,
+    0.7999999970197678,
+    0.20000000298023224,
+    0.8999999910593033,
+    1.0999999940395355,
+    1,
+    0.10000000894069672,
+    0.7000000029802322,
+    0.800000011920929,
+    0.7999999970197678,
+    0.09999999403953552,
+    0.7000000029802322,
+    0.7999999970197678,
+    0.7000000029802322,
+    0,
+    0.7000000029802322,
+    0.7000000029802322,
+    0.7999999970197678,
+    0.09999999403953552,
+    0.5999999940395355,
+    0.699999988079071,
+    0.7000000029802322,
+    0.10000000894069672,
+    0.7000000029802322,
+    0.800000011920929,
+    0.8999999910593033,
+    0.19999998807907104,
+    1.7000000029802322,
+    1.8999999910593033,
+    10.800000011920929,
+    9.100000008940697,
+    67.09999999403954,
+    76.20000000298023,
+    310.69999998807907,
+    243.59999999403954,
+    125,
+    368.59999999403954,
+    7906.800000011921,
+    7781.800000011921,
+    78.8999999910593,
+    7860.70000000298,
+    318.19999998807907,
+    239.29999999701977,
+    92,
+    331.29999999701977,
+    200.70000000298023,
+    108.70000000298023,
+    144.1000000089407,
+    252.80000001192093,
+    208.1000000089407,
+    64,
+    125.79999999701977,
+    189.79999999701977,
+    1201.3999999910593,
+    1075.5999999940395,
+    132.1000000089407,
+    1207.7000000029802,
+    170.5,
+    38.3999999910593,
+    197.70000000298023,
+    236.09999999403954,
+    348.70000000298023,
+    151,
+    127.40000000596046,
+    278.40000000596046,
+    422.40000000596046,
+    295,
+    140.19999998807907,
+    435.19999998807907,
+    395.09999999403954,
+    254.90000000596046,
+    129.40000000596046,
+    384.30000001192093,
+    152.59999999403954,
+    23.19999998807907,
+    156.30000001192093,
+    179.5
+  ],
+  "emotions": [
+    {
+      "timestamp": 16187,
+      "emotion": "happy",
+      "score": 87,
+      "allEmotions": {
+        "neutral": 12,
+        "happy": 87,
+        "sad": 0,
+        "angry": 1,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 16876,
+      "emotion": "neutral",
+      "score": 96,
+      "allEmotions": {
+        "neutral": 96,
+        "happy": 2,
+        "sad": 0,
+        "angry": 2,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 17530,
+      "emotion": "neutral",
+      "score": 71,
+      "allEmotions": {
+        "neutral": 71,
+        "happy": 29,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 18262,
+      "emotion": "neutral",
+      "score": 79,
+      "allEmotions": {
+        "neutral": 79,
+        "happy": 20,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 18938,
+      "emotion": "neutral",
+      "score": 84,
+      "allEmotions": {
+        "neutral": 84,
+        "happy": 16,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 19611,
+      "emotion": "neutral",
+      "score": 94,
+      "allEmotions": {
+        "neutral": 94,
+        "happy": 6,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 20258,
+      "emotion": "neutral",
+      "score": 90,
+      "allEmotions": {
+        "neutral": 90,
+        "happy": 10,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 20919,
+      "emotion": "happy",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 0,
+        "happy": 100,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 21557,
+      "emotion": "happy",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 0,
+        "happy": 100,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 22209,
+      "emotion": "happy",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 0,
+        "happy": 100,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 22853,
+      "emotion": "happy",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 0,
+        "happy": 100,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 23510,
+      "emotion": "happy",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 0,
+        "happy": 100,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 24155,
+      "emotion": "happy",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 0,
+        "happy": 100,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 24829,
+      "emotion": "happy",
+      "score": 99,
+      "allEmotions": {
+        "neutral": 1,
+        "happy": 99,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 25482,
+      "emotion": "happy",
+      "score": 98,
+      "allEmotions": {
+        "neutral": 1,
+        "happy": 98,
+        "sad": 0,
+        "angry": 1,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 26121,
+      "emotion": "happy",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 0,
+        "happy": 100,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 26776,
+      "emotion": "happy",
+      "score": 97,
+      "allEmotions": {
+        "neutral": 3,
+        "happy": 97,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 27425,
+      "emotion": "happy",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 0,
+        "happy": 100,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 28082,
+      "emotion": "neutral",
+      "score": 79,
+      "allEmotions": {
+        "neutral": 79,
+        "happy": 18,
+        "sad": 0,
+        "angry": 3,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 29333,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 29991,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 30759,
+      "emotion": "happy",
+      "score": 85,
+      "allEmotions": {
+        "neutral": 15,
+        "happy": 85,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 31433,
+      "emotion": "neutral",
+      "score": 96,
+      "allEmotions": {
+        "neutral": 96,
+        "happy": 3,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 32176,
+      "emotion": "neutral",
+      "score": 69,
+      "allEmotions": {
+        "neutral": 69,
+        "happy": 31,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 32841,
+      "emotion": "neutral",
+      "score": 95,
+      "allEmotions": {
+        "neutral": 95,
+        "happy": 5,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 33496,
+      "emotion": "neutral",
+      "score": 99,
+      "allEmotions": {
+        "neutral": 99,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 1
+      }
+    },
+    {
+      "timestamp": 34142,
+      "emotion": "neutral",
+      "score": 98,
+      "allEmotions": {
+        "neutral": 98,
+        "happy": 2,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 34809,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 35459,
+      "emotion": "neutral",
+      "score": 99,
+      "allEmotions": {
+        "neutral": 99,
+        "happy": 1,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 36120,
+      "emotion": "sad",
+      "score": 72,
+      "allEmotions": {
+        "neutral": 18,
+        "happy": 4,
+        "sad": 72,
+        "angry": 6,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 37367,
+      "emotion": "surprised",
+      "score": 75,
+      "allEmotions": {
+        "neutral": 12,
+        "happy": 1,
+        "sad": 5,
+        "angry": 4,
+        "fearful": 2,
+        "disgusted": 0,
+        "surprised": 75
+      }
+    },
+    {
+      "timestamp": 38026,
+      "emotion": "neutral",
+      "score": 77,
+      "allEmotions": {
+        "neutral": 77,
+        "happy": 9,
+        "sad": 8,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 5,
+        "surprised": 1
+      }
+    },
+    {
+      "timestamp": 38674,
+      "emotion": "neutral",
+      "score": 42,
+      "allEmotions": {
+        "neutral": 42,
+        "happy": 28,
+        "sad": 3,
+        "angry": 17,
+        "fearful": 3,
+        "disgusted": 0,
+        "surprised": 8
+      }
+    },
+    {
+      "timestamp": 39330,
+      "emotion": "angry",
+      "score": 27,
+      "allEmotions": {
+        "neutral": 20,
+        "happy": 1,
+        "sad": 15,
+        "angry": 27,
+        "fearful": 25,
+        "disgusted": 0,
+        "surprised": 12
+      }
+    },
+    {
+      "timestamp": 39970,
+      "emotion": "angry",
+      "score": 59,
+      "allEmotions": {
+        "neutral": 7,
+        "happy": 2,
+        "sad": 27,
+        "angry": 59,
+        "fearful": 3,
+        "disgusted": 0,
+        "surprised": 2
+      }
+    },
+    {
+      "timestamp": 40626,
+      "emotion": "neutral",
+      "score": 89,
+      "allEmotions": {
+        "neutral": 89,
+        "happy": 2,
+        "sad": 7,
+        "angry": 1,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 41273,
+      "emotion": "neutral",
+      "score": 55,
+      "allEmotions": {
+        "neutral": 55,
+        "happy": 1,
+        "sad": 42,
+        "angry": 2,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 41919,
+      "emotion": "neutral",
+      "score": 98,
+      "allEmotions": {
+        "neutral": 98,
+        "happy": 0,
+        "sad": 1,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 42567,
+      "emotion": "neutral",
+      "score": 97,
+      "allEmotions": {
+        "neutral": 97,
+        "happy": 3,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 43219,
+      "emotion": "neutral",
+      "score": 99,
+      "allEmotions": {
+        "neutral": 99,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 44504,
+      "emotion": "neutral",
+      "score": 97,
+      "allEmotions": {
+        "neutral": 97,
+        "happy": 1,
+        "sad": 1,
+        "angry": 1,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 45154,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 45801,
+      "emotion": "neutral",
+      "score": 99,
+      "allEmotions": {
+        "neutral": 99,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 1
+      }
+    },
+    {
+      "timestamp": 46441,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 47090,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 47744,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 48403,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 49049,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 49806,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 50468,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 51114,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 51762,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 52404,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 53090,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 53740,
+      "emotion": "neutral",
+      "score": 99,
+      "allEmotions": {
+        "neutral": 99,
+        "happy": 0,
+        "sad": 1,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 54383,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 55044,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 55693,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 56397,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 57049,
+      "emotion": "neutral",
+      "score": 99,
+      "allEmotions": {
+        "neutral": 99,
+        "happy": 0,
+        "sad": 1,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 57699,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 58348,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 59002,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 59649,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 60296,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 60938,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 61583,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 62229,
+      "emotion": "happy",
+      "score": 78,
+      "allEmotions": {
+        "neutral": 22,
+        "happy": 78,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 63477,
+      "emotion": "neutral",
+      "score": 98,
+      "allEmotions": {
+        "neutral": 98,
+        "happy": 2,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 64140,
+      "emotion": "neutral",
+      "score": 86,
+      "allEmotions": {
+        "neutral": 86,
+        "happy": 9,
+        "sad": 4,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 64792,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 65428,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 66079,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 66731,
+      "emotion": "neutral",
+      "score": 99,
+      "allEmotions": {
+        "neutral": 99,
+        "happy": 1,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 67373,
+      "emotion": "neutral",
+      "score": 90,
+      "allEmotions": {
+        "neutral": 90,
+        "happy": 9,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 68020,
+      "emotion": "neutral",
+      "score": 90,
+      "allEmotions": {
+        "neutral": 90,
+        "happy": 10,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 68672,
+      "emotion": "neutral",
+      "score": 95,
+      "allEmotions": {
+        "neutral": 95,
+        "happy": 5,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 69318,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 69975,
+      "emotion": "neutral",
+      "score": 97,
+      "allEmotions": {
+        "neutral": 97,
+        "happy": 3,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 70620,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 71265,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 71919,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 72560,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 73244,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 73915,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 74557,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 75292,
+      "emotion": "neutral",
+      "score": 99,
+      "allEmotions": {
+        "neutral": 99,
+        "happy": 0,
+        "sad": 1,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 75942,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 80446,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 84445,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 85323,
+      "emotion": "sad",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 0,
+        "happy": 0,
+        "sad": 100,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 86085,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 86756,
+      "emotion": "neutral",
+      "score": 99,
+      "allEmotions": {
+        "neutral": 99,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 87433,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    },
+    {
+      "timestamp": 88082,
+      "emotion": "neutral",
+      "score": 100,
+      "allEmotions": {
+        "neutral": 100,
+        "happy": 0,
+        "sad": 0,
+        "angry": 0,
+        "fearful": 0,
+        "disgusted": 0,
+        "surprised": 0
+      }
+    }
+  ],
+  "sessionDuration": 82267.79999999702,
+  "keystrokeCount": 48,
+  "timestamp": "2025-04-28T22:04:34.498Z",
+  "context": "webcam"
+}
