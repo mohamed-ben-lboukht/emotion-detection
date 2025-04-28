@@ -183,15 +183,22 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Veuillez taper au moins 10 caractères avant de sauvegarder');
       return;
     }
-    const emotions = await askEmotions();
-    // Correction : timings = tableau de valeurs simples
+    let emotions;
+    if (type === 'webcam') {
+      // Récupérer les émotions détectées automatiquement par la webcam
+      const webcamData = webcamKeystrokeTracker.getData();
+      emotions = webcamData.emotionTimeline || [];
+    } else {
+      // Demander les émotions à l'utilisateur (manuel ou musique)
+      emotions = await askEmotions();
+    }
     const timings = keystrokeData.keystrokeData.map(entry => entry.timeMs);
     const data = {
       userId: getUserUUID(),
       sessionId: generateUUIDv4(),
       deviceInfo: getDeviceInfo(),
-      cameraActive: (type === 'webcam_typing'),
-      musicId: (type === 'music_typing' ? (window.musicHandler?.getCurrentMusic?.() || 'None') : 'None'),
+      cameraActive: (type === 'webcam'),
+      musicId: (type === 'music' ? (window.musicHandler?.getCurrentMusic?.() || 'None') : 'None'),
       text: keystrokeData.text,
       timings,
       emotions,
