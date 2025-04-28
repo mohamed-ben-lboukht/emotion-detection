@@ -333,40 +333,55 @@ footer {
   }
 }
 
-/* Emotion debug panel */
+/* Badge for options */
+.badge {
+  display: inline-block;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+/* Improved emotion debug panel */
 .emotion-debug-panel {
   background-color: rgba(0,0,0,0.8);
   color: white;
-  padding: 12px;
-  margin: 15px 0;
-  border-radius: 6px;
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 8px;
   font-family: monospace;
   max-width: 400px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 .emotion-debug-panel .emotion-bar {
-  margin: 5px 0;
+  margin: 8px 0;
 }
 
 .emotion-debug-panel .emotion-bar-label {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
 .emotion-debug-panel .emotion-bar-track {
   background-color: #444;
   width: 100%;
-  height: 10px;
-  border-radius: 5px;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .emotion-debug-panel .emotion-bar-fill {
   height: 100%;
-  border-radius: 5px;
+  border-radius: 6px;
+  transition: width 0.3s ease;
 }
 
-/* Emotion summary modal */
+/* Improved Emotion summary modal */
 #emotion-summary-modal {
   display: flex;
   position: fixed;
@@ -374,28 +389,43 @@ footer {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.7);
   z-index: 1000;
   justify-content: center;
   align-items: center;
+  backdrop-filter: blur(3px);
 }
 
 #emotion-summary-modal .modal-content {
   background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  max-width: 500px;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+  max-width: 550px;
   width: 90%;
 }
 
 #emotion-summary-modal h2 {
   color: #333;
   margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
 }
 
 #emotion-summary-modal .emotion-stat {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+/* Animation for emotion bars */
+@keyframes grow-bar {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+#emotion-summary-modal .emotion-bar-fill {
+  animation: grow-bar 1s ease;
 }
 
 #emotion-summary-modal .emotion-header {

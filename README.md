@@ -1,10 +1,101 @@
-# Emotion Tracker
+# Keystroke Dynamics & Emotion Detection
 
-A simple web application for tracking emotions and keystroke patterns. This application allows users to record their keystroke data while expressing emotions in three different ways:
+Ce projet collecte et analyse les dynamiques de frappe au clavier, avec une option de détection automatique des émotions via webcam dans le mode dédié.
 
-1. **Manual Tracking**: Type freely and manually select your emotional state
-2. **Music-Based Tracking**: Listen to different music tracks and rate your emotional responses
-3. **Webcam Tracking**: Use webcam-based facial expression detection to track emotions while typing
+## Fonctionnalités
+
+- **Collecte des dynamiques de frappe** (temps entre les touches, durée d'appui, etc.)
+- **Trois modes de collecte** :
+  - Frappe libre avec saisie manuelle des émotions
+  - Frappe avec contexte musical et saisie manuelle des émotions
+  - Frappe avec caméra et **détection automatique des émotions** via webcam
+- **Visualisation des données** collectées
+- **Stockage local** des données au format JSON
+
+## Structure du projet
+
+```
+emotion-detection/
+├── server.js            # Serveur Node.js simple
+├── index.html           # Interface utilisateur principale
+├── js/
+│   ├── emotions.js      # Logique de traitement des émotions
+│   ├── keystroke.js     # Collecte des dynamiques de frappe
+│   ├── webcam.js        # Gestion de la webcam et détection faciale
+│   ├── main.js          # Logique principale de l'application
+│   └── lib/
+│       └── face-api.min.js  # Bibliothèque de détection faciale
+├── css/
+│   └── styles.css       # Styles de l'interface
+├── models/
+│   └── face-api-models/ # Modèles de détection d'émotions
+└── data/                # Stockage des données collectées
+    └── sessions/        # Sessions individuelles enregistrées
+```
+
+## Installation
+
+1. Clonez ce dépôt
+2. Assurez-vous d'avoir Node.js installé
+3. Lancez le serveur avec :
+   ```
+   ./start.sh
+   ```
+   ou
+   ```
+   node server.js
+   ```
+4. Ouvrez http://localhost:3000 dans votre navigateur
+
+## Comment utiliser
+
+1. Choisissez un mode de collecte :
+   - **Free Typing** : Frappe libre avec saisie manuelle des émotions
+   - **Music Context** : Frappe avec musique et saisie manuelle des émotions
+   - **Camera Context** : Frappe avec détection automatique des émotions par webcam
+
+2. Si vous choisissez le mode caméra, accordez l'accès à la webcam quand demandé
+
+3. Commencez à taper dans la zone de texte
+
+4. Sauvegardez vos données en cliquant sur "Save Data"
+   - Dans les modes sans caméra, vous devrez indiquer manuellement vos émotions
+   - Dans le mode caméra, un résumé des émotions détectées sera affiché
+
+5. Consultez les données collectées via le bouton "View Your Data"
+
+## Fonctionnement technique
+
+### Détection d'émotions (mode caméra uniquement)
+L'application utilise face-api.js pour détecter les émotions à partir du flux vidéo de la webcam. Les modèles détectent les expressions faciales et extraient les émotions dominantes (joie, tristesse, colère, surprise, peur, dégoût, neutralité).
+
+### Dynamiques de frappe
+L'application collecte :
+- Temps entre les pressions de touche
+- Durée d'appui sur chaque touche
+- Vitesse de frappe globale
+- Motifs de frappe spécifiques
+
+### Stockage des données
+Les données sont stockées localement en format JSON et peuvent être téléchargées pour analyse ultérieure.
+
+## Respect de la vie privée
+
+- Aucune donnée n'est envoyée à des serveurs externes
+- Les données sont stockées uniquement localement
+- La caméra n'est activée que si vous choisissez expressément le mode caméra
+- Les utilisateurs doivent donner leur consentement pour la collecte
+
+## Dépendances
+
+- face-api.js - Détection faciale et analyse des émotions
+- Node.js - Serveur local
+- SQLite (via better-sqlite3) - Stockage de données
+
+## Scripts utilitaires
+
+- **start.sh** : Démarre l'application simplement
+- **backup_data.sh** : Sauvegarde les données collectées
 
 ## Setup Instructions
 

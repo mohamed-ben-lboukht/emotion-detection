@@ -63,10 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const musicHandler = new MusicHandler();
   const webcamTracker = new WebcamTracker();
   
-  // Global emotion detection - initialize webcam tracker that will be used for all modes
-  const globalEmotionTracker = new WebcamTracker();
-  globalEmotionTracker.debugPanel.style.display = 'none'; // Hide debug panel for global emotion tracking
-  
   // Get DOM elements
   const optionCards = document.querySelectorAll('.option-card');
   const sections = document.querySelectorAll('.tracking-section');
@@ -86,14 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // Hide main options
       document.querySelector('.options').classList.add('hidden');
       
-      // Initialize emotion detection for all modes
-      if (optionId === 'manual-option' || optionId === 'music-option') {
-        // For manual and music, use global emotion tracker if not already active
-        if (!globalEmotionTracker.isActive) {
-          globalEmotionTracker.initialize();
-        }
-      }
-      
       // Show appropriate section based on option selected
       if (optionId === 'manual-option') {
         targetSection = document.getElementById('manual-tracking');
@@ -101,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         targetSection = document.getElementById('music-tracking');
       } else if (optionId === 'webcam-option') {
         targetSection = document.getElementById('webcam-tracking');
-        // Initialize webcam for webcam mode
+        // Initialize webcam for webcam mode only
         webcamTracker.initialize();
       }
       
@@ -124,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Stop webcam if active
       webcamTracker.stop();
-      globalEmotionTracker.stop();
       
       // Stop music if playing
       musicHandler.stopMusic();
@@ -214,15 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
       
       emotions = webcamData.emotionTimeline || [];
     } else {
-      // Pour les modes manual et music, utiliser la détection faciale globale si active
-      if (globalEmotionTracker.isActive && globalEmotionTracker.emotionTimeline.length > 0) {
-        const confirmSave = await showEmotionSummary(globalEmotionTracker.emotionTimeline);
-        if (!confirmSave) return; // User cancelled the save
-        emotions = globalEmotionTracker.emotionTimeline;
-      } else {
-        // Sinon, demander les émotions manuellement
-        emotions = await askEmotions();
-      }
+      // Pour les modes manual et music, on demande toujours les émotions manuellement
+      emotions = await askEmotions();
     }
     
     // Convert array of emotions to format expected by the server for webcam mode
@@ -240,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
       userId: getUserUUID(),
       sessionId: generateUUIDv4(),
       deviceInfo: getDeviceInfo(),
-      cameraActive: (type === 'webcam' || globalEmotionTracker.isActive),
+      cameraActive: (type === 'webcam'), // Caméra active uniquement en mode webcam
       musicId: (type === 'music' ? (window.musicHandler?.getCurrentMusic?.() || 'None') : 'None'),
       text: keystrokeData.text,
       timings,
@@ -263,9 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (result.success) {
         alert('Session sauvegardée avec succès !');
         tracker.reset();
-        if (type !== 'webcam') {
-          globalEmotionTracker.reset(); // Reset global emotion tracker
-        } else {
+        if (type === 'webcam') {
           webcamTracker.reset();
         }
       } else {

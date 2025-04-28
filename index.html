@@ -12,12 +12,12 @@
     <div class="modal-content">
       <h2>Consentement à la collecte de données</h2>
       <p>Cette application collecte uniquement des données anonymes sur votre comportement de frappe (dynamique de frappe).<br>
-      <strong>Aucune information personnelle, image ou audio n'est enregistrée.</strong><br>
+      <strong>Aucune information personnelle n'est enregistrée. La caméra ne sera utilisée que si vous activez le mode caméra.</strong><br>
       Les données collectées incluent :
         <ul>
           <li>Horodatages des touches pressées et relâchées</li>
           <li>Durées de maintien et intervalles entre frappes</li>
-          <li>Contexte musical ou caméra (si activé)</li>
+          <li>Détection d'émotions via caméra (uniquement en mode caméra)</li>
           <li>Informations techniques sur l'appareil (navigateur, OS, taille écran)</li>
         </ul>
       Elles sont stockées localement ou de façon sécurisée, et ne servent qu'à des fins de recherche comportementale.<br>
@@ -46,7 +46,8 @@
         
         <div class="option-card" id="webcam-option">
           <h2>Camera Context Typing</h2>
-          <p>Type with camera active to correlate visual context</p>
+          <p>Type with visible camera feed to correlate visual context</p>
+          <span class="badge">With emotion detection</span>
         </div>
       </div>
     </main>
@@ -111,7 +112,7 @@
       <h2>Camera Context Typing</h2>
       <div class="keystroke-info">
         <p>Type while camera is active. Your typing patterns will be recorded along with a video feed reference.</p>
-        <p><em>Note: No emotion analysis is performed yet - the camera feed is purely for future correlation.</em></p>
+        <p><em>This mode shows the camera feed and emotion detection statistics in real-time.</em></p>
       </div>
       <div class="webcam-container">
         <video id="webcam" autoplay muted></video>
