@@ -11,10 +11,10 @@ class MusicHandler {
     this.playbackStartTime = null;
     
     this.musicMappings = {
-      'happy': 'assets/music/happy.mp3',
-      'sad': 'assets/music/sad.mp3',
-      'energetic': 'assets/music/energetic.mp3',
-      'calm': 'assets/music/calm.mp3'
+      'happy': 'css/assets/music/happy.mp3',
+      'sad': 'css/assets/music/sad.mp3',
+      'energetic': 'css/assets/music/energetic.mp3',
+      'calm': 'css/assets/music/calm.mp3'
     };
     
     this.playbackHistory = [];
