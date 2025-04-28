@@ -1,26 +1,14 @@
 /**
- * Emotions and Music Module
+ * Music Playback Module
  * 
- * Handles playing music samples and tracking emotion data
+ * Handles playing music samples while user is typing
  */
 
-class EmotionsHandler {
+class MusicHandler {
   constructor() {
     this.currentAudio = null;
-    this.emotions = {
-      happy: 0,
-      sad: 0,
-      anger: 0,
-      fear: 0
-    };
-    
-    this.manualEmotions = {
-      happy: 0,
-      sad: 0,
-      anger: 0,
-      fear: 0,
-      surprise: 0
-    };
+    this.currentMusicType = null;
+    this.playbackStartTime = null;
     
     this.musicMappings = {
       'happy': 'assets/music/happy.mp3',
@@ -29,20 +17,12 @@ class EmotionsHandler {
       'calm': 'assets/music/calm.mp3'
     };
     
+    this.playbackHistory = [];
+    
     this.initEventListeners();
   }
   
   initEventListeners() {
-    // Set up slider value displays for music section
-    document.querySelectorAll('.music-tracking .slider-group input[type="range"]').forEach(slider => {
-      this.setupSlider(slider, 'emotions');
-    });
-    
-    // Set up slider value displays for manual section
-    document.querySelectorAll('#manual-tracking .slider-group input[type="range"]').forEach(slider => {
-      this.setupSlider(slider, 'manualEmotions');
-    });
-    
     // Set up music play buttons
     document.querySelectorAll('.play-button').forEach(button => {
       button.addEventListener('click', () => {
@@ -52,42 +32,25 @@ class EmotionsHandler {
     });
   }
   
-  setupSlider(slider, emotionType) {
-    const valueDisplay = slider.nextElementSibling;
-    
-    slider.addEventListener('input', () => {
-      valueDisplay.textContent = `${slider.value}%`;
-      
-      // Update the emotions object
-      const emotionName = slider.id.split('-')[0];
-      if (emotionType === 'emotions' && emotionName in this.emotions) {
-        this.emotions[emotionName] = parseInt(slider.value);
-      } else if (emotionType === 'manualEmotions') {
-        const emotionName = slider.id.split('-')[1];
-        if (emotionName in this.manualEmotions) {
-          this.manualEmotions[emotionName] = parseInt(slider.value);
-        }
-      }
-    });
-  }
-  
   playMusic(musicType) {
     // Stop any currently playing music
     if (this.currentAudio) {
-      this.currentAudio.pause();
-      this.currentAudio = null;
+      this.stopMusic();
     }
     
     // Create and play the new audio
     if (musicType in this.musicMappings) {
       const audio = new Audio(this.musicMappings[musicType]);
       audio.loop = true;
+      
       audio.play().catch(error => {
         console.error('Error playing audio:', error);
         alert('Could not play the music. Please check if the audio file exists.');
       });
       
       this.currentAudio = audio;
+      this.currentMusicType = musicType;
+      this.playbackStartTime = new Date().toISOString();
       
       // Update the UI to show which music is playing
       document.querySelectorAll('.music-item').forEach(item => {
@@ -97,67 +60,71 @@ class EmotionsHandler {
           item.classList.remove('playing');
         }
       });
+      
+      // Update currently playing text
+      const currentlyPlayingDiv = document.querySelector('.currently-playing');
+      if (currentlyPlayingDiv) {
+        currentlyPlayingDiv.textContent = `Currently playing: ${this.getMusicTypeName(musicType)}`;
+      }
     }
   }
   
   stopMusic() {
     if (this.currentAudio) {
+      // Record the playback session
+      if (this.currentMusicType && this.playbackStartTime) {
+        this.playbackHistory.push({
+          musicType: this.currentMusicType,
+          startTime: this.playbackStartTime,
+          endTime: new Date().toISOString()
+        });
+      }
+      
       this.currentAudio.pause();
       this.currentAudio = null;
+      this.currentMusicType = null;
       
       // Update UI to show no music is playing
       document.querySelectorAll('.music-item').forEach(item => {
         item.classList.remove('playing');
       });
+      
+      // Update currently playing text
+      const currentlyPlayingDiv = document.querySelector('.currently-playing');
+      if (currentlyPlayingDiv) {
+        currentlyPlayingDiv.textContent = 'No music playing';
+      }
     }
   }
   
-  getEmotionData() {
-    return this.emotions;
-  }
-  
-  getManualEmotionData() {
-    return this.manualEmotions;
-  }
-  
-  // Check if at least one emotion is set to a non-zero value
-  validateEmotions(emotionObj) {
-    return Object.values(emotionObj).some(value => value > 0);
-  }
-  
-  resetEmotions() {
-    this.emotions = {
-      happy: 0,
-      sad: 0,
-      anger: 0,
-      fear: 0
+  getMusicTypeName(musicType) {
+    const names = {
+      'happy': 'Upbeat Music',
+      'sad': 'Melancholic Music',
+      'energetic': 'Energetic Music',
+      'calm': 'Calm Music'
     };
     
-    // Reset all sliders to 0
-    document.querySelectorAll('#music-tracking .slider-group input[type="range"]').forEach(slider => {
-      slider.value = 0;
-      slider.nextElementSibling.textContent = '0%';
-    });
-    
+    return names[musicType] || musicType;
+  }
+  
+  getCurrentMusic() {
+    return this.currentMusicType;
+  }
+  
+  getData() {
+    return {
+      currentMusicType: this.currentMusicType,
+      playbackStartTime: this.playbackStartTime,
+      playbackHistory: this.playbackHistory
+    };
+  }
+  
+  reset() {
     this.stopMusic();
-  }
-  
-  resetManualEmotions() {
-    this.manualEmotions = {
-      happy: 0,
-      sad: 0,
-      anger: 0,
-      fear: 0,
-      surprise: 0
-    };
-    
-    // Reset all sliders to 0
-    document.querySelectorAll('#manual-tracking .slider-group input[type="range"]').forEach(slider => {
-      slider.value = 0;
-      slider.nextElementSibling.textContent = '0%';
-    });
+    this.playbackHistory = [];
   }
 }
 
-// Export the EmotionsHandler
-window.EmotionsHandler = EmotionsHandler; 
+// Export the MusicHandler
+window.MusicHandler = window.EmotionsHandler = MusicHandler; // Keep EmotionsHandler for backward compatibility

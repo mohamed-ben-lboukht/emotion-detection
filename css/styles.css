@@ -277,6 +277,44 @@ button:hover {
   background-color: #dc3545;
 }
 
+/* Modal RGPD et émotions */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal.hidden {
+  display: none;
+}
+.modal-content {
+  background: #fff;
+  border-radius: 8px;
+  padding: 30px 25px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  min-width: 320px;
+  max-width: 90vw;
+  text-align: center;
+}
+#emotion-form label {
+  display: block;
+  margin: 18px 0 8px 0;
+  font-weight: 500;
+}
+#emotion-form input[type=range] {
+  width: 60%;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+#emotion-form button[type=submit] {
+  margin-top: 20px;
+  padding: 10px 30px;
+  font-size: 1.1em;
+}
+
 /* Footer */
 footer {
   margin-top: 30px;
@@ -293,4 +331,4 @@ footer {
   .option-card {
     width: 100%;
   }
-} 
+}

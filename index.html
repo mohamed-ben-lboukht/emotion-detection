@@ -3,82 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emotion Tracker</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self';">
+  <title>Keystroke Dynamics Collector</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <!-- Modal de consentement RGPD -->
+  <div id="consent-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Consentement à la collecte de données</h2>
+      <p>Cette application collecte uniquement des données anonymes sur votre comportement de frappe (dynamique de frappe).<br>
+      <strong>Aucune information personnelle, image ou audio n'est enregistrée.</strong><br>
+      Les données collectées incluent :
+        <ul>
+          <li>Horodatages des touches pressées et relâchées</li>
+          <li>Durées de maintien et intervalles entre frappes</li>
+          <li>Contexte musical ou caméra (si activé)</li>
+          <li>Informations techniques sur l'appareil (navigateur, OS, taille écran)</li>
+        </ul>
+      Elles sont stockées localement ou de façon sécurisée, et ne servent qu'à des fins de recherche comportementale.<br>
+      En continuant, vous acceptez cette collecte anonyme.</p>
+      <button id="accept-consent">J'accepte</button>
+    </div>
+  </div>
+
   <div class="container">
     <header>
-      <h1>Emotion Tracker</h1>
-      <p>Track your emotions and keystroke patterns</p>
+      <h1>Keystroke Dynamics Collector</h1>
+      <p>Analyse your typing patterns under different contexts</p>
     </header>
 
     <main>
       <div class="options">
         <div class="option-card" id="manual-option">
-          <h2>Manual Tracking</h2>
-          <p>Type freely and declare your emotions directly</p>
+          <h2>Free Typing</h2>
+          <p>Type freely to record your keystroke dynamics</p>
         </div>
         
         <div class="option-card" id="music-option">
-          <h2>Music-Based Tracking</h2>
-          <p>Listen to different tracks and select emotions they evoke</p>
+          <h2>Music Context Typing</h2>
+          <p>Type while listening to different music styles</p>
         </div>
         
         <div class="option-card" id="webcam-option">
-          <h2>Webcam Tracking</h2>
-          <p>Use your camera to detect emotions while typing</p>
+          <h2>Camera Context Typing</h2>
+          <p>Type with camera active to correlate visual context</p>
         </div>
       </div>
     </main>
 
     <section id="manual-tracking" class="tracking-section hidden">
       <button class="back-button">← Back</button>
-      <h2>Manual Emotion Tracking</h2>
-      <textarea id="typing-area" placeholder="Start typing here to record your keystrokes..."></textarea>
-      <div class="emotion-selection">
-        <h3>How do you feel? (Set percentages for each emotion)</h3>
-        <div class="emotion-sliders">
-          <div class="slider-group">
-            <label for="manual-happy-slider">Happy:</label>
-            <input type="range" id="manual-happy-slider" min="0" max="100" value="0">
-            <span class="slider-value">0%</span>
-          </div>
-          <div class="slider-group">
-            <label for="manual-sad-slider">Sad:</label>
-            <input type="range" id="manual-sad-slider" min="0" max="100" value="0">
-            <span class="slider-value">0%</span>
-          </div>
-          <div class="slider-group">
-            <label for="manual-anger-slider">Anger:</label>
-            <input type="range" id="manual-anger-slider" min="0" max="100" value="0">
-            <span class="slider-value">0%</span>
-          </div>
-          <div class="slider-group">
-            <label for="manual-fear-slider">Fear:</label>
-            <input type="range" id="manual-fear-slider" min="0" max="100" value="0">
-            <span class="slider-value">0%</span>
-          </div>
-          <div class="slider-group">
-            <label for="manual-surprise-slider">Surprise:</label>
-            <input type="range" id="manual-surprise-slider" min="0" max="100" value="0">
-            <span class="slider-value">0%</span>
-          </div>
-        </div>
+      <h2>Free Typing - Keystroke Collection</h2>
+      <div class="keystroke-info">
+        <p>This session will record:</p>
+        <ul>
+          <li>Key press times</li>
+          <li>Key release times</li>
+          <li>Press-to-release durations</li>
+          <li>Release-to-release intervals</li>
+        </ul>
+      </div>
+      <textarea id="typing-area" placeholder="Start typing here to record your keystroke dynamics..."></textarea>
+      <div class="typing-metrics">
+        <div id="typing-speed">Typing Speed: 0 CPM</div>
+        <div id="keystroke-count">Keystrokes: 0</div>
       </div>
       <button id="save-manual" class="save-button">Save Data</button>
     </section>
 
     <section id="music-tracking" class="tracking-section hidden">
       <button class="back-button">← Back</button>
-      <h2>Music-Based Emotion Tracking</h2>
+      <h2>Music Context Typing</h2>
+      <div class="keystroke-info">
+        <p>Type while different music styles play to analyze how music affects your typing patterns</p>
+      </div>
       <div class="music-selection">
         <div class="music-item" data-music="happy">
-          <p>Happy Music</p>
+          <p>Upbeat Music</p>
           <button class="play-button">Play</button>
         </div>
         <div class="music-item" data-music="sad">
-          <p>Sad Music</p>
+          <p>Melancholic Music</p>
           <button class="play-button">Play</button>
         </div>
         <div class="music-item" data-music="energetic">
@@ -91,53 +97,53 @@
         </div>
       </div>
       
-      <div class="emotion-sliders">
-        <div class="slider-group">
-          <label for="happy-slider">Happy:</label>
-          <input type="range" id="happy-slider" min="0" max="100" value="0">
-          <span class="slider-value">0%</span>
-        </div>
-        <div class="slider-group">
-          <label for="sad-slider">Sad:</label>
-          <input type="range" id="sad-slider" min="0" max="100" value="0">
-          <span class="slider-value">0%</span>
-        </div>
-        <div class="slider-group">
-          <label for="anger-slider">Anger:</label>
-          <input type="range" id="anger-slider" min="0" max="100" value="0">
-          <span class="slider-value">0%</span>
-        </div>
-        <div class="slider-group">
-          <label for="fear-slider">Fear:</label>
-          <input type="range" id="fear-slider" min="0" max="100" value="0">
-          <span class="slider-value">0%</span>
-        </div>
-      </div>
+      <div class="currently-playing">No music playing</div>
       
-      <textarea id="music-typing-area" placeholder="Type your thoughts while listening to the music..."></textarea>
+      <textarea id="music-typing-area" placeholder="Type here while listening to music..."></textarea>
+      <div class="typing-metrics">
+        <div id="music-typing-speed">Typing Speed: 0 CPM</div>
+        <div id="music-keystroke-count">Keystrokes: 0</div>
+      </div>
       <button id="save-music" class="save-button">Save Data</button>
     </section>
 
     <section id="webcam-tracking" class="tracking-section hidden">
       <button class="back-button">← Back</button>
-      <h2>Webcam Emotion Detection</h2>
+      <h2>Camera Context Typing</h2>
+      <div class="keystroke-info">
+        <p>Type while camera is active. Your typing patterns will be recorded along with a video feed reference.</p>
+        <p><em>Note: No emotion analysis is performed yet - the camera feed is purely for future correlation.</em></p>
+      </div>
       <div class="webcam-container">
         <video id="webcam" autoplay muted></video>
         <p id="detection-status">Waiting for camera permission...</p>
-        <div id="detected-emotion">No emotion detected</div>
       </div>
-      <textarea id="webcam-typing-area" placeholder="Type here while we analyze your expressions..."></textarea>
+      <textarea id="webcam-typing-area" placeholder="Type here while camera is active..."></textarea>
+      <div class="typing-metrics">
+        <div id="webcam-typing-speed">Typing Speed: 0 CPM</div>
+        <div id="webcam-keystroke-count">Keystrokes: 0</div>
+      </div>
       <button id="save-webcam" class="save-button">Save Data</button>
     </section>
 
     <section id="data-view" class="tracking-section hidden">
       <button class="back-button">← Back</button>
-      <h2>Your Collected Data</h2>
+      <h2>Your Collected Keystroke Data</h2>
+      <div class="session-selector">
+        <select id="session-select">
+          <option value="">Select a session</option>
+        </select>
+        <button id="download-data">Download Selected Data</button>
+      </div>
       <div id="data-display"></div>
+      <div id="data-visualization"></div>
     </section>
 
     <footer>
       <button id="view-data">View Your Data</button>
+      <div class="privacy-note">
+        <small>Data is stored locally on this device. <a href="#" id="privacy-link">Privacy Information</a></small>
+      </div>
     </footer>
   </div>
 
@@ -146,4 +152,4 @@
   <script src="js/webcam.js"></script>
   <script src="js/main.js"></script>
 </body>
-</html> 
+</html>

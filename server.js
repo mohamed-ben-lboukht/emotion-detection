@@ -64,38 +64,86 @@ function initializeCSVFiles() {
 // Initialize CSV files at startup
 initializeCSVFiles();
 
+// Mapping des nouveaux types vers les anciens pour compatibilité
+function mapType(type) {
+  if (type === 'free_typing') return 'manual';
+  if (type === 'music_typing') return 'music';
+  if (type === 'webcam_typing') return 'webcam';
+  return type;
+}
+
+// --- Sécurité et validation avancée pour la collecte de données ---
+const MAX_BODY_SIZE = 512 * 1024; // 512 Ko max par requête
+
+function isValidUUID(uuid) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(uuid);
+}
+
+function sanitizeText(text) {
+  if (typeof text !== 'string') return '';
+  return text.replace(/[\u0000-\u001F\u007F-\u009F<>"'\\]/g, '');
+}
+
+function validateAndSanitizeData(type, data) {
+  // Champs obligatoires
+  if (!data || typeof data !== 'object') throw new Error('Invalid data');
+  if (!isValidUUID(data.userId)) throw new Error('Invalid userId');
+  if (!isValidUUID(data.sessionId)) throw new Error('Invalid sessionId');
+  if (!data.deviceInfo || typeof data.deviceInfo !== 'object') throw new Error('Missing deviceInfo');
+  // Accepte timings OU keystrokeData
+  if (!Array.isArray(data.keystrokeData) && !Array.isArray(data.timings)) throw new Error('Missing keystrokeData or timings');
+  if (typeof data.cameraActive !== 'boolean') throw new Error('Missing cameraActive');
+  if (typeof data.musicId !== 'string') throw new Error('Missing musicId');
+
+  // Sanitize text
+  data.text = sanitizeText(data.text || '');
+  // Sanitize keystrokeData si présent
+  if (Array.isArray(data.keystrokeData)) {
+    data.keystrokeData = data.keystrokeData.map(entry => {
+      return {
+        ...entry,
+        key: sanitizeText(entry.key || ''),
+      };
+    });
+  }
+  return data;
+}
+
 // Convert JSON data to CSV format
 function jsonToCSVRows(data, type) {
   let rows = [];
-  
+  // Valeurs par défaut pour émotions
+  const emotions = {
+    happy: (data.emotions && data.emotions.happy) || '',
+    sad: (data.emotions && data.emotions.sad) || '',
+    anger: (data.emotions && data.emotions.anger) || '',
+    fear: (data.emotions && data.emotions.fear) || '',
+    surprise: (data.emotions && data.emotions.surprise) || ''
+  };
   if (type === 'manual') {
-    // Add keystroke data rows
     data.keystrokeData.forEach(entry => {
-      let row = `${data.timestamp},${data.emotions.happy},${data.emotions.sad},${data.emotions.anger},${data.emotions.fear},${data.emotions.surprise},"${data.text.replace(/"/g, '""')}",`;
+      let row = `${data.timestamp},${emotions.happy},${emotions.sad},${emotions.anger},${emotions.fear},${emotions.surprise},"${data.text ? data.text.replace(/"/g, '""') : ''}",`;
       row += `${entry.type},`;
       row += `${entry.key1 || ''},${entry.key2 || ''},${entry.timeMs}\n`;
       rows.push(row);
     });
   } 
   else if (type === 'music') {
-    // Add keystroke data rows
     data.keystrokeData.forEach(entry => {
-      let row = `${data.timestamp},${data.emotions.happy},${data.emotions.sad},${data.emotions.anger},${data.emotions.fear},"${data.text.replace(/"/g, '""')}",`;
+      let row = `${data.timestamp},${emotions.happy},${emotions.sad},${emotions.anger},${emotions.fear},"${data.text ? data.text.replace(/"/g, '""') : ''}",`;
       row += `${entry.type},`;
       row += `${entry.key1 || ''},${entry.key2 || ''},${entry.timeMs}\n`;
       rows.push(row);
     });
   }
   else if (type === 'webcam') {
-    // Add keystroke data rows
     data.keystrokeData.forEach(entry => {
-      let row = `${data.timestamp},${data.emotionData.currentEmotion},"${data.text.replace(/"/g, '""')}",`;
+      let row = `${data.timestamp},${(data.emotionData && data.emotionData.currentEmotion) || ''},"${data.text ? data.text.replace(/"/g, '""') : ''}",`;
       row += `${entry.type},`;
       row += `${entry.key1 || ''},${entry.key2 || ''},${entry.timeMs}\n`;
       rows.push(row);
     });
   }
-  
   return rows.join('');
 }
 
@@ -112,6 +160,18 @@ function appendToCSV(data, type) {
   }
 }
 
+// --- Stockage par fichier JSON individuel (1 fichier par session) ---
+function saveSessionToJSONFile(type, data) {
+  const sessionDir = path.join(DATA_DIR, 'sessions');
+  if (!fs.existsSync(sessionDir)) {
+    fs.mkdirSync(sessionDir);
+  }
+  const filename = `${data.sessionId}_${type}_${Date.now()}.json`;
+  const filepath = path.join(sessionDir, filename);
+  fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
+  return filepath;
+}
+
 const server = http.createServer((req, res) => {
   console.log(`${req.method} ${req.url}`);
   
@@ -121,18 +181,27 @@ const server = http.createServer((req, res) => {
     
     req.on('data', chunk => {
       body += chunk.toString();
+      if (body.length > MAX_BODY_SIZE) {
+        res.writeHead(413, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ 
+          success: false, 
+          message: 'Request body too large' 
+        }));
+        req.destroy();
+      }
     });
     
     req.on('end', () => {
       try {
-        const { type, data } = JSON.parse(body);
-        const filename = appendToCSV(data, type);
-        
+        let { type, data } = JSON.parse(body);
+        type = mapType(type); // Correction ici
+        const sanitizedData = validateAndSanitizeData(type, data);
+        const filepath = saveSessionToJSONFile(type, sanitizedData); // Sauvegarde fichier JSON
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ 
           success: true, 
-          message: 'Data saved successfully',
-          filename: path.basename(filename)
+          message: 'Data saved successfully in JSON file',
+          filename: filepath
         }));
       } catch (error) {
         console.error('Error processing save request:', error);
@@ -234,4 +303,4 @@ server.listen(PORT, () => {
   console.log(`- Music tracking: ${CSV_FILES.music}`);
   console.log(`- Webcam tracking: ${CSV_FILES.webcam}`);
   console.log('Press Ctrl+C to stop the server');
-}); 
+});

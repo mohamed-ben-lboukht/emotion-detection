@@ -1,13 +1,66 @@
 /**
- * Main Application Logic
+ * Main Application Logic for Keystroke Dynamics Collector
  */
 
+// --- Gestion du consentement utilisateur et UUID anonyme ---
+function generateUUIDv4() {
+  // Générateur simple d'UUIDv4
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
+}
+
+function showConsentModal() {
+  const modal = document.getElementById('consent-modal');
+  if (modal) modal.classList.remove('hidden');
+  document.body.classList.add('modal-open');
+}
+
+function hideConsentModal() {
+  const modal = document.getElementById('consent-modal');
+  if (modal) modal.classList.add('hidden');
+  document.body.classList.remove('modal-open');
+}
+
+function ensureConsentAndUUID() {
+  const consentKey = 'keystroke_consent_accepted';
+  const uuidKey = 'keystroke_user_uuid';
+  const accepted = localStorage.getItem(consentKey);
+  if (!accepted) {
+    showConsentModal();
+    // Bloque l'UI tant que pas accepté
+    document.querySelectorAll('.option-card, .back-button, .save-button, #view-data').forEach(el => {
+      el.setAttribute('disabled', 'true');
+    });
+    document.getElementById('accept-consent').onclick = () => {
+      localStorage.setItem(consentKey, 'yes');
+      hideConsentModal();
+      // Génère un UUID si pas déjà fait
+      if (!localStorage.getItem(uuidKey)) {
+        localStorage.setItem(uuidKey, generateUUIDv4());
+      }
+      // Débloque l'UI
+      document.querySelectorAll('.option-card, .back-button, .save-button, #view-data').forEach(el => {
+        el.removeAttribute('disabled');
+      });
+    };
+  } else {
+    // Génère un UUID si pas déjà fait
+    if (!localStorage.getItem(uuidKey)) {
+      localStorage.setItem(uuidKey, generateUUIDv4());
+    }
+  }
+}
+
+// Appel dès le chargement
+ensureConsentAndUUID();
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize trackers
-  const manualKeystrokeTracker = new KeystrokeTracker('typing-area');
-  const musicKeystrokeTracker = new KeystrokeTracker('music-typing-area');
-  const webcamKeystrokeTracker = new KeystrokeTracker('webcam-typing-area');
-  const emotionsHandler = new EmotionsHandler();
+  // Initialize trackers with display elements
+  const manualKeystrokeTracker = new KeystrokeTracker('typing-area', 'typing-speed', 'keystroke-count');
+  const musicKeystrokeTracker = new KeystrokeTracker('music-typing-area', 'music-typing-speed', 'music-keystroke-count');
+  const webcamKeystrokeTracker = new KeystrokeTracker('webcam-typing-area', 'webcam-typing-speed', 'webcam-keystroke-count');
+  const musicHandler = new MusicHandler();
   const webcamTracker = new WebcamTracker();
   
   // Get DOM elements
@@ -16,6 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const backButtons = document.querySelectorAll('.back-button');
   const saveButtons = document.querySelectorAll('.save-button');
   const viewDataButton = document.getElementById('view-data');
+  const privacyLink = document.getElementById('privacy-link');
+  const sessionSelect = document.getElementById('session-select');
+  const downloadDataButton = document.getElementById('download-data');
   
   // Option card click handlers
   optionCards.forEach(card => {
@@ -58,83 +114,115 @@ document.addEventListener('DOMContentLoaded', () => {
       webcamTracker.stop();
       
       // Stop music if playing
-      emotionsHandler.stopMusic();
+      musicHandler.stopMusic();
     });
   });
   
-  // Save button handlers
-  document.getElementById('save-manual').addEventListener('click', () => {
-    const emotionData = emotionsHandler.getManualEmotionData();
-    
-    // Validate that at least one emotion is non-zero
-    if (!emotionsHandler.validateEmotions(emotionData)) {
-      alert('Please set at least one emotion to a value above 0%');
+  // Privacy link handler
+  if (privacyLink) {
+    privacyLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert(
+        'Keystroke Dynamics Collector - Privacy Information\n\n' +
+        'This application collects:\n' +
+        '- Keystroke timing data (press and release times)\n' +
+        '- Text you type in the input areas\n' +
+        '- Context information (music played or webcam status)\n\n' +
+        'All data is stored locally on the server and is not shared with third parties.\n' +
+        'The data is collected for research purposes to analyze typing patterns.'
+      );
+    });
+  }
+  
+  // Ajout d'un modal pour saisir les émotions après la frappe
+  const emotionModalHtml = `
+    <div id="emotion-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Comment vous sentez-vous après cette session ?</h2>
+        <form id="emotion-form">
+          <label>Heureux(se) : <input type="range" min="0" max="100" value="50" name="happy"> <span id="happy-val">50</span>%</label><br>
+          <label>Triste : <input type="range" min="0" max="100" value="50" name="sad"> <span id="sad-val">50</span>%</label><br>
+          <label>Colère : <input type="range" min="0" max="100" value="50" name="anger"> <span id="anger-val">50</span>%</label><br>
+          <label>Peur : <input type="range" min="0" max="100" value="50" name="fear"> <span id="fear-val">50</span>%</label><br>
+          <label>Surpris(e) : <input type="range" min="0" max="100" value="50" name="surprise"> <span id="surprise-val">50</span>%</label><br>
+          <button type="submit">Valider mes émotions</button>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', emotionModalHtml);
+
+  // Affichage dynamique des valeurs
+  ['happy','sad','anger','fear','surprise'].forEach(emotion => {
+    document.querySelector(`input[name='${emotion}']`).addEventListener('input', e => {
+      document.getElementById(`${emotion}-val`).textContent = e.target.value;
+    });
+  });
+
+  // Fonction pour afficher le modal émotions et retourner une promesse
+  function askEmotions() {
+    return new Promise(resolve => {
+      const modal = document.getElementById('emotion-modal');
+      modal.classList.remove('hidden');
+      const form = document.getElementById('emotion-form');
+      form.onsubmit = e => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(form).entries());
+        // Convertir en nombre
+        Object.keys(data).forEach(k => data[k] = Number(data[k]));
+        modal.classList.add('hidden');
+        resolve(data);
+      };
+    });
+  }
+
+  // Remplacer les handlers de sauvegarde pour demander les émotions et simplifier le format
+  async function saveSimpleSession(type, tracker) {
+    const keystrokeData = tracker.getData();
+    if (keystrokeData.text.length < 10) {
+      alert('Veuillez taper au moins 10 caractères avant de sauvegarder');
       return;
     }
-    
-    const keystrokeData = manualKeystrokeTracker.getData();
-    
-    saveData('manual', {
-      emotions: emotionData,
+    const emotions = await askEmotions();
+    // Correction : timings = tableau de valeurs simples
+    const timings = keystrokeData.keystrokeData.map(entry => entry.timeMs);
+    const data = {
+      userId: getUserUUID(),
+      sessionId: generateUUIDv4(),
+      deviceInfo: getDeviceInfo(),
+      cameraActive: (type === 'webcam_typing'),
+      musicId: (type === 'music_typing' ? (window.musicHandler?.getCurrentMusic?.() || 'None') : 'None'),
       text: keystrokeData.text,
-      keystrokeData: keystrokeData.keystrokeData,
-      timestamp: new Date().toISOString()
-    });
-    
-    manualKeystrokeTracker.reset();
-    emotionsHandler.resetManualEmotions();
-  });
-  
-  document.getElementById('save-music').addEventListener('click', () => {
-    const emotionData = emotionsHandler.getEmotionData();
-    
-    // Validate that at least one emotion is non-zero
-    if (!emotionsHandler.validateEmotions(emotionData)) {
-      alert('Please set at least one emotion to a value above 0%');
-      return;
-    }
-    
-    const keystrokeData = musicKeystrokeTracker.getData();
-    
-    saveData('music', {
-      emotions: emotionData,
-      text: keystrokeData.text,
-      keystrokeData: keystrokeData.keystrokeData,
-      timestamp: new Date().toISOString()
-    });
-    
-    musicKeystrokeTracker.reset();
-    emotionsHandler.resetEmotions();
-  });
-  
-  document.getElementById('save-webcam').addEventListener('click', () => {
-    const emotionData = webcamTracker.getEmotionData();
-    const keystrokeData = webcamKeystrokeTracker.getData();
-    
-    saveData('webcam', {
-      emotionData: emotionData,
-      text: keystrokeData.text,
-      keystrokeData: keystrokeData.keystrokeData,
-      timestamp: new Date().toISOString()
-    });
-    
-    webcamKeystrokeTracker.reset();
-    webcamTracker.reset();
-  });
-  
-  // Emotion button handlers
-  document.querySelectorAll('.emotion-buttons button').forEach(button => {
-    button.addEventListener('click', () => {
-      // Remove active class from all buttons
-      document.querySelectorAll('.emotion-buttons button').forEach(btn => {
-        btn.classList.remove('active');
+      timings,
+      emotions,
+      sessionDuration: keystrokeData.sessionDurationMs,
+      keystrokeCount: keystrokeData.keystrokeCount,
+      timestamp: new Date().toISOString(),
+      context: type
+    };
+    try {
+      const response = await fetch('/save-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, data })
       });
-      
-      // Add active class to the clicked button
-      button.classList.add('active');
-    });
-  });
-  
+      const result = await response.json();
+      if (result.success) {
+        alert('Session sauvegardée avec succès !');
+        tracker.reset();
+      } else {
+        alert('Erreur lors de la sauvegarde : ' + result.message);
+      }
+    } catch (e) {
+      alert('Erreur lors de la sauvegarde : ' + e.message);
+    }
+  }
+
+  // Remplacer les anciens handlers :
+  document.getElementById('save-manual').onclick = () => saveSimpleSession('manual', manualKeystrokeTracker);
+  document.getElementById('save-music').onclick = () => saveSimpleSession('music', musicKeystrokeTracker);
+  document.getElementById('save-webcam').onclick = () => saveSimpleSession('webcam', webcamKeystrokeTracker);
+
   // View Data button handler
   viewDataButton.addEventListener('click', () => {
     // Hide all sections
@@ -152,33 +240,31 @@ document.addEventListener('DOMContentLoaded', () => {
     displayStoredData();
   });
   
-  // Function to save data to the server
-  async function saveData(type, data) {
-    try {
-      const response = await fetch('/save-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ type, data })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        alert(`Data saved successfully to CSV file: ${result.filename}`);
-        return true;
+  // Download Data button handler
+  if (downloadDataButton) {
+    downloadDataButton.addEventListener('click', () => {
+      if (sessionSelect && sessionSelect.value) {
+        window.open(sessionSelect.value, '_blank');
       } else {
-        alert(`Error saving data: ${result.message}`);
-        return false;
+        alert('Please select a session to download');
       }
-    } catch (error) {
-      console.error('Error saving data:', error);
-      alert(`Error saving data: ${error.message}`);
-      return false;
-    }
+    });
   }
   
+  // Fonction utilitaire pour infos device
+  function getDeviceInfo() {
+    return {
+      browser: navigator.userAgent,
+      os: navigator.platform,
+      screen: `${window.screen.width}x${window.screen.height}`
+    };
+  }
+
+  // Fonction utilitaire pour récupérer l'UUID utilisateur
+  function getUserUUID() {
+    return localStorage.getItem('keystroke_user_uuid') || '';
+  }
+
   // Function to display stored data from server
   async function displayStoredData() {
     const dataDisplay = document.getElementById('data-display');
@@ -193,19 +279,36 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       
-      let html = '<h3>CSV Data Files</h3>';
+      let html = '<h3>Keystroke Dynamics Data Files</h3>';
+      
+      // Clear and populate the session selector
+      if (sessionSelect) {
+        sessionSelect.innerHTML = '<option value="">Select a session</option>';
+      }
       
       // Group files by type for better organization
       const fileTypes = {
-        manual: { name: 'Manual Tracking', files: [] },
-        music: { name: 'Music-Based Tracking', files: [] },
-        webcam: { name: 'Webcam Tracking', files: [] }
+        free_typing: { name: 'Free Typing', files: [] },
+        music_typing: { name: 'Music Context Typing', files: [] },
+        webcam_typing: { name: 'Camera Context Typing', files: [] },
+        // Keep compatibility with old file types
+        manual: { name: 'Free Typing (Legacy)', files: [] },
+        music: { name: 'Music Context (Legacy)', files: [] },
+        webcam: { name: 'Camera Context (Legacy)', files: [] }
       };
       
       // Sort files into categories
       data.files.forEach(file => {
         if (file.type in fileTypes) {
           fileTypes[file.type].files.push(file);
+          
+          // Add to select dropdown
+          if (sessionSelect && file.exists) {
+            const option = document.createElement('option');
+            option.value = file.path;
+            option.textContent = `${fileTypes[file.type].name}: ${file.name}`;
+            sessionSelect.appendChild(option);
+          }
         }
       });
       
@@ -245,4 +348,4 @@ document.addEventListener('DOMContentLoaded', () => {
       dataDisplay.innerHTML = `<p>Error loading data: ${error.message}</p>`;
     }
   }
-}); 
+});
