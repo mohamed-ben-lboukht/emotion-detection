@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emotion Tracker</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Emotion Tracker</h1>
+      <p>Track your emotions and keystroke patterns</p>
+    </header>
+
+    <main>
+      <div class="options">
+        <div class="option-card" id="manual-option">
+          <h2>Manual Tracking</h2>
+          <p>Type freely and declare your emotions directly</p>
+        </div>
+        
+        <div class="option-card" id="music-option">
+          <h2>Music-Based Tracking</h2>
+          <p>Listen to different tracks and select emotions they evoke</p>
+        </div>
+        
+        <div class="option-card" id="webcam-option">
+          <h2>Webcam Tracking</h2>
+          <p>Use your camera to detect emotions while typing</p>
+        </div>
+      </div>
+    </main>
+
+    <section id="manual-tracking" class="tracking-section hidden">
+      <button class="back-button">← Back</button>
+      <h2>Manual Emotion Tracking</h2>
+      <textarea id="typing-area" placeholder="Start typing here to record your keystrokes..."></textarea>
+      <div class="emotion-selection">
+        <h3>How do you feel? (Set percentages for each emotion)</h3>
+        <div class="emotion-sliders">
+          <div class="slider-group">
+            <label for="manual-happy-slider">Happy:</label>
+            <input type="range" id="manual-happy-slider" min="0" max="100" value="0">
+            <span class="slider-value">0%</span>
+          </div>
+          <div class="slider-group">
+            <label for="manual-sad-slider">Sad:</label>
+            <input type="range" id="manual-sad-slider" min="0" max="100" value="0">
+            <span class="slider-value">0%</span>
+          </div>
+          <div class="slider-group">
+            <label for="manual-anger-slider">Anger:</label>
+            <input type="range" id="manual-anger-slider" min="0" max="100" value="0">
+            <span class="slider-value">0%</span>
+          </div>
+          <div class="slider-group">
+            <label for="manual-fear-slider">Fear:</label>
+            <input type="range" id="manual-fear-slider" min="0" max="100" value="0">
+            <span class="slider-value">0%</span>
+          </div>
+          <div class="slider-group">
+            <label for="manual-surprise-slider">Surprise:</label>
+            <input type="range" id="manual-surprise-slider" min="0" max="100" value="0">
+            <span class="slider-value">0%</span>
+          </div>
+        </div>
+      </div>
+      <button id="save-manual" class="save-button">Save Data</button>
+    </section>
+
+    <section id="music-tracking" class="tracking-section hidden">
+      <button class="back-button">← Back</button>
+      <h2>Music-Based Emotion Tracking</h2>
+      <div class="music-selection">
+        <div class="music-item" data-music="happy">
+          <p>Happy Music</p>
+          <button class="play-button">Play</button>
+        </div>
+        <div class="music-item" data-music="sad">
+          <p>Sad Music</p>
+          <button class="play-button">Play</button>
+        </div>
+        <div class="music-item" data-music="energetic">
+          <p>Energetic Music</p>
+          <button class="play-button">Play</button>
+        </div>
+        <div class="music-item" data-music="calm">
+          <p>Calm Music</p>
+          <button class="play-button">Play</button>
+        </div>
+      </div>
+      
+      <div class="emotion-sliders">
+        <div class="slider-group">
+          <label for="happy-slider">Happy:</label>
+          <input type="range" id="happy-slider" min="0" max="100" value="0">
+          <span class="slider-value">0%</span>
+        </div>
+        <div class="slider-group">
+          <label for="sad-slider">Sad:</label>
+          <input type="range" id="sad-slider" min="0" max="100" value="0">
+          <span class="slider-value">0%</span>
+        </div>
+        <div class="slider-group">
+          <label for="anger-slider">Anger:</label>
+          <input type="range" id="anger-slider" min="0" max="100" value="0">
+          <span class="slider-value">0%</span>
+        </div>
+        <div class="slider-group">
+          <label for="fear-slider">Fear:</label>
+          <input type="range" id="fear-slider" min="0" max="100" value="0">
+          <span class="slider-value">0%</span>
+        </div>
+      </div>
+      
+      <textarea id="music-typing-area" placeholder="Type your thoughts while listening to the music..."></textarea>
+      <button id="save-music" class="save-button">Save Data</button>
+    </section>
+
+    <section id="webcam-tracking" class="tracking-section hidden">
+      <button class="back-button">← Back</button>
+      <h2>Webcam Emotion Detection</h2>
+      <div class="webcam-container">
+        <video id="webcam" autoplay muted></video>
+        <p id="detection-status">Waiting for camera permission...</p>
+        <div id="detected-emotion">No emotion detected</div>
+      </div>
+      <textarea id="webcam-typing-area" placeholder="Type here while we analyze your expressions..."></textarea>
+      <button id="save-webcam" class="save-button">Save Data</button>
+    </section>
+
+    <section id="data-view" class="tracking-section hidden">
+      <button class="back-button">← Back</button>
+      <h2>Your Collected Data</h2>
+      <div id="data-display"></div>
+    </section>
+
+    <footer>
+      <button id="view-data">View Your Data</button>
+    </footer>
+  </div>
+
+  <script src="js/keystroke.js"></script>
+  <script src="js/emotions.js"></script>
+  <script src="js/webcam.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html> 
