@@ -9,15 +9,52 @@
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="Strict-Transport-Security" content="max-age=63072000; includeSubDomains; preload">
     <meta name="referrer" content="same-origin">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         :root {
-            --primary-color: #4a6da7;
-            --secondary-color: #f8f9fa;
-            --accent-color: #6c757d;
-            --success-color: #28a745;
+            --primary-color: #4361ee;
+            --primary-light: #4cc9f0;
+            --primary-dark: #3a0ca3;
+            --secondary-color: #f72585;
+            --accent-color: #7209b7;
+            --success-color: #4caf50;
             --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
+            --warning-color: #ff9800;
+            --info-color: #0dcaf0;
+            --dark-color: #212529;
+            --light-color: #f8f9fa;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.15);
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2.5rem;
+            
+            /* Border radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.8rem;
+            --radius-xl: 1.2rem;
+
+            /* Transitions */
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
         }
         
         * {
@@ -27,35 +64,63 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f9;
-            color: #333;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: var(--gray-800);
             display: flex;
             min-height: 100vh;
+            line-height: 1.6;
         }
         
         #sidebar {
-            width: 250px;
-            background-color: var(--primary-color);
+            width: 280px;
+            background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary-color) 100%);
             color: white;
-            padding: 20px 0;
+            padding: 0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            transition: all 0.3s;
+            transition: all var(--transition-normal);
+            z-index: 10;
+            box-shadow: var(--shadow-lg);
         }
         
         .sidebar-header {
-            padding: 0 20px 20px;
+            padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-md);
+            background: rgba(0, 0, 0, 0.1);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        
+        .sidebar-logo {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-dark);
         }
         
         .sidebar-header h3 {
-            margin-bottom: 5px;
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .sidebar-header p {
+            margin: 0;
+            font-size: 0.85rem;
+            opacity: 0.8;
         }
         
         .sidebar-menu {
-            padding: 20px 0;
+            padding: var(--spacing-md) 0;
         }
         
         .sidebar-menu ul {
@@ -63,120 +128,232 @@
         }
         
         .sidebar-menu li {
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
         
         .sidebar-menu a {
-            display: block;
-            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-md) var(--spacing-lg);
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all var(--transition-fast);
+            border-left: 4px solid transparent;
+            font-weight: 500;
         }
         
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
+        .sidebar-menu a i {
+            margin-right: var(--spacing-md);
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            transition: transform var(--transition-fast);
+        }
+        
+        .sidebar-menu a:hover {
             color: white;
             background-color: rgba(255, 255, 255, 0.1);
-            border-left: 4px solid white;
+            border-left-color: rgba(255, 255, 255, 0.5);
         }
         
-        .sidebar-menu i {
-            margin-right: 10px;
+        .sidebar-menu a:hover i {
+            transform: translateX(3px);
+        }
+        
+        .sidebar-menu a.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+            font-weight: 600;
         }
         
         #content {
             flex: 1;
-            padding: 20px;
-            margin-left: 250px;
-            width: calc(100% - 250px);
-            transition: all 0.3s;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            transition: all var(--transition-normal);
         }
         
         .page-header {
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-xl);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--gray-300);
+        }
+        
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
         }
         
         .card {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            padding: 20px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--gray-200);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
         }
         
         .card-header {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
+            border-bottom: 1px solid var(--gray-200);
+            padding-bottom: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            position: relative;
+            padding-left: var(--spacing-md);
+        }
+        
+        .card-header h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 18px;
+            background: linear-gradient(to bottom, var(--primary-color), var(--primary-dark));
+            border-radius: var(--radius-sm);
         }
         
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 20px;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
         }
         
         .stat-card {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: var(--spacing-lg);
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
+            border: 1px solid var(--gray-200);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stat-card .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--spacing-md);
+            font-size: 1.5rem;
+            color: var(--primary-color);
         }
         
         .stat-card .number {
             font-size: 2.5rem;
-            font-weight: bold;
-            margin: 10px 0;
-            color: var(--primary-color);
+            font-weight: 700;
+            margin: var(--spacing-xs) 0;
+            color: var(--gray-900);
+            line-height: 1;
         }
         
         .stat-card .label {
-            color: var(--accent-color);
+            color: var(--gray-600);
             font-size: 0.9rem;
+            font-weight: 500;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
+            border-radius: var(--radius-md);
+            overflow: hidden;
         }
         
         table th, table td {
-            padding: 12px 15px;
+            padding: var(--spacing-md) var(--spacing-md);
             text-align: left;
-            border-bottom: 1px solid #eee;
         }
         
         table th {
-            background-color: var(--secondary-color);
+            background-color: var(--primary-color);
+            color: white;
             font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        tr:hover {
-            background-color: #f6f9fc;
+        table tr {
+            background-color: white;
+            border-bottom: 1px solid var(--gray-200);
+            transition: background-color var(--transition-fast);
+        }
+        
+        table tr:last-child {
+            border-bottom: none;
+        }
+        
+        table tr:hover {
+            background-color: var(--gray-100);
         }
         
         .btn {
-            display: inline-block;
-            padding: 8px 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-sm) var(--spacing-md);
             margin: 2px;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--radius-md);
             cursor: pointer;
             font-weight: 500;
+            font-size: 0.9rem;
             text-decoration: none;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .btn i {
+            margin-right: var(--spacing-xs);
         }
         
         .btn-primary {
@@ -184,9 +361,21 @@
             color: white;
         }
         
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
         .btn-secondary {
-            background-color: var(--accent-color);
+            background-color: var(--gray-600);
             color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--gray-700);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
         
         .btn-success {
@@ -194,20 +383,32 @@
             color: white;
         }
         
+        .btn-success:hover {
+            background-color: #3d8b40;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
         .btn-danger {
             background-color: var(--danger-color);
             color: white;
         }
         
-        .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-sm {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.8rem;
         }
         
         @media (max-width: 768px) {
             #sidebar {
                 width: 70px;
-                text-align: center;
+                transform: translateX(0);
             }
             
             #content {
@@ -215,7 +416,22 @@
                 width: calc(100% - 70px);
             }
             
-            .sidebar-header h3, .sidebar-header p, .sidebar-menu a span {
+            .sidebar-header {
+                padding: var(--spacing-md);
+                flex-direction: column;
+                gap: var(--spacing-xs);
+            }
+            
+            .sidebar-header h3, .sidebar-header p {
+                display: none;
+            }
+            
+            .sidebar-menu a {
+                padding: var(--spacing-md);
+                justify-content: center;
+            }
+            
+            .sidebar-menu a span {
                 display: none;
             }
             
@@ -223,15 +439,19 @@
                 margin: 0;
                 font-size: 1.2rem;
             }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         /* Loader */
         .loader {
-            border: 5px solid #f3f3f3;
+            border: 5px solid var(--gray-200);
             border-radius: 50%;
             border-top: 5px solid var(--primary-color);
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
             margin: 20px auto;
             display: none;
@@ -242,32 +462,37 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Pour les alertes */
+        /* Alerts */
         .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            border-left: 4px solid transparent;
+            background-color: white;
+            box-shadow: var(--shadow-sm);
         }
         
         .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            border-left-color: var(--danger-color);
+            background-color: rgba(220, 53, 69, 0.1);
         }
         
         .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            border-left-color: var(--success-color);
+            background-color: rgba(76, 175, 80, 0.1);
         }
         
         .alert-warning {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
+            border-left-color: var(--warning-color);
+            background-color: rgba(255, 152, 0, 0.1);
         }
         
-        /* Page de login caché */
+        .alert-info {
+            border-left-color: var(--info-color);
+            background-color: rgba(13, 202, 240, 0.1);
+        }
+        
+        /* Login container */
         #login-container {
             display: none;
             position: fixed;
@@ -275,7 +500,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #f4f6f9;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -283,75 +508,90 @@
         
         .login-form {
             background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
         }
         
         .login-form h2 {
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-lg);
             text-align: center;
-            color: var(--primary-color);
+            color: var(--primary-dark);
+            font-weight: 700;
+            font-size: 1.8rem;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-lg);
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: var(--spacing-xs);
             font-weight: 500;
+            color: var(--gray-700);
         }
         
         .form-group input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
+            padding: var(--spacing-md);
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: border-color var(--transition-fast);
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
         }
         
         .login-btn {
             width: 100%;
-            padding: 12px;
-            background-color: var(--primary-color);
+            padding: var(--spacing-md);
+            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all var(--transition-fast);
         }
         
         .login-btn:hover {
-            background-color: #3a5a8f;
+            background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
         
-        /* Pour le tableau de pages */
+        /* Status badge */
         .status-badge {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
             font-size: 0.75rem;
             font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .status-active {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: rgba(76, 175, 80, 0.15);
+            color: var(--success-color);
         }
         
         .status-inactive {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: rgba(220, 53, 69, 0.15);
+            color: var(--danger-color);
         }
         
         .status-draft {
-            background-color: #fff3cd;
-            color: #856404;
+            background-color: rgba(255, 152, 0, 0.15);
+            color: var(--warning-color);
         }
     </style>
 </head>
@@ -376,17 +616,20 @@
     <!-- Sidebar -->
     <nav id="sidebar">
         <div class="sidebar-header">
-            <h3>Admin Panel</h3>
-            <p id="user-info">Connecté en tant qu'administrateur</p>
+            <div class="sidebar-logo">ED</div>
+            <div>
+                <h3>Admin Panel</h3>
+                <p id="user-info">Connecté en tant qu'administrateur</p>
+            </div>
         </div>
         
         <div class="sidebar-menu">
             <ul>
-                <li><a href="#" class="active" data-page="dashboard">Tableau de bord</a></li>
-                <li><a href="#" data-page="sessions">Sessions</a></li>
-                <li><a href="#" data-page="export">Exportation</a></li>
-                <li><a href="#" data-page="settings">Paramètres</a></li>
-                <li><a href="#" id="logout-btn">Déconnexion</a></li>
+                <li><a href="#" class="active" data-page="dashboard"><i class="fas fa-chart-line"></i> <span>Tableau de bord</span></a></li>
+                <li><a href="#" data-page="sessions"><i class="fas fa-list"></i> <span>Sessions</span></a></li>
+                <li><a href="#" data-page="export"><i class="fas fa-download"></i> <span>Exportation</span></a></li>
+                <li><a href="#" data-page="settings"><i class="fas fa-cog"></i> <span>Paramètres</span></a></li>
+                <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Déconnexion</span></a></li>
             </ul>
         </div>
     </nav>
@@ -397,29 +640,44 @@
         <div id="dashboard-page" class="content-page">
             <div class="page-header">
                 <h1>Tableau de bord</h1>
-                <button class="btn btn-primary" id="refresh-stats">Rafraîchir</button>
+                <button id="refresh-stats" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Rafraîchir</button>
             </div>
-            
-            <div class="loader" id="stats-loader"></div>
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="label">Total des sessions</div>
-                    <div class="number" id="total-sessions">-</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-keyboard"></i>
+                    </div>
+                    <div class="number" id="total-sessions">0</div>
+                    <div class="label">Sessions totales</div>
                 </div>
+                
                 <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="number" id="today-sessions">0</div>
                     <div class="label">Sessions aujourd'hui</div>
-                    <div class="number" id="today-sessions">-</div>
                 </div>
+                
                 <div class="stat-card">
-                    <div class="label">Total des participants</div>
-                    <div class="number" id="total-participants">-</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="number" id="total-participants">0</div>
+                    <div class="label">Participants</div>
                 </div>
+                
                 <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="number" id="average-duration">0s</div>
                     <div class="label">Durée moyenne</div>
-                    <div class="number" id="average-duration">-</div>
                 </div>
             </div>
+            
+            <div id="stats-loader" class="loader"></div>
             
             <div class="card">
                 <div class="card-header">
@@ -438,7 +696,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="6" style="text-align: center;">Chargement des données...</td>
+                            <td colspan="6" style="text-align: center;">Chargement des sessions...</td>
                         </tr>
                     </tbody>
                 </table>

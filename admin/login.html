@@ -14,15 +14,48 @@
     
     <style>
         :root {
-            --primary-color: #4a6baf;
-            --primary-dark: #344e87;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
+            --primary-color: #4361ee;
+            --primary-light: #4cc9f0;
+            --primary-dark: #3a0ca3;
+            --secondary-color: #f72585;
+            --accent-color: #7209b7;
+            --success-color: #4caf50;
             --danger-color: #dc3545;
-            --background-color: #f8f9fa;
-            --text-color: #343a40;
-            --border-color: #dee2e6;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --warning-color: #ff9800;
+            --dark-color: #212529;
+            --light-color: #f8f9fa;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 30px rgba(0,0,0,0.2);
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2.5rem;
+            
+            /* Border radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
+            --radius-xl: 2rem;
+            
+            /* Transitions */
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
         }
         
         * {
@@ -32,93 +65,198 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--accent-color) 100%);
+            color: var(--gray-800);
             line-height: 1.6;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
         
         .login-container {
             background-color: white;
-            border-radius: 8px;
-            box-shadow: var(--box-shadow);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
             width: 100%;
             max-width: 450px;
-            padding: 2rem;
+            padding: var(--spacing-xl);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
         }
         
         .login-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: var(--spacing-xl);
         }
         
         .login-header h1 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .login-header p {
+            color: var(--gray-600);
+            font-size: 1rem;
         }
         
         .login-form .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: var(--spacing-lg);
         }
         
         .login-form label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: var(--spacing-sm);
             font-weight: 500;
+            color: var(--gray-700);
         }
         
         .login-form input {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
+            padding: var(--spacing-md);
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-md);
             font-size: 1rem;
+            transition: all var(--transition-fast);
         }
         
         .login-form input:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(74, 107, 175, 0.25);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
         }
         
         .login-form button {
             width: 100%;
-            padding: 0.75rem;
-            background-color: var(--primary-color);
+            padding: var(--spacing-md);
+            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--radius-md);
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-form button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s ease;
         }
         
         .login-form button:hover {
-            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .login-form button:hover::before {
+            left: 100%;
+        }
+        
+        .login-form button:active {
+            transform: translateY(0);
         }
         
         .error-message {
             color: var(--danger-color);
             background-color: rgba(220, 53, 69, 0.1);
-            padding: 0.75rem;
-            border-radius: 4px;
-            margin-bottom: 1.5rem;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-lg);
             display: none;
+            border-left: 4px solid var(--danger-color);
+            font-size: 0.9rem;
         }
         
         .logo {
-            max-width: 100px;
-            margin: 0 auto 1rem;
+            max-width: 90px;
+            margin: 0 auto var(--spacing-md);
             display: block;
+        }
+        
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            z-index: -1;
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            left: -150px;
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            right: -70px;
+        }
+        
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            bottom: 50px;
+            left: -70px;
+            opacity: 0.5;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .login-container {
+                max-width: 90%;
+                padding: var(--spacing-lg);
+            }
+            
+            .login-header h1 {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    
     <div class="login-container">
         <div class="login-header">
             <!-- Si vous avez un logo, décommentez la ligne suivante -->

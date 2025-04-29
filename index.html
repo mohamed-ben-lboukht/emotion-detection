@@ -10,27 +10,27 @@
   <!-- Modal de consentement RGPD -->
   <div id="consent-modal" class="modal hidden">
     <div class="modal-content">
-      <h2>Consentement à la collecte de données</h2>
-      <p>Cette application collecte uniquement des données anonymes sur votre comportement de frappe (dynamique de frappe).<br>
-      <strong>Aucune information personnelle n'est enregistrée. La caméra ne sera utilisée que si vous activez le mode caméra.</strong><br>
-      Les données collectées incluent :
+      <h2>Data Collection Consent</h2>
+      <p>This application only collects anonymous data about your typing behavior (keystroke dynamics).<br>
+      <strong>No personal information is recorded. The camera will only be used if you activate the camera mode.</strong><br>
+      The collected data includes:
         <ul>
-          <li>Horodatages des touches pressées et relâchées</li>
-          <li>Durées de maintien et intervalles entre frappes</li>
-          <li>Détection d'émotions via caméra (uniquement en mode caméra)</li>
-          <li>Informations techniques sur l'appareil (navigateur, OS, taille écran)</li>
+          <li>Timestamps of keys pressed and released</li>
+          <li>Key hold durations and intervals between keystrokes</li>
+          <li>Emotion detection via camera (only in camera mode)</li>
+          <li>Technical information about your device (browser, OS, screen size)</li>
         </ul>
-      Elles sont stockées de façon sécurisée sur le serveur et ne sont accessibles qu'aux administrateurs de l'application.<br>
-      Ces données ne servent qu'à des fins de recherche comportementale et ne sont pas partagées avec des tiers.<br>
-      En continuant, vous acceptez cette collecte anonyme.</p>
-      <button id="accept-consent">J'accepte</button>
+      Data is securely stored on the server and is only accessible to application administrators.<br>
+      This data is only used for behavioral research purposes and is not shared with third parties.<br>
+      By continuing, you accept this anonymous data collection.</p>
+      <button id="accept-consent">I Accept</button>
     </div>
   </div>
 
   <div class="container">
     <header>
       <h1>Keystroke Dynamics Collector</h1>
-      <p>Analyse your typing patterns under different contexts</p>
+      <p>Analyze your typing patterns under different contexts</p>
     </header>
 
     <main>
@@ -128,8 +128,8 @@
     </section>
 
     <footer>
-      <div class="privacy-note">
-        <small>Data is stored securely on the server. <a href="#" id="privacy-link">Privacy Information</a></small>
+      <div class="privacy-note animated-privacy">
+        <small>🔒 <span class="highlight-text">Your data is secure</span> on our server. <a href="#" id="privacy-link" class="glow-effect">Privacy Information</a></small>
       </div>
     </footer>
   </div>

@@ -122,47 +122,44 @@ document.addEventListener('DOMContentLoaded', () => {
   if (privacyLink) {
     privacyLink.addEventListener('click', (e) => {
       e.preventDefault();
-      alert(
-        'Keystroke Dynamics Collector - Privacy Information\n\n' +
-        'This application collects:\n' +
-        '- Keystroke timing data (press and release times)\n' +
-        '- Text you type in the input areas\n' +
-        '- Context information (music played or webcam status)\n' +
-        '- Emotion data (manually reported or detected via webcam)\n\n' +
-        'All data is stored on the server in JSON format and is not shared with third parties.\n' +
-        'The data is collected for research purposes to analyze typing patterns and emotional states.\n\n' +
-        'Your data is identified only by a randomly generated ID, not by personal information.\n' +
-        'The webcam feed is only used when you explicitly choose the camera mode.\n\n' +
-        'Collected data is only accessible to administrators.'
-      );
+      
+      // Create a custom privacy modal
+      const privacyModalHtml = `
+        <div id="privacy-modal" class="modal active">
+          <div class="modal-content">
+            <h2>Privacy Information</h2>
+            <div class="privacy-content">
+              <p>This application collects:</p>
+              <ul>
+                <li>Keystroke timing data (press and release times)</li>
+                <li>Text you type in the input areas</li>
+                <li>Context information (music played or webcam status)</li>
+                <li>Emotion data (manually reported or detected via webcam)</li>
+              </ul>
+              
+              <p>All data is stored on the server in JSON format and is not shared with third parties.</p>
+              <p>The data is collected for research purposes to analyze typing patterns and emotional states.</p>
+              
+              <p>Your data is identified only by a randomly generated ID, not by personal information.</p>
+              <p>The webcam feed is only used when you explicitly choose the camera mode.</p>
+              
+              <p>Collected data is only accessible to administrators.</p>
+            </div>
+            <button id="close-privacy-modal" class="btn-primary">Close</button>
+          </div>
+        </div>
+      `;
+      
+      // Add modal to DOM
+      document.body.insertAdjacentHTML('beforeend', privacyModalHtml);
+      
+      // Add close handler
+      document.getElementById('close-privacy-modal').addEventListener('click', () => {
+        document.getElementById('privacy-modal').remove();
+      });
     });
   }
   
-  // Ajout d'un modal pour saisir les émotions après la frappe
-  const emotionModalHtml = `
-    <div id="emotion-modal" class="modal hidden">
-      <div class="modal-content">
-        <h2>Comment vous sentez-vous après cette session ?</h2>
-        <form id="emotion-form">
-          <label>Heureux(se) : <input type="range" min="0" max="100" value="50" name="happy"> <span id="happy-val">50</span>%</label><br>
-          <label>Triste : <input type="range" min="0" max="100" value="50" name="sad"> <span id="sad-val">50</span>%</label><br>
-          <label>Colère : <input type="range" min="0" max="100" value="50" name="anger"> <span id="anger-val">50</span>%</label><br>
-          <label>Peur : <input type="range" min="0" max="100" value="50" name="fear"> <span id="fear-val">50</span>%</label><br>
-          <label>Surpris(e) : <input type="range" min="0" max="100" value="50" name="surprise"> <span id="surprise-val">50</span>%</label><br>
-          <button type="submit">Valider mes émotions</button>
-        </form>
-      </div>
-    </div>
-  `;
-  document.body.insertAdjacentHTML('beforeend', emotionModalHtml);
-
-  // Affichage dynamique des valeurs
-  ['happy','sad','anger','fear','surprise'].forEach(emotion => {
-    document.querySelector(`input[name='${emotion}']`).addEventListener('input', e => {
-      document.getElementById(`${emotion}-val`).textContent = e.target.value;
-    });
-  });
-
   // Fonction pour afficher le modal émotions et retourner une promesse
   function askEmotions() {
     return new Promise(resolve => {
@@ -180,11 +177,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Create emotion modal in English
+  const emotionModalHtml = `
+    <div id="emotion-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>How do you feel after this session?</h2>
+        <form id="emotion-form">
+          <label>Happy: <input type="range" min="0" max="100" value="50" name="happy"> <span id="happy-val">50</span>%</label><br>
+          <label>Sad: <input type="range" min="0" max="100" value="50" name="sad"> <span id="sad-val">50</span>%</label><br>
+          <label>Angry: <input type="range" min="0" max="100" value="50" name="anger"> <span id="anger-val">50</span>%</label><br>
+          <label>Fearful: <input type="range" min="0" max="100" value="50" name="fear"> <span id="fear-val">50</span>%</label><br>
+          <label>Surprised: <input type="range" min="0" max="100" value="50" name="surprise"> <span id="surprise-val">50</span>%</label><br>
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', emotionModalHtml);
+
+  // Affichage dynamique des valeurs
+  ['happy','sad','anger','fear','surprise'].forEach(emotion => {
+    document.querySelector(`input[name='${emotion}']`).addEventListener('input', e => {
+      document.getElementById(`${emotion}-val`).textContent = e.target.value;
+    });
+  });
+
   // Remplacer les handlers de sauvegarde pour demander les émotions et simplifier le format
   async function saveSimpleSession(type, tracker) {
     const keystrokeData = tracker.getData();
     if (keystrokeData.text.length < 10) {
-      alert('Veuillez taper au moins 10 caractères avant de sauvegarder');
+      alert('Please type at least 10 characters before saving');
       return;
     }
     
@@ -199,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmSave = await showEmotionSummary(webcamData.emotionTimeline);
         if (!confirmSave) return; // User cancelled the save
       } else {
-        alert('Aucune émotion n\'a été détectée. Assurez-vous que votre visage est visible par la caméra.');
+        alert('No emotions were detected. Please make sure your face is visible to the camera.');
         return;
       }
       
@@ -245,16 +267,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const result = await response.json();
       if (result.success) {
-        alert('Session sauvegardée avec succès !');
+        alert('Session saved successfully!');
         tracker.reset();
         if (type === 'webcam') {
           webcamTracker.reset();
         }
       } else {
-        alert('Erreur lors de la sauvegarde : ' + result.message);
+        alert('Error saving session: ' + result.message);
       }
     } catch (e) {
-      alert('Erreur lors de la sauvegarde : ' + e.message);
+      alert('Error saving session: ' + e.message);
     }
   }
 
@@ -307,14 +329,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const modalHtml = `
         <div id="emotion-summary-modal" class="modal">
           <div class="modal-content" style="max-width: 500px;">
-            <h2>Résumé des émotions détectées</h2>
-            <p>Total des détections: ${totalEmotions}</p>
+            <h2>Detected Emotions Summary</h2>
+            <p>Total detections: ${totalEmotions}</p>
             <div id="emotion-summary" style="margin: 20px 0;">
               ${emotionStats.map(stat => `
                 <div style="margin-bottom: 15px;">
                   <div style="display: flex; justify-content: space-between;">
                     <strong>${stat.emotion}</strong>
-                    <span>${stat.percentage}% (${stat.count} détections)</span>
+                    <span>${stat.percentage}% (${stat.count} detections)</span>
                   </div>
                   <div style="background: #eee; height: 20px; width: 100%; border-radius: 4px; margin-top: 5px;">
                     <div style="background: ${getEmotionColor(stat.emotion)}; height: 100%; width: ${stat.percentage}%; border-radius: 4px;"></div>
@@ -322,10 +344,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               `).join('')}
             </div>
-            <p>Voulez-vous sauvegarder ces données?</p>
+            <p>Do you want to save this data?</p>
             <div style="display: flex; justify-content: space-between; margin-top: 15px;">
-              <button id="cancel-save" style="padding: 8px 15px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Annuler</button>
-              <button id="confirm-save" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Sauvegarder</button>
+              <button id="cancel-save" style="padding: 8px 15px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+              <button id="confirm-save" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Save</button>
             </div>
           </div>
         </div>
