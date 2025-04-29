@@ -9,7 +9,5 @@ services:
       - key: NODE_ENV
         value: production
     staticDirs:
-      - source: ./models
-        destination: /models
-      - source: ./js
-        destination: /js
+      - source: ./public
+        destination: /
