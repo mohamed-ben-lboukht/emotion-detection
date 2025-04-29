@@ -1,12 +1,15 @@
-   # Add to your render.yaml
-   services:
-     - type: web
-       name: emotion-detection
-       env: node
-       buildCommand: npm install
-       startCommand: node server.js
-       staticDirs:
-         - source: ./models
-           destination: /models
-         - source: ./js
-           destination: /js
+# Add to your render.yaml
+services:
+  - type: web
+    name: emotion-detection
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    staticDirs:
+      - source: ./models
+        destination: /models
+      - source: ./js
+        destination: /js

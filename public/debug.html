@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emotion Detection Debug Console</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .debug-container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .debug-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: white;
+      border-radius: 8px;
+    }
+    
+    .debug-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .debug-content {
+      max-height: 300px;
+      overflow-y: auto;
+      background-color: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+    }
+    
+    .debug-actions {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    button {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background-color: #3e8e41;
+    }
+    
+    .home-link {
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="debug-container">
+    <h1>Emotion Detection Debug Console</h1>
+    
+    <div class="debug-section">
+      <div class="debug-title">Stored Session Data</div>
+      <div class="debug-content" id="sessions-data">Loading stored sessions...</div>
+      <div class="debug-actions">
+        <button id="refresh-sessions">Refresh</button>
+        <button id="clear-sessions">Clear All Sessions</button>
+        <button id="export-sessions">Export JSON</button>
+      </div>
+    </div>
+    
+    <div class="debug-section">
+      <div class="debug-title">User Information</div>
+      <div class="debug-content" id="user-info">Loading user info...</div>
+    </div>
+    
+    <div class="debug-section">
+      <div class="debug-title">Device Information</div>
+      <div class="debug-content" id="device-info">Loading device info...</div>
+    </div>
+    
+    <div class="debug-section">
+      <div class="debug-title">API Test</div>
+      <div class="debug-actions">
+        <button id="test-api">Test API Connection</button>
+      </div>
+      <div class="debug-content" id="api-result">API test results will appear here</div>
+    </div>
+    
+    <div class="home-link">
+      <a href="index.html">← Back to Home</a>
+    </div>
+  </div>
+  
+  <script src="js/debug.js"></script>
+</body>
+</html> 
