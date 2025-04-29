@@ -136,7 +136,9 @@ const MIME_TYPES = {
   '.gif': 'image/gif',
   '.svg': 'image/svg+xml',
   '.mp3': 'audio/mpeg',
-  '.csv': 'text/csv'
+  '.csv': 'text/csv',
+  // Add MIME types for face-api model files
+  '': 'application/octet-stream' // For files without extensions like face detection model shards
 };
 
 // Create data directory if it doesn't exist
