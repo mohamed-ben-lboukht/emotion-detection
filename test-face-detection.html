@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face Detection Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #333;
+    }
+    #log {
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      height: 300px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    .warning {
+      color: orange;
+    }
+    .info {
+      color: blue;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Face Detection API Test</h1>
+  <p>This page tests if face-api.js is loaded correctly and if the models can be accessed.</p>
+  
+  <div id="log"></div>
+  
+  <button id="test-face-api">Test face-api.js</button>
+  <button id="test-models">Test Face Models</button>
+  <button id="back-to-app">Back to App</button>
+  
+  <script src="js/lib/face-api.min.js"></script>
+  <script>
+    // Logging function
+    function log(message, type = 'info') {
+      const logElement = document.getElementById('log');
+      const timestamp = new Date().toISOString().substr(11, 8);
+      logElement.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+      logElement.scrollTop = logElement.scrollHeight;
+      console.log(`[${type}] ${message}`);
+    }
+    
+    // Check if face-api.js is loaded
+    document.getElementById('test-face-api').addEventListener('click', () => {
+      try {
+        log('Testing face-api.js...');
+        
+        if (typeof faceapi === 'undefined') {
+          log('face-api.js is not loaded!', 'error');
+        } else {
+          log('face-api.js is loaded successfully!', 'success');
+          log(`Version: ${faceapi.version || 'Unknown'}`, 'info');
+          
+          // List available models
+          const models = [
+            'TinyFaceDetector',
+            'FaceExpressionNet'
+          ];
+          
+          log('Available models in face-api:');
+          models.forEach(model => {
+            const available = faceapi.nets[model.toLowerCase()] !== undefined;
+            log(`- ${model}: ${available ? 'Available' : 'Not available'}`, available ? 'success' : 'warning');
+          });
+        }
+      } catch (error) {
+        log(`Error testing face-api: ${error.message}`, 'error');
+      }
+    });
+    
+    // Test loading models
+    document.getElementById('test-models').addEventListener('click', async () => {
+      if (typeof faceapi === 'undefined') {
+        log('face-api.js is not loaded! Cannot test models.', 'error');
+        return;
+      }
+      
+      log('Testing model loading...');
+      
+      // Get potential model paths
+      const modelPaths = [
+        '/models/face-api-models',
+        './models/face-api-models',
+        '../models/face-api-models',
+        window.location.origin + '/models/face-api-models'
+      ];
+      
+      log(`Testing model paths: ${JSON.stringify(modelPaths, null, 2)}`, 'info');
+      
+      // Try loading models from each path
+      for (const modelPath of modelPaths) {
+        log(`Trying to load models from: ${modelPath}`, 'info');
+        
+        try {
+          // Check if models directory exists by trying to fetch the manifest
+          const manifestUrl = `${modelPath}/tiny_face_detector_model-weights_manifest.json`;
+          log(`Checking if manifest exists at: ${manifestUrl}`, 'info');
+          
+          const response = await fetch(manifestUrl, { method: 'HEAD' });
+          
+          if (response.ok) {
+            log(`Found manifest at ${manifestUrl}`, 'success');
+            
+            try {
+              // Try loading TinyFaceDetector
+              log(`Loading TinyFaceDetector from ${modelPath}...`);
+              await faceapi.nets.tinyFaceDetector.loadFromUri(modelPath);
+              log('TinyFaceDetector loaded successfully!', 'success');
+              
+              // Try loading FaceExpressionNet
+              log(`Loading FaceExpressionNet from ${modelPath}...`);
+              await faceapi.nets.faceExpressionNet.loadFromUri(modelPath);
+              log('FaceExpressionNet loaded successfully!', 'success');
+              
+              // All models loaded successfully
+              log(`All models loaded successfully from ${modelPath}`, 'success');
+              break;
+            } catch (error) {
+              log(`Error loading models from ${modelPath}: ${error.message}`, 'error');
+            }
+          } else {
+            log(`Manifest not found at ${manifestUrl} (Status: ${response.status})`, 'warning');
+          }
+        } catch (error) {
+          log(`Error checking manifest at ${modelPath}: ${error.message}`, 'error');
+        }
+      }
+    });
+    
+    // Back to app button
+    document.getElementById('back-to-app').addEventListener('click', () => {
+      window.location.href = '/';
+    });
+    
+    // Log page load
+    window.addEventListener('DOMContentLoaded', () => {
+      log('Page loaded. Click the buttons above to test face-api.js and model loading.');
+    });
+  </script>
+</body>
+</html> 
