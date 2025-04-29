@@ -159,8 +159,8 @@ function mapType(type) {
   return type;
 }
 
-// --- Sécurité et validation avancée pour la collecte de données ---
-const MAX_BODY_SIZE = 512 * 1024; // 512 Ko max par requête
+// Variables globales pour la configuration
+const MAX_BODY_SIZE = 10 * 1024 * 1024; // 10 MB
 
 function isValidUUID(uuid) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(uuid);
@@ -172,73 +172,91 @@ function sanitizeText(text) {
 }
 
 function validateAndSanitizeData(type, data) {
-  // Champs obligatoires
-  if (!data || typeof data !== 'object') throw new Error('Invalid data');
-  if (!isValidUUID(data.userId)) throw new Error('Invalid userId');
-  if (!isValidUUID(data.sessionId)) throw new Error('Invalid sessionId');
-  if (!data.deviceInfo || typeof data.deviceInfo !== 'object') throw new Error('Missing deviceInfo');
-  // Accepte timings OU keystrokeData
-  if (!Array.isArray(data.keystrokeData) && !Array.isArray(data.timings)) throw new Error('Missing keystrokeData or timings');
-  if (typeof data.cameraActive !== 'boolean') throw new Error('Missing cameraActive');
-  if (typeof data.musicId !== 'string') throw new Error('Missing musicId');
-
-  // Vérifier et convertir les émotions
-  if (data.emotions) {
-    // Si c'est un tableau d'émotions détectées (webcam)
-    if (Array.isArray(data.emotions)) {
-      console.log("Emotions data is an array with length:", data.emotions.length);
-      
-      // Ensure each emotion has the required fields
-      data.emotions = data.emotions.map(entry => {
-        const sanitizedEntry = { ...entry };
-        if (typeof entry.timestamp !== 'number') sanitizedEntry.timestamp = 0;
-        if (typeof entry.emotion !== 'string') sanitizedEntry.emotion = 'neutral';
-        if (typeof entry.score !== 'number') sanitizedEntry.score = 0;
-        return sanitizedEntry;
-      });
-      
-      data.emotionTimeline = data.emotions;
-    } else if (typeof data.emotions === 'object') {
-      // Si c'est un objet d'émotions (manual)
-      console.log("Emotions data is an object:", data.emotions);
-      Object.keys(data.emotions).forEach(key => {
-        if (typeof data.emotions[key] !== 'number') {
-          data.emotions[key] = parseFloat(data.emotions[key]) || 0;
-        }
-      });
-    }
+  console.log("Validating and sanitizing data for type:", type);
+  
+  // Clone to avoid modifying the original
+  const sanitizedData = JSON.parse(JSON.stringify(data));
+  
+  // Ensure required fields
+  if (!sanitizedData.userId) {
+    console.log("No userId provided, generating a random one");
+    sanitizedData.userId = crypto.randomBytes(16).toString('hex');
+  }
+  
+  if (!sanitizedData.sessionId) {
+    console.log("No sessionId provided, generating one");
+    sanitizedData.sessionId = crypto.randomBytes(16).toString('hex');
+  }
+  
+  // Sanitize text content
+  if (sanitizedData.text) {
+    sanitizedData.text = sanitizeText(sanitizedData.text);
   } else {
-    // Par défaut, créer un objet d'émotions vide
-    data.emotions = {};
-    data.emotionTimeline = [];
+    sanitizedData.text = "";
   }
-
-  // Sanitize text
-  data.text = sanitizeText(data.text || '');
-  // Sanitize keystrokeData si présent
-  if (Array.isArray(data.keystrokeData)) {
-    data.keystrokeData = data.keystrokeData.map(entry => {
-      return {
-        ...entry,
-        key: sanitizeText(entry.key || ''),
-        key1: sanitizeText(entry.key1 || ''),
-        key2: sanitizeText(entry.key2 || '')
-      };
-    });
+  
+  // Ensure timestamp
+  if (!sanitizedData.timestamp) {
+    sanitizedData.timestamp = new Date().toISOString();
   }
-  return data;
+  
+  // Handle different formats of emotions data
+  if (sanitizedData.emotions) {
+    if (typeof sanitizedData.emotions === 'object' && !Array.isArray(sanitizedData.emotions)) {
+      // Convert object format to array format for consistency
+      console.log("Converting emotions object to timeline format");
+      const emotionValues = Object.entries(sanitizedData.emotions)
+        .map(([emotion, value]) => ({ emotion, value }));
+      
+      // Find the dominant emotion
+      const dominantEmotion = emotionValues.reduce(
+        (max, current) => current.value > max.value ? current : max, 
+        { emotion: 'neutral', value: 0 }
+      );
+      
+      // Create a timeline entry
+      sanitizedData.emotionTimeline = [{
+        timestamp: 0,
+        emotion: dominantEmotion.emotion,
+        score: dominantEmotion.value,
+        allEmotions: sanitizedData.emotions
+      }];
+    }
+  }
+  
+  // Ensure emotionTimeline is always present
+  if (!sanitizedData.emotionTimeline) {
+    sanitizedData.emotionTimeline = [];
+  }
+  
+  // Ensure context
+  if (!sanitizedData.context) {
+    sanitizedData.context = type;
+  }
+  
+  console.log("Validation complete, returning sanitized data");
+  return sanitizedData;
 }
 
-// --- Stockage par fichier JSON individuel (1 fichier par session) ---
+// Fonction simplifiée pour sauvegarder les données en JSON
 function saveSessionToJSONFile(type, data) {
+  // S'assurer que le répertoire des sessions existe
   const sessionDir = path.join(DATA_DIR, 'sessions');
   if (!fs.existsSync(sessionDir)) {
-    fs.mkdirSync(sessionDir);
+    fs.mkdirSync(sessionDir, { recursive: true });
   }
-  const filename = `${data.sessionId}_${type}_${Date.now()}.json`;
+  
+  // Créer un nom de fichier sécurisé
+  const safeType = (type || 'unknown').replace(/[^a-z0-9_-]/gi, '');
+  const safeSessionId = (data.sessionId || 'unknown').replace(/[^a-z0-9_-]/gi, '');
+  const timestamp = Date.now();
+  const filename = `${safeSessionId}_${safeType}_${timestamp}.json`;
   const filepath = path.join(sessionDir, filename);
+  
+  // Sauvegarder les données
   fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
   console.log(`Data saved to: ${filepath}`);
+  
   return filepath;
 }
 
@@ -477,11 +495,13 @@ const server = http.createServer((req, res) => {
   
   // Handle POST request for saving data
   if (req.method === 'POST' && pathname === '/save-data') {
+    console.log("==== SAVE DATA REQUEST RECEIVED ====");
     let body = '';
     
     req.on('data', chunk => {
       body += chunk.toString();
       if (body.length > MAX_BODY_SIZE) {
+        console.error("Request body too large:", body.length, "bytes");
         safeResponse(413, { 'Content-Type': 'application/json' }, JSON.stringify({ 
           success: false, 
           message: 'Request body too large' 
@@ -491,29 +511,125 @@ const server = http.createServer((req, res) => {
     });
     
     req.on('end', () => {
+      console.log("Request body received, processing...");
       try {
-        let { type, data } = JSON.parse(body);
+        // Parse request body
+        let payload;
+        try {
+          payload = JSON.parse(body);
+          console.log("JSON parsed successfully");
+        } catch (parseError) {
+          console.error("JSON parse error:", parseError);
+          safeResponse(400, { 'Content-Type': 'application/json' }, JSON.stringify({ 
+            success: false, 
+            message: 'Invalid JSON: ' + parseError.message 
+          }));
+          return;
+        }
+        
+        // Support both formats:
+        // 1. { type, data } - original format
+        // 2. { type, userId, sessionId, ... } - new direct format
+        
+        let type, data;
+        
+        // Check if it's the new format (direct data in payload)
+        if (payload.type && payload.userId && payload.sessionId) {
+          console.log("Detected direct data format");
+          type = payload.type;
+          data = payload; // Use the payload directly as data
+        } 
+        // Check if it's the original format with type and data
+        else if (payload.type && payload.data) {
+          console.log("Detected {type, data} format");
+          type = payload.type;
+          data = payload.data;
+        }
+        // Legacy format with just data and context
+        else if (payload.context) {
+          console.log("Detected legacy format with context");
+          type = payload.context;
+          data = payload;
+        }
+        // Unknown format
+        else {
+          console.error("Unknown data format in request");
+          safeResponse(400, { 'Content-Type': 'application/json' }, JSON.stringify({ 
+            success: false, 
+            message: 'Invalid data format: missing type or data'
+          }));
+          return;
+        }
+        
+        // Handle legacy and new format
+        if (!type) {
+          console.error("Missing type in request");
+          safeResponse(400, { 'Content-Type': 'application/json' }, JSON.stringify({ 
+            success: false, 
+            message: 'Missing type parameter' 
+          }));
+          return;
+        }
+        
+        if (!data) {
+          console.error("Missing data in request");
+          safeResponse(400, { 'Content-Type': 'application/json' }, JSON.stringify({ 
+            success: false, 
+            message: 'Missing data parameter' 
+          }));
+          return;
+        }
+        
+        console.log("Data received for type:", type);
+        console.log("Data keys:", Object.keys(data));
+        
+        // Map type if needed
         type = mapType(type);
-        console.log("Received data type:", type);
-        console.log("Emotions data:", data.emotions ? (Array.isArray(data.emotions) ? `Array with ${data.emotions.length} items` : "Object") : "None");
+        console.log("Mapped type:", type);
         
-        const sanitizedData = validateAndSanitizeData(type, data);
+        // Process emotions data
+        if (data.emotions) {
+          console.log("Emotions data present:", 
+            Array.isArray(data.emotions) 
+              ? `Array with ${data.emotions.length} items` 
+              : "Object with keys: " + Object.keys(data.emotions).join(", ")
+          );
+        } else {
+          console.log("No emotions data present");
+        }
         
-        // Log what's being saved
-        console.log("Saving data with emotions:", sanitizedData.emotions ? 
-          (Array.isArray(sanitizedData.emotions) ? `Array with ${sanitizedData.emotions.length} items` : "Object") : "None");
+        if (data.emotionTimeline) {
+          console.log("Emotion timeline present with", 
+            data.emotionTimeline.length, "entries");
+        }
         
-        const filepath = saveSessionToJSONFile(type, sanitizedData); // Sauvegarde fichier JSON uniquement
-        safeResponse(200, { 'Content-Type': 'application/json' }, JSON.stringify({ 
-          success: true, 
-          message: 'Data saved successfully in JSON file',
-          filename: filepath
-        }));
+        try {
+          // Validate and sanitize data
+          const sanitizedData = validateAndSanitizeData(type, data);
+          console.log("Data validated and sanitized successfully");
+          
+          // Save to file
+          const filepath = saveSessionToJSONFile(type, sanitizedData);
+          console.log("Data saved successfully to:", filepath);
+          
+          safeResponse(200, { 'Content-Type': 'application/json' }, JSON.stringify({ 
+            success: true, 
+            message: 'Data saved successfully',
+            filename: path.basename(filepath),
+            sessionId: sanitizedData.sessionId || "unknown"
+          }));
+        } catch (processingError) {
+          console.error("Error processing data:", processingError);
+          safeResponse(400, { 'Content-Type': 'application/json' }, JSON.stringify({ 
+            success: false, 
+            message: 'Error processing data: ' + processingError.message 
+          }));
+        }
       } catch (error) {
         console.error('Error processing save request:', error);
-        safeResponse(400, { 'Content-Type': 'application/json' }, JSON.stringify({ 
+        safeResponse(500, { 'Content-Type': 'application/json' }, JSON.stringify({ 
           success: false, 
-          message: 'Error saving data: ' + error.message 
+          message: 'Server error: ' + error.message 
         }));
       }
     });
@@ -779,12 +895,16 @@ const server = http.createServer((req, res) => {
         .sort((a, b) => b.date - a.date)
         .slice(0, 50);
       
+      // Vérifier si on demande une session spécifique par ID
+      const requestedId = parsedUrl.query ? new URLSearchParams(parsedUrl.query).get('id') : null;
+      
       // Charger les données des sessions
       const sessions = recentSessions.map(session => {
         try {
           const data = JSON.parse(fs.readFileSync(path.join(sessionDir, session.file), 'utf8'));
           return {
             id: session.id,
+            file: session.file,  // Ajouter le nom du fichier pour pouvoir le récupérer
             participantUsername: data.userId || 'Anonyme',
             date: session.date,
             type: session.type,
@@ -794,6 +914,7 @@ const server = http.createServer((req, res) => {
         } catch (err) {
           return {
             id: session.id,
+            file: session.file,  // Ajouter même en cas d'erreur
             date: session.date,
             type: session.type,
             error: 'Erreur lors de la lecture du fichier'

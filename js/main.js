@@ -126,26 +126,26 @@ document.addEventListener('DOMContentLoaded', () => {
       // Create a custom privacy modal
       const privacyModalHtml = `
         <div id="privacy-modal" class="modal active">
-          <div class="modal-content">
-            <h2>Privacy Information</h2>
-            <div class="privacy-content">
-              <p>This application collects:</p>
-              <ul>
-                <li>Keystroke timing data (press and release times)</li>
-                <li>Text you type in the input areas</li>
-                <li>Context information (music played or webcam status)</li>
-                <li>Emotion data (manually reported or detected via webcam)</li>
+          <div class="modal-content" style="max-width: 800px; padding: 30px; box-shadow: 0 0 20px rgba(0,0,0,0.3); background-color: #fff; border-radius: 10px;">
+            <h2 style="font-size: 26px; margin-bottom: 20px; color: #4361ee;">Politique de Confidentialité</h2>
+            <div class="privacy-content" style="font-size: 16px; line-height: 1.6;">
+              <p style="margin-bottom: 15px; font-weight: bold;">Cette application collecte :</p>
+              <ul style="margin-bottom: 20px; padding-left: 25px;">
+                <li style="margin-bottom: 10px;">Les temps de frappe au clavier (moments d'appui et de relâchement)</li>
+                <li style="margin-bottom: 10px;">Le texte que vous saisissez dans les zones de saisie</li>
+                <li style="margin-bottom: 10px;">Les informations de contexte (musique jouée ou statut de la webcam)</li>
+                <li style="margin-bottom: 10px;">Les données émotionnelles (rapportées manuellement ou détectées via webcam)</li>
               </ul>
               
-              <p>All data is stored on the server in JSON format and is not shared with third parties.</p>
-              <p>The data is collected for research purposes to analyze typing patterns and emotional states.</p>
+              <p style="margin-bottom: 15px;">Toutes les données sont stockées sur le serveur au format JSON et ne sont pas partagées avec des tiers.</p>
+              <p style="margin-bottom: 15px;">Les données sont collectées à des fins de recherche pour analyser les schémas de frappe et les états émotionnels.</p>
               
-              <p>Your data is identified only by a randomly generated ID, not by personal information.</p>
-              <p>The webcam feed is only used when you explicitly choose the camera mode.</p>
+              <p style="margin-bottom: 15px;">Vos données sont identifiées uniquement par un ID généré aléatoirement, et non par des informations personnelles.</p>
+              <p style="margin-bottom: 15px;">Le flux de la webcam est utilisé uniquement lorsque vous choisissez explicitement le mode caméra.</p>
               
-              <p>Collected data is only accessible to administrators.</p>
+              <p style="margin-bottom: 15px;">Les données collectées ne sont accessibles qu'aux administrateurs.</p>
             </div>
-            <button id="close-privacy-modal" class="btn-primary">Close</button>
+            <button id="close-privacy-modal" class="btn-primary" style="padding: 12px 25px; font-size: 16px; margin-top: 15px; background: linear-gradient(to right, #4361ee, #3a0ca3); color: white; border: none; border-radius: 5px; cursor: pointer;">Fermer</button>
           </div>
         </div>
       `;
@@ -164,7 +164,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function askEmotions() {
     return new Promise(resolve => {
       const modal = document.getElementById('emotion-modal');
+      
+      // Make sure the modal is visible by setting both hidden and active classes
       modal.classList.remove('hidden');
+      modal.classList.add('active');
+      
+      console.log("Emotion modal element:", modal);
+      console.log("Modal visibility:", window.getComputedStyle(modal).display, window.getComputedStyle(modal).visibility);
+      
       const form = document.getElementById('emotion-form');
       form.onsubmit = e => {
         e.preventDefault();
@@ -172,28 +179,96 @@ document.addEventListener('DOMContentLoaded', () => {
         // Convertir en nombre
         Object.keys(data).forEach(k => data[k] = Number(data[k]));
         modal.classList.add('hidden');
+        modal.classList.remove('active');
         resolve(data);
       };
+      
+      // Add manual cancel button
+      const cancelButton = document.createElement('button');
+      cancelButton.textContent = 'Cancel';
+      cancelButton.type = 'button';
+      cancelButton.style.marginRight = '10px';
+      cancelButton.onclick = () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('active');
+        resolve({happy: 50, sad: 50, anger: 50, fear: 50, surprise: 50}); // Default values
+      };
+      
+      // Add the cancel button before the submit button
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.parentNode.insertBefore(cancelButton, submitButton);
     });
   }
 
-  // Create emotion modal in English
+  // Create emotion modal in English with improved styling
   const emotionModalHtml = `
     <div id="emotion-modal" class="modal hidden">
       <div class="modal-content">
         <h2>How do you feel after this session?</h2>
         <form id="emotion-form">
-          <label>Happy: <input type="range" min="0" max="100" value="50" name="happy"> <span id="happy-val">50</span>%</label><br>
-          <label>Sad: <input type="range" min="0" max="100" value="50" name="sad"> <span id="sad-val">50</span>%</label><br>
-          <label>Angry: <input type="range" min="0" max="100" value="50" name="anger"> <span id="anger-val">50</span>%</label><br>
-          <label>Fearful: <input type="range" min="0" max="100" value="50" name="fear"> <span id="fear-val">50</span>%</label><br>
-          <label>Surprised: <input type="range" min="0" max="100" value="50" name="surprise"> <span id="surprise-val">50</span>%</label><br>
-          <button type="submit">Submit</button>
+          <div class="emotion-slider">
+            <label for="happy">Happy:</label>
+            <input type="range" min="0" max="100" value="50" name="happy" id="happy">
+            <span id="happy-val">50</span>%
+          </div>
+          <div class="emotion-slider">
+            <label for="sad">Sad:</label>
+            <input type="range" min="0" max="100" value="50" name="sad" id="sad">
+            <span id="sad-val">50</span>%
+          </div>
+          <div class="emotion-slider">
+            <label for="anger">Angry:</label>
+            <input type="range" min="0" max="100" value="50" name="anger" id="anger">
+            <span id="anger-val">50</span>%
+          </div>
+          <div class="emotion-slider">
+            <label for="fear">Fearful:</label>
+            <input type="range" min="0" max="100" value="50" name="fear" id="fear">
+            <span id="fear-val">50</span>%
+          </div>
+          <div class="emotion-slider">
+            <label for="surprise">Surprised:</label>
+            <input type="range" min="0" max="100" value="50" name="surprise" id="surprise">
+            <span id="surprise-val">50</span>%
+          </div>
+          <div class="button-container">
+            <button type="submit" class="btn-primary">Submit</button>
+          </div>
         </form>
       </div>
     </div>
   `;
+
+  // Insert the improved modal HTML
   document.body.insertAdjacentHTML('beforeend', emotionModalHtml);
+
+  // Add a style tag for the emotion sliders
+  const styleTag = document.createElement('style');
+  styleTag.textContent = `
+    .emotion-slider {
+      margin-bottom: 15px;
+    }
+    .emotion-slider label {
+      display: inline-block;
+      width: 80px;
+      font-weight: 500;
+    }
+    .emotion-slider input[type="range"] {
+      width: 200px;
+      margin: 0 10px;
+      vertical-align: middle;
+    }
+    .button-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .modal.active {
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: flex !important;
+    }
+  `;
+  document.head.appendChild(styleTag);
 
   // Affichage dynamique des valeurs
   ['happy','sad','anger','fear','surprise'].forEach(emotion => {
@@ -202,9 +277,63 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Remplacer les handlers de sauvegarde pour demander les émotions et simplifier le format
+  // Add a utility function to check if the server is running
+  async function isServerRunning() {
+    try {
+      // Try to fetch a very small resource to see if the server responds
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        const serverPort = location.port || '3000';
+        const response = await fetch(`http://${location.hostname}:${serverPort}/`, {
+          method: 'HEAD',
+          // Set a short timeout to quickly fail if server is not responding
+          signal: AbortSignal.timeout(2000)
+        });
+        return response.ok;
+      }
+      return true; // Assume server is running in production
+    } catch (error) {
+      console.error("Server check failed:", error);
+      return false;
+    }
+  }
+
+  // Update the saveSimpleSession function to check server status first
   async function saveSimpleSession(type, tracker) {
+    console.log(`Save ${type} session triggered`);
+    
+    // First check if server is running to give early feedback
+    const serverAvailable = await isServerRunning();
+    if (!serverAvailable) {
+      alert('Warning: Server appears to be offline. Data will be saved locally only.');
+      
+      // Save data locally as fallback
+      try {
+        const keystrokeData = tracker.getData();
+        const data = {
+          userId: getUserUUID(),
+          sessionId: generateUUIDv4(),
+          text: keystrokeData.text,
+          keystrokeData: keystrokeData.keystrokeData,
+          timestamp: new Date().toISOString(),
+          context: type
+        };
+        
+        const timestamp = new Date().toISOString().replace(/:/g, '-');
+        const localStorageKey = `keystroke_data_${type}_${timestamp}`;
+        localStorage.setItem(localStorageKey, JSON.stringify(data));
+        console.log(`Data saved locally with key: ${localStorageKey}`);
+        alert('Data has been saved locally. Please try again when the server is available.');
+        return;
+      } catch (storageError) {
+        console.error("Failed to save locally:", storageError);
+        alert('Failed to save data: ' + storageError.message);
+        return;
+      }
+    }
+    
     const keystrokeData = tracker.getData();
+    console.log("Keystroke data:", keystrokeData);
+    
     if (keystrokeData.text.length < 10) {
       alert('Please type at least 10 characters before saving');
       return;
@@ -215,20 +344,45 @@ document.addEventListener('DOMContentLoaded', () => {
     if (type === 'webcam') {
       // Récupérer les émotions détectées automatiquement par la webcam
       const webcamData = webcamTracker.getData();
+      console.log("Webcam data:", webcamData);
       
       // Create and show a summary of detected emotions before saving
       if (webcamData.emotionTimeline && webcamData.emotionTimeline.length > 0) {
+        console.log("Showing emotion summary");
         const confirmSave = await showEmotionSummary(webcamData.emotionTimeline);
         if (!confirmSave) return; // User cancelled the save
       } else {
-        alert('No emotions were detected. Please make sure your face is visible to the camera.');
-        return;
+        console.log("No emotions detected in webcam mode");
+        
+        // Proposition à l'utilisateur de choisir son émotion manuellement
+        const manualEmotions = ["neutral", "happy", "sad", "angry", "fearful", "surprised"];
+        const selectedEmotion = prompt(
+          "Aucune émotion n'a été détectée par la caméra. " +
+          "Veuillez choisir une émotion manuellement parmi : " + 
+          manualEmotions.join(", ") +
+          "\nOu cliquez sur Annuler pour ne pas sauvegarder."
+        );
+        
+        if (!selectedEmotion) return; // L'utilisateur a annulé
+        
+        // Vérification que l'émotion est valide
+        const emotion = manualEmotions.includes(selectedEmotion.toLowerCase()) 
+          ? selectedEmotion.toLowerCase() 
+          : "neutral";
+        
+        // Force l'émotion choisie
+        const entry = webcamTracker.forceEmotion(emotion, 100);
+        
+        // Créer une timeline avec cette émotion
+        webcamData.emotionTimeline = [entry];
       }
       
       emotions = webcamData.emotionTimeline || [];
     } else {
       // Pour les modes manual et music, on demande toujours les émotions manuellement
+      console.log("Asking for emotions manually");
       emotions = await askEmotions();
+      console.log("Emotions received:", emotions);
     }
     
     // Convert array of emotions to format expected by the server for webcam mode
@@ -259,13 +413,38 @@ document.addEventListener('DOMContentLoaded', () => {
       detectionType: Array.isArray(processedEmotions) ? 'automatic' : 'manual'
     };
     
+    console.log("Preparing to send data:", data);
+    
     try {
-      const response = await fetch('/save-data', {
+      console.log("Sending fetch request to /save-data");
+      
+      // Check if the server is running
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        // For local development, we need to include port in the URL
+        var serverPort = location.port || '3000'; // Default to 3000 if no port specified
+        var saveUrl = `http://${location.hostname}:${serverPort}/save-data`;
+      } else {
+        // For production
+        var saveUrl = '/save-data';
+      }
+      
+      console.log("Using save URL:", saveUrl);
+      
+      const response = await fetch(saveUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, data })
       });
+      
+      console.log("Response received:", response);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+      }
+      
       const result = await response.json();
+      console.log("Result:", result);
+      
       if (result.success) {
         alert('Session saved successfully!');
         tracker.reset();
@@ -276,14 +455,146 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Error saving session: ' + result.message);
       }
     } catch (e) {
-      alert('Error saving session: ' + e.message);
+      console.error("Fetch error:", e);
+      
+      // Check if it's a network error
+      if (e.name === 'TypeError' && e.message.includes('fetch')) {
+        alert('Connection error: Server might not be running. Please ensure the server is started.');
+      } else {
+        alert('Error saving session: ' + e.message);
+      }
+      
+      // Store data locally as fallback
+      try {
+        const timestamp = new Date().toISOString().replace(/:/g, '-');
+        const localStorageKey = `keystroke_data_${type}_${timestamp}`;
+        localStorage.setItem(localStorageKey, JSON.stringify(data));
+        console.log(`Data saved locally with key: ${localStorageKey}`);
+        alert('Data has been saved locally as a backup. Please try again when the server is available.');
+      } catch (storageError) {
+        console.error("Failed to save locally:", storageError);
+      }
     }
   }
 
-  // Remplacer les anciens handlers :
+  // Remplacer les anciens handlers avec des fonctions spécifiques pour chaque mode
   document.getElementById('save-manual').onclick = () => saveSimpleSession('manual', manualKeystrokeTracker);
   document.getElementById('save-music').onclick = () => saveSimpleSession('music', musicKeystrokeTracker);
-  document.getElementById('save-webcam').onclick = () => saveSimpleSession('webcam', webcamKeystrokeTracker);
+  document.getElementById('save-webcam').onclick = () => saveWebcamSession(webcamKeystrokeTracker);
+
+  // Fonction simplifiée spécifiquement pour le mode webcam
+  async function saveWebcamSession(tracker) {
+    console.log("==== SAVE WEBCAM SESSION TRIGGERED ====");
+    
+    try {
+      // 1. Vérifier si assez de texte
+      const keystrokeData = tracker.getData();
+      console.log("Keystroke data:", keystrokeData);
+      
+      if (keystrokeData.text.length < 10) {
+        alert('Please type at least 10 characters before saving');
+        return false;
+      }
+      
+      // 2. Obtenir les données d'émotions de la webcam
+      const webcamData = webcamTracker.getData();
+      console.log("Webcam data:", webcamData);
+      
+      // 3. Si pas d'émotions détectées, demander à l'utilisateur
+      let emotionTimeline = webcamData.emotionTimeline || [];
+      
+      if (emotionTimeline.length === 0) {
+        console.log("No emotions detected, prompting user");
+        const manualEmotions = ["neutral", "happy", "sad", "angry", "fearful", "surprised"];
+        const selectedEmotion = prompt(
+          "Aucune émotion n'a été détectée par la caméra. " +
+          "Veuillez choisir une émotion manuellement parmi : " + 
+          manualEmotions.join(", ") +
+          "\nOu cliquez sur Annuler pour ne pas sauvegarder."
+        );
+        
+        if (!selectedEmotion) {
+          console.log("User cancelled emotion selection");
+          return false; // L'utilisateur a annulé
+        }
+        
+        // Vérification que l'émotion est valide
+        const emotion = manualEmotions.includes(selectedEmotion.toLowerCase()) 
+          ? selectedEmotion.toLowerCase() 
+          : "neutral";
+        
+        console.log("Using manually selected emotion:", emotion);
+        
+        // Créer une entrée d'émotion
+        emotionTimeline = [{
+          timestamp: 0,
+          emotion: emotion,
+          score: 100,
+          allEmotions: {
+            "neutral": emotion === "neutral" ? 100 : 0,
+            "happy": emotion === "happy" ? 100 : 0, 
+            "sad": emotion === "sad" ? 100 : 0,
+            "angry": emotion === "angry" ? 100 : 0,
+            "fearful": emotion === "fearful" ? 100 : 0,
+            "surprised": emotion === "surprised" ? 100 : 0,
+            "disgusted": 0
+          }
+        }];
+      }
+      
+      // 4. Préparer les données
+      const sessionId = generateUUIDv4();
+      const data = {
+        type: 'webcam',
+        userId: getUserUUID(),
+        sessionId: sessionId,
+        deviceInfo: getDeviceInfo(),
+        text: keystrokeData.text,
+        keystrokeData: keystrokeData.keystrokeData,
+        sessionDuration: keystrokeData.sessionDurationMs,
+        keystrokeCount: keystrokeData.keystrokeCount,
+        timestamp: new Date().toISOString(),
+        context: 'webcam',
+        cameraActive: true,
+        emotionTimeline: emotionTimeline
+      };
+      
+      // 5. Sauvegarder en local d'abord (backup)
+      const localKey = `keystroke_data_webcam_${sessionId}`;
+      localStorage.setItem(localKey, JSON.stringify(data));
+      console.log("Data saved to localStorage with key:", localKey);
+      
+      // 6. Envoyer au serveur
+      console.log("Sending data to server");
+      const response = await fetch('/save-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      
+      console.log("Server response status:", response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log("Server response data:", result);
+      
+      if (result.success) {
+        alert('Session saved successfully!');
+        tracker.reset();
+        webcamTracker.reset();
+        return true;
+      } else {
+        throw new Error(result.message || "Unknown server error");
+      }
+    } catch (error) {
+      console.error("Error saving webcam session:", error);
+      alert("La sauvegarde a échoué, mais vos données sont enregistrées localement. Erreur: " + error.message);
+      return false;
+    }
+  }
 
   /* 
    * Data viewing functionality has been disabled for regular users.
@@ -383,4 +694,23 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     return colors[emotion] || '#FFFFFF';
   }
+
+  // Add event handlers for manual emotion buttons
+  const emotionButtons = document.querySelectorAll('.emotion-btn');
+  emotionButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const emotion = button.getAttribute('data-emotion');
+      
+      // Remove active class from all buttons
+      emotionButtons.forEach(btn => btn.classList.remove('active'));
+      
+      // Add active class to clicked button
+      button.classList.add('active');
+      
+      // Force this emotion in the webcam tracker
+      webcamTracker.forceEmotion(emotion, 100);
+      
+      console.log(`Manually set emotion: ${emotion}`);
+    });
+  });
 });

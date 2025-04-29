@@ -119,6 +119,20 @@
         <video id="webcam" autoplay muted></video>
         <p id="detection-status">Waiting for camera permission...</p>
       </div>
+      
+      <!-- Ajout des boutons d'émotions manuelles -->
+      <div id="manual-emotions" class="manual-emotions">
+        <p>Si la détection ne fonctionne pas, cliquez pour définir votre émotion manuellement :</p>
+        <div class="emotion-buttons">
+          <button data-emotion="neutral" class="emotion-btn">Neutre</button>
+          <button data-emotion="happy" class="emotion-btn">Content</button>
+          <button data-emotion="sad" class="emotion-btn">Triste</button>
+          <button data-emotion="angry" class="emotion-btn">En colère</button>
+          <button data-emotion="fearful" class="emotion-btn">Effrayé</button>
+          <button data-emotion="surprised" class="emotion-btn">Surpris</button>
+        </div>
+      </div>
+      
       <textarea id="webcam-typing-area" placeholder="Type here while camera is active..."></textarea>
       <div class="typing-metrics">
         <div id="webcam-typing-speed">Typing Speed: 0 CPM</div>
@@ -128,9 +142,7 @@
     </section>
 
     <footer>
-      <div class="privacy-note animated-privacy">
-        <small>🔒 <span class="highlight-text">Your data is secure</span> on our server. <a href="#" id="privacy-link" class="glow-effect">Privacy Information</a></small>
-      </div>
+      <div class="privacy-note">Les données sont collectées de manière anonyme et ne sont utilisées qu'à des fins de recherche. Pour plus d'informations, veuillez consulter notre <a href="#" id="privacy-link">politique de confidentialité</a>.</div>
     </footer>
   </div>
 
@@ -140,5 +152,6 @@
   <script src="js/emotions.js"></script>
   <script src="js/webcam.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/facedetection.js"></script>
 </body>
 </html>

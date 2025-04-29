@@ -25,22 +25,69 @@ class WebcamTracker {
     if (this.detectionStatus) {
       this.detectionStatus.parentNode.insertBefore(this.debugPanel, this.detectionStatus.nextSibling);
     }
+    
+    console.log("WebcamTracker initialized");
   }
   
   async initialize() {
     try {
+      console.log("Initializing WebcamTracker");
       // Load face-api.js models from local files
       if (!this.modelLoaded) {
         this.detectionStatus.textContent = 'Loading detection model...';
         try {
-          // Use the new models directory
-          await faceapi.nets.tinyFaceDetector.loadFromUri('/models/face-api-models');
-          await faceapi.nets.faceExpressionNet.loadFromUri('/models/face-api-models');
-          this.modelLoaded = true;
-          console.log("Face detection models loaded successfully");
+          // Vérifier si face-api est disponible
+          if (typeof faceapi === 'undefined') {
+            throw new Error("face-api is not loaded");
+          }
+          
+          console.log("Attempting to load models from /models/face-api-models");
+          
+          // Utiliser le chemin absolu pour les modèles
+          const modelPath = window.location.origin + '/models/face-api-models';
+          console.log("Using model path:", modelPath);
+          
+          // Load models with timeout promise to avoid hanging forever
+          const loadWithTimeout = async (loadPromise, timeout, modelName) => {
+            let timer;
+            const timeoutPromise = new Promise((_, reject) => {
+              timer = setTimeout(() => reject(new Error(`Loading ${modelName} timed out after ${timeout}ms`)), timeout);
+            });
+            
+            try {
+              await Promise.race([loadPromise, timeoutPromise]);
+              clearTimeout(timer);
+              console.log(`${modelName} loaded successfully`);
+              return true;
+            } catch (error) {
+              console.error(`Error loading ${modelName}:`, error);
+              return false;
+            }
+          };
+          
+          // Load each model with timeout
+          const tinyFaceLoaded = await loadWithTimeout(
+            faceapi.nets.tinyFaceDetector.loadFromUri(modelPath),
+            10000, 
+            "TinyFaceDetector"
+          );
+          
+          const expressionLoaded = await loadWithTimeout(
+            faceapi.nets.faceExpressionNet.loadFromUri(modelPath),
+            10000, 
+            "FaceExpressionNet"
+          );
+          
+          if (tinyFaceLoaded && expressionLoaded) {
+            this.modelLoaded = true;
+            console.log("All face detection models loaded successfully");
+          } else {
+            throw new Error("Some models failed to load");
+          }
         } catch (modelError) {
           console.error("Model loading error:", modelError);
           this.detectionStatus.textContent = 'Error loading face detection model. Camera will work without emotion detection.';
+          this.modelLoaded = false;
         }
       }
 
@@ -63,7 +110,11 @@ class WebcamTracker {
 
       this.video.srcObject = stream;
       this.isActive = true;
-      this.sessionStartTime = new Date().toISOString();
+      
+      // Reset emotion timeline and set start time (using milliseconds timestamp instead of ISO string)
+      this.emotionTimeline = [];
+      this.sessionStartTime = Date.now();
+      console.log("Session start time set to:", this.sessionStartTime);
       
       // Start emotion detection if models loaded successfully
       if (this.modelLoaded) {
@@ -124,10 +175,19 @@ class WebcamTracker {
   }
   
   startEmotionDetection() {
-    if (!this.isActive || !this.modelLoaded) return;
+    if (!this.isActive || !this.modelLoaded) {
+      console.log("Cannot start emotion detection:", 
+                 this.isActive ? "Model not loaded" : "Camera not active");
+      return;
+    }
+    
+    console.log("Starting emotion detection");
     
     const analyze = async () => {
-      if (!this.isActive) return;
+      if (!this.isActive) {
+        console.log("Emotion detection stopped (camera inactive)");
+        return;
+      }
       
       try {
         // Check if video is ready
@@ -136,6 +196,8 @@ class WebcamTracker {
           this.frameTimer = setTimeout(analyze, this.frameInterval);
           return;
         }
+        
+        console.log("Analyzing video frame for emotions");
         
         // Get all detected faces with expressions
         const result = await faceapi.detectSingleFace(
@@ -159,14 +221,18 @@ class WebcamTracker {
           
           // Only record emotions with a minimum confidence
           if (score > 0.2) { // Lower threshold to 20% confidence to capture more emotions
-            this.emotionTimeline.push({
-              timestamp: Date.now() - new Date(this.sessionStartTime).getTime(),
+            const entry = {
+              timestamp: Date.now() - this.sessionStartTime,
               emotion,
               score: Math.round(score * 100),
               allEmotions: Object.fromEntries(
                 Object.entries(result.expressions).map(([e, s]) => [e, Math.round(s * 100)])
               )
-            });
+            };
+            
+            console.log("Adding emotion to timeline:", entry);
+            this.emotionTimeline.push(entry);
+            
             this.detectionStatus.textContent = `Detected emotion: ${emotion} (${Math.round(score * 100)}%)`;
           } else {
             this.detectionStatus.textContent = 'Emotion confidence too low. Please face the camera.';
@@ -181,9 +247,12 @@ class WebcamTracker {
         this.debugPanel.innerHTML = `<div>Error: ${error.message}</div>`;
       }
       
+      // Schedule next analysis
       this.frameTimer = setTimeout(analyze, this.frameInterval);
+      console.log("Next emotion analysis scheduled in", this.frameInterval, "ms");
     };
     
+    // Start the analysis loop
     analyze();
   }
   
@@ -202,7 +271,54 @@ class WebcamTracker {
     this.debugPanel.innerHTML = '';
   }
   
+  // Fonction pour forcer la détection d'une émotion (si l'utilisateur veut sauvegarder sans détection automatique)
+  forceEmotion(emotionName = 'neutral', score = 100) {
+    console.log(`Forcing emotion: ${emotionName} with score ${score}`);
+    
+    const timestamp = Date.now() - this.sessionStartTime;
+    const allEmotions = {
+      "neutral": 0,
+      "happy": 0,
+      "sad": 0,
+      "angry": 0,
+      "fearful": 0,
+      "disgusted": 0,
+      "surprised": 0
+    };
+    
+    // Set the specified emotion to the given score
+    allEmotions[emotionName] = score;
+    
+    const entry = {
+      timestamp,
+      emotion: emotionName,
+      score,
+      allEmotions
+    };
+    
+    this.emotionTimeline.push(entry);
+    this.detectionStatus.textContent = `Emotion manually set: ${emotionName} (${score}%)`;
+    
+    return entry;
+  }
+  
+  // Method to check if we have any emotions detected
+  hasDetectedEmotions() {
+    return this.emotionTimeline && this.emotionTimeline.length > 0;
+  }
+  
   getData() {
+    console.log("WebcamTracker getData called");
+    console.log("emotionTimeline length:", this.emotionTimeline.length);
+    console.log("isActive:", this.isActive);
+    console.log("modelLoaded:", this.modelLoaded);
+    
+    // If no emotions detected but camera is active, add a default neutral emotion
+    if (this.isActive && this.emotionTimeline.length === 0) {
+      console.log("No emotions detected, adding neutral placeholder");
+      this.forceEmotion('neutral', 100);
+    }
+    
     return {
       sessionStartTime: this.sessionStartTime,
       emotionTimeline: this.emotionTimeline,
@@ -211,11 +327,16 @@ class WebcamTracker {
   }
   
   reset() {
-    this.sessionStartTime = null;
     this.emotionTimeline = [];
+    
     if (this.isActive) {
-      this.sessionStartTime = new Date().toISOString();
+      this.sessionStartTime = Date.now();
+      console.log("Session reset, new start time:", this.sessionStartTime);
+    } else {
+      this.sessionStartTime = null;
+      console.log("Session reset (camera inactive)");
     }
+    
     this.debugPanel.innerHTML = '';
   }
 }

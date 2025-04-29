@@ -1063,7 +1063,7 @@
                     <td>${duration}</td>
                     <td>
                         <button class="btn btn-secondary btn-sm" onclick="viewSession('${session.id}')">Voir</button>
-                        <a class="btn btn-primary btn-sm" href="/data/sessions/${session.file}" download>Télécharger</a>
+                        <a class="btn btn-primary btn-sm" href="/data/sessions/${session.file}" download="${session.file}">Télécharger</a>
                     </td>
                 </tr>
                 `;
@@ -1074,7 +1074,65 @@
         
         // Fonction pour voir une session (à implémenter)
         function viewSession(id) {
-            alert(`Affichage de la session ${id} à implémenter`);
+            // Trouver la session correspondante dans le tableau des sessions
+            fetch(`/api/admin/sessions?id=${id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(sessions => {
+                // Trouver la session avec l'ID correspondant
+                const session = sessions.find(s => s.id === id);
+                
+                if (!session || !session.file) {
+                    throw new Error('Session introuvable');
+                }
+                
+                // Récupérer le fichier de session
+                return fetch(`/data/sessions/${session.file}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur lors du chargement du fichier: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Créer un blob et l'ouvrir dans un nouvel onglet
+                const dataStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const newTab = window.open(url, '_blank');
+                
+                // Si l'ouverture est bloquée
+                if (!newTab) {
+                    alert("L'ouverture d'un nouvel onglet a été bloquée. Essayez de télécharger les données.");
+                }
+                
+                // Nettoyer après ouverture
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 1000);
+            })
+            .catch(error => {
+                console.error('Erreur lors de l\'affichage de la session:', error);
+                alert(`Erreur: ${error.message}`);
+            });
         }
         
         // Exporter les données
