@@ -419,13 +419,14 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log("Sending fetch request to /save-data");
       
       // Check if the server is running
+      let saveUrl;
       if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         // For local development, we need to include port in the URL
-        var serverPort = location.port || '3000'; // Default to 3000 if no port specified
-        var saveUrl = `http://${location.hostname}:${serverPort}/save-data`;
+        const serverPort = location.port || '3000'; // Default to 3000 if no port specified
+        saveUrl = `http://${location.hostname}:${serverPort}/save-data`;
       } else {
         // For production
-        var saveUrl = '/save-data';
+        saveUrl = '/save-data';
       }
       
       console.log("Using save URL:", saveUrl);
@@ -566,7 +567,21 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // 6. Envoyer au serveur
       console.log("Sending data to server");
-      const response = await fetch('/save-data', {
+      
+      // Check if the server is running
+      let saveUrl;
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        // For local development, we need to include port in the URL
+        const serverPort = location.port || '3000'; // Default to 3000 if no port specified
+        saveUrl = `http://${location.hostname}:${serverPort}/save-data`;
+      } else {
+        // For production
+        saveUrl = '/save-data';
+      }
+      
+      console.log("Using save URL:", saveUrl);
+      
+      const response = await fetch(saveUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
