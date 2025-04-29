@@ -10,13 +10,13 @@ Ce projet collecte et analyse les dynamiques de frappe au clavier, avec une opti
   - Frappe avec contexte musical et saisie manuelle des émotions
   - Frappe avec caméra et **détection automatique des émotions** via webcam
 - **Visualisation des données** collectées
-- **Stockage local** des données au format JSON
+- **Stockage local** des données au format JSON (exclusivement)
 
 ## Structure du projet
 
 ```
 emotion-detection/
-├── server.js            # Serveur Node.js simple
+├── server.js            # Serveur Node.js simple avec sécurité améliorée
 ├── index.html           # Interface utilisateur principale
 ├── js/
 │   ├── emotions.js      # Logique de traitement des émotions
@@ -29,15 +29,23 @@ emotion-detection/
 │   └── styles.css       # Styles de l'interface
 ├── models/
 │   └── face-api-models/ # Modèles de détection d'émotions
+├── admin/               # Interface d'administration
+│   ├── login.html       # Page de connexion admin
+│   ├── dashboard.html   # Tableau de bord admin
+│   └── auth.js          # Gestion de l'authentification
 └── data/                # Stockage des données collectées
-    └── sessions/        # Sessions individuelles enregistrées
+    └── sessions/        # Sessions individuelles enregistrées en JSON
 ```
 
 ## Installation
 
 1. Clonez ce dépôt
 2. Assurez-vous d'avoir Node.js installé
-3. Lancez le serveur avec :
+3. Pour une installation complète avec gestion des dépendances (recommandé) :
+   ```
+   npm install
+   ```
+4. Lancez le serveur avec :
    ```
    ./start.sh
    ```
@@ -45,7 +53,27 @@ emotion-detection/
    ```
    node server.js
    ```
-4. Ouvrez http://localhost:3000 dans votre navigateur
+5. Ouvrez http://localhost:3000 dans votre navigateur
+
+## Améliorations de sécurité
+
+Le serveur inclut désormais plusieurs améliorations de sécurité :
+
+- **Rate limiting** : Protection contre les attaques par force brute
+- **Protection CSRF** : Jetons de protection contre les attaques cross-site request forgery
+- **Limitation des tentatives de connexion** : Verrouillage temporaire après plusieurs échecs d'authentification
+- **En-têtes de sécurité renforcés** : Protection XSS, Content Security Policy, etc.
+- **Sanitisation des entrées utilisateur** : Nettoyage de toutes les données entrantes
+- **Gestion sécurisée des sessions** : Sessions avec expiration et tokens aléatoires
+
+## Stockage des données
+
+Les données sont maintenant stockées exclusivement au format JSON :
+
+- Chaque session est enregistrée dans un fichier JSON séparé
+- Format standardisé pour faciliter l'analyse ultérieure
+- Meilleure structuration des données (par rapport au format CSV précédent)
+- Support natif des objets et tableaux complexes pour les données émotionnelles
 
 ## Comment utiliser
 
@@ -79,18 +107,34 @@ L'application collecte :
 ### Stockage des données
 Les données sont stockées localement en format JSON et peuvent être téléchargées pour analyse ultérieure.
 
-## Respect de la vie privée
+## Privacy & Security
 
-- Aucune donnée n'est envoyée à des serveurs externes
-- Les données sont stockées uniquement localement
-- La caméra n'est activée que si vous choisissez expressément le mode caméra
-- Les utilisateurs doivent donner leur consentement pour la collecte
+- All data is stored securely on the server in JSON format
+- The webcam feed is processed locally and is not stored as video - only emotion data is saved
+- No personal identifiers are collected - users are identified by randomly generated UUIDs
+- All communications with the server are protected with security headers
+- Data is sanitized before storage to prevent injection attacks
 
 ## Dépendances
 
 - face-api.js - Détection faciale et analyse des émotions
 - Node.js - Serveur local
-- SQLite (via better-sqlite3) - Stockage de données
+- (optionnel) bcrypt - Pour le hachage sécurisé des mots de passe (à installer si nécessaire)
+
+## Administration
+
+L'application inclut une interface d'administration sécurisée :
+
+1. Accédez à http://localhost:3000/admin/login
+2. Connectez-vous avec les identifiants par défaut (à changer en production) :
+   - Utilisateur : admin
+   - Mot de passe : changeme123
+3. Le tableau de bord permet de :
+   - Visualiser les statistiques des sessions
+   - Exporter les données au format JSON
+   - Gérer les paramètres de l'application
+
+**IMPORTANT** : Pour un déploiement en production, modifiez les identifiants par défaut et configurez les variables d'environnement pour une meilleure sécurité.
 
 ## Scripts utilitaires
 
@@ -136,18 +180,23 @@ All three tracking methods collect the following keystroke timing data:
 
 All times are measured in milliseconds.
 
+### Emotion Collection
+- **Free Typing & Music Context**: Users manually report their emotional state using sliders
+- **Camera Context**: Emotions are automatically detected from facial expressions in real-time
+
 ### Data Storage
 
-All collected data is stored locally in your browser's localStorage. You can:
-- View all collected data
-- Export data as a JSON file
-- Clear all data
+All collected data is stored on the server as JSON files:
+- Session files are organized by type (manual, music, webcam)
+- You can view summaries of collected data
+- Each session contains keystroke timings, text, and emotional data
+- Data can be exported as JSON files for further analysis
 
-## Privacy & Security
-
-- All data is stored locally on your device
-- The webcam feed is processed locally and is not transmitted anywhere
-- No external APIs are used for emotion detection
+### User Interface Features
+- Visualization of emotion summaries before saving
+- Session browser for reviewing past typing sessions
+- Direct viewing of session data contents
+- Easy data export for analysis
 
 ## Browser Compatibility
 

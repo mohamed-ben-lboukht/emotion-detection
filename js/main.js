@@ -127,9 +127,13 @@ document.addEventListener('DOMContentLoaded', () => {
         'This application collects:\n' +
         '- Keystroke timing data (press and release times)\n' +
         '- Text you type in the input areas\n' +
-        '- Context information (music played or webcam status)\n\n' +
-        'All data is stored locally on the server and is not shared with third parties.\n' +
-        'The data is collected for research purposes to analyze typing patterns.'
+        '- Context information (music played or webcam status)\n' +
+        '- Emotion data (manually reported or detected via webcam)\n\n' +
+        'All data is stored on the server in JSON format and is not shared with third parties.\n' +
+        'The data is collected for research purposes to analyze typing patterns and emotional states.\n\n' +
+        'Your data is identified only by a randomly generated ID, not by personal information.\n' +
+        'The webcam feed is only used when you explicitly choose the camera mode.\n\n' +
+        'Collected data is only accessible to administrators.'
       );
     });
   }
@@ -259,34 +263,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('save-music').onclick = () => saveSimpleSession('music', musicKeystrokeTracker);
   document.getElementById('save-webcam').onclick = () => saveSimpleSession('webcam', webcamKeystrokeTracker);
 
-  // View Data button handler
-  viewDataButton.addEventListener('click', () => {
-    // Hide all sections
-    sections.forEach(section => {
-      section.classList.add('hidden');
-    });
-    
-    // Show data view
-    document.getElementById('data-view').classList.remove('hidden');
-    
-    // Hide main options
-    document.querySelector('.options').classList.add('hidden');
-    
-    // Display the data
-    displayStoredData();
-  });
-  
-  // Download Data button handler
-  if (downloadDataButton) {
-    downloadDataButton.addEventListener('click', () => {
-      if (sessionSelect && sessionSelect.value) {
-        window.open(sessionSelect.value, '_blank');
-      } else {
-        alert('Please select a session to download');
-      }
-    });
-  }
-  
+  /* 
+   * Data viewing functionality has been disabled for regular users.
+   * Data can only be accessed through the admin interface.
+   */
+
   // Fonction utilitaire pour infos device
   function getDeviceInfo() {
     return {
@@ -299,90 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fonction utilitaire pour récupérer l'UUID utilisateur
   function getUserUUID() {
     return localStorage.getItem('keystroke_user_uuid') || '';
-  }
-
-  // Function to display stored data from server
-  async function displayStoredData() {
-    const dataDisplay = document.getElementById('data-display');
-    dataDisplay.innerHTML = '<p>Loading data...</p>';
-    
-    try {
-      const response = await fetch('/list-files');
-      const data = await response.json();
-      
-      if (!data.files || data.files.length === 0) {
-        dataDisplay.innerHTML = '<p>No data files found.</p>';
-        return;
-      }
-      
-      let html = '<h3>Keystroke Dynamics Data Files</h3>';
-      
-      // Clear and populate the session selector
-      if (sessionSelect) {
-        sessionSelect.innerHTML = '<option value="">Select a session</option>';
-      }
-      
-      // Group files by type for better organization
-      const fileTypes = {
-        free_typing: { name: 'Free Typing', files: [] },
-        music_typing: { name: 'Music Context Typing', files: [] },
-        webcam_typing: { name: 'Camera Context Typing', files: [] },
-        // Keep compatibility with old file types
-        manual: { name: 'Free Typing (Legacy)', files: [] },
-        music: { name: 'Music Context (Legacy)', files: [] },
-        webcam: { name: 'Camera Context (Legacy)', files: [] }
-      };
-      
-      // Sort files into categories
-      data.files.forEach(file => {
-        if (file.type in fileTypes) {
-          fileTypes[file.type].files.push(file);
-          
-          // Add to select dropdown
-          if (sessionSelect && file.exists) {
-            const option = document.createElement('option');
-            option.value = file.path;
-            option.textContent = `${fileTypes[file.type].name}: ${file.name}`;
-            sessionSelect.appendChild(option);
-          }
-        }
-      });
-      
-      // Create section for each type
-      for (const [type, info] of Object.entries(fileTypes)) {
-        if (info.files.length > 0) {
-          html += `<div class="data-category">
-            <h4>${info.name} Data</h4>`;
-          
-          info.files.forEach(file => {
-            if (!file.exists) {
-              html += `<p>No data has been recorded yet.</p>`;
-              return;
-            }
-            
-            const modified = new Date(file.modified).toLocaleString();
-            const fileSize = (file.size / 1024).toFixed(2); // Convert to KB
-            
-            html += `
-              <div class="data-entry">
-                <p><strong>Filename:</strong> ${file.name}</p>
-                <p><strong>Last updated:</strong> ${modified}</p>
-                <p><strong>Size:</strong> ${fileSize} KB</p>
-                <a href="${file.path}" class="download-button" download>Download CSV</a>
-              </div>
-            `;
-          });
-          
-          html += `</div>`;
-        }
-      }
-      
-      dataDisplay.innerHTML = html;
-      
-    } catch (error) {
-      console.error('Error fetching data files:', error);
-      dataDisplay.innerHTML = `<p>Error loading data: ${error.message}</p>`;
-    }
   }
 
   // Fonction pour afficher un résumé des émotions détectées avant sauvegarde

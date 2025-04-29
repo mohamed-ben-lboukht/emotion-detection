@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Connexion - Détection d'émotions</title>
+    
+    <!-- Sécurité -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <style>
+        :root {
+            --primary-color: #4a6baf;
+            --primary-dark: #344e87;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --background-color: #f8f9fa;
+            --text-color: #343a40;
+            --border-color: #dee2e6;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 450px;
+            padding: 2rem;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .login-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .login-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .login-form input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 107, 175, 0.25);
+        }
+        
+        .login-form button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .login-form button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .error-message {
+            color: var(--danger-color);
+            background-color: rgba(220, 53, 69, 0.1);
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        
+        .logo {
+            max-width: 100px;
+            margin: 0 auto 1rem;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <!-- Si vous avez un logo, décommentez la ligne suivante -->
+            <!-- <img src="/assets/images/logo.png" alt="Logo" class="logo"> -->
+            <h1>Détection d'émotions</h1>
+            <p>Panneau d'administration</p>
+        </div>
+        
+        <div id="error-message" class="error-message">
+            Identifiants incorrects. Veuillez réessayer.
+        </div>
+        
+        <form id="login-form" class="login-form">
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            
+            <button type="submit">Se connecter</button>
+        </form>
+    </div>
+    
+    <script>
+        // Check if user is already authenticated
+        function isAuthenticated() {
+            // Vérifier les cookies plutôt que localStorage
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'session_token' && value) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Redirect if already authenticated
+        if (isAuthenticated()) {
+            const redirectPath = sessionStorage.getItem('redirect_after_login') || '/admin/dashboard';
+            window.location.href = redirectPath;
+            sessionStorage.removeItem('redirect_after_login');
+        }
+        
+        // Handle login form submission
+        const loginForm = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+        
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            
+            // Hide error message
+            errorMessage.style.display = 'none';
+            
+            try {
+                // Disable button during login attempt
+                const submitButton = loginForm.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Connexion en cours...';
+                
+                // Attempt login
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password }),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Ne plus stocker dans localStorage puisque le serveur utilise des cookies
+                    // Rediriger directement
+                    const redirectPath = sessionStorage.getItem('redirect_after_login') || '/admin/dashboard';
+                    window.location.href = redirectPath;
+                    sessionStorage.removeItem('redirect_after_login');
+                } else {
+                    // Show error
+                    errorMessage.textContent = result.message || 'Identifiants incorrects. Veuillez réessayer.';
+                    errorMessage.style.display = 'block';
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+            } catch (error) {
+                // Show error message
+                errorMessage.textContent = error.message || 'Erreur de connexion. Veuillez réessayer.';
+                errorMessage.style.display = 'block';
+                
+                // Reset password field
+                passwordInput.value = '';
+                passwordInput.focus();
+            } finally {
+                // Re-enable button
+                const submitButton = loginForm.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Se connecter';
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -20,7 +20,8 @@
           <li>Détection d'émotions via caméra (uniquement en mode caméra)</li>
           <li>Informations techniques sur l'appareil (navigateur, OS, taille écran)</li>
         </ul>
-      Elles sont stockées localement ou de façon sécurisée, et ne servent qu'à des fins de recherche comportementale.<br>
+      Elles sont stockées de façon sécurisée sur le serveur et ne sont accessibles qu'aux administrateurs de l'application.<br>
+      Ces données ne servent qu'à des fins de recherche comportementale et ne sont pas partagées avec des tiers.<br>
       En continuant, vous acceptez cette collecte anonyme.</p>
       <button id="accept-consent">J'accepte</button>
     </div>
@@ -126,23 +127,9 @@
       <button id="save-webcam" class="save-button">Save Data</button>
     </section>
 
-    <section id="data-view" class="tracking-section hidden">
-      <button class="back-button">← Back</button>
-      <h2>Your Collected Keystroke Data</h2>
-      <div class="session-selector">
-        <select id="session-select">
-          <option value="">Select a session</option>
-        </select>
-        <button id="download-data">Download Selected Data</button>
-      </div>
-      <div id="data-display"></div>
-      <div id="data-visualization"></div>
-    </section>
-
     <footer>
-      <button id="view-data">View Your Data</button>
       <div class="privacy-note">
-        <small>Data is stored locally on this device. <a href="#" id="privacy-link">Privacy Information</a></small>
+        <small>Data is stored securely on the server. <a href="#" id="privacy-link">Privacy Information</a></small>
       </div>
     </footer>
   </div>
