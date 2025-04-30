@@ -483,6 +483,16 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('save-music').onclick = () => saveSimpleSession('music', musicKeystrokeTracker);
   document.getElementById('save-webcam').onclick = () => saveWebcamSession(webcamKeystrokeTracker);
 
+  // Ajout d'une alerte de debug sur les boutons Save Data
+  ['save-manual', 'save-music', 'save-webcam'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener('click', () => {
+        alert('DEBUG: JS Save Data cliqué (' + id + ')');
+      }, { capture: true }); // capture pour être sûr que ça s'affiche même si un autre handler existe
+    }
+  });
+
   // Fonction simplifiée spécifiquement pour le mode webcam
   async function saveWebcamSession(tracker) {
     console.log("==== SAVE WEBCAM SESSION TRIGGERED ====");
@@ -727,5 +737,12 @@ document.addEventListener('DOMContentLoaded', () => {
       
       console.log(`Manually set emotion: ${emotion}`);
     });
+  });
+
+  // Ajout d'une alerte de debug sur les boutons Back
+  Array.from(document.getElementsByClassName('back-button')).forEach(btn => {
+    btn.addEventListener('click', () => {
+      alert('DEBUG: JS Back cliqué');
+    }, { capture: true });
   });
 });
