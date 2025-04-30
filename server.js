@@ -378,6 +378,8 @@ function addSecurityHeaders(res) {
   res.setHeader('Permissions-Policy', 'camera=self, microphone=self, geolocation=()');
 }
 
+const PUBLIC_DIR = path.join(__dirname, 'public');
+
 const server = http.createServer((req, res) => {
   console.log(`${req.method} ${req.url}`);
   
@@ -409,6 +411,43 @@ const server = http.createServer((req, res) => {
   // Parsons l'URL dès le début
   const parsedUrl = url.parse(req.url);
   const pathname = parsedUrl.pathname;
+
+  // --- Correction Render : servir les fichiers statiques du dossier public ---
+  // Rediriger / vers /public/index.html si le fichier existe
+  if (pathname === '/' && fs.existsSync(path.join(PUBLIC_DIR, 'index.html'))) {
+    fs.readFile(path.join(PUBLIC_DIR, 'index.html'), (error, content) => {
+      if (error) {
+        res.writeHead(500, { 'Content-Type': 'text/html' });
+        res.end('Error loading index page');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(content);
+    });
+    return;
+  }
+
+  // Si le chemin commence par /js/, /css/, /models/, /assets/, /debug.html, /test-face-detection.html, servir depuis public
+  const staticPrefixes = ['/js/', '/css/', '/models/', '/assets/', '/debug.html', '/test-face-detection.html'];
+  for (const prefix of staticPrefixes) {
+    if (pathname.startsWith(prefix) || pathname === prefix) {
+      const staticFilePath = path.join(PUBLIC_DIR, pathname);
+      if (fs.existsSync(staticFilePath) && fs.statSync(staticFilePath).isFile()) {
+        const extname = path.extname(staticFilePath).toLowerCase();
+        const contentType = MIME_TYPES[extname] || 'application/octet-stream';
+        fs.readFile(staticFilePath, (error, content) => {
+          if (error) {
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Server Error');
+            return;
+          }
+          res.writeHead(200, { 'Content-Type': contentType });
+          res.end(content);
+        });
+        return;
+      }
+    }
+  }
   
   // Route de login pour l'interface d'administration
   if (req.method === 'GET' && pathname === '/admin/login') {
