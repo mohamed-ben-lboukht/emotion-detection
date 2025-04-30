@@ -55,6 +55,8 @@ function ensureConsentAndUUID() {
 // Appel dès le chargement
 ensureConsentAndUUID();
 
+alert('DEBUG: main.js chargé et exécuté');
+
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize trackers with display elements
   const manualKeystrokeTracker = new KeystrokeTracker('typing-area', 'typing-speed', 'keystroke-count');
@@ -491,6 +493,14 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('DEBUG: JS Save Data cliqué (' + id + ')');
       }, { capture: true }); // capture pour être sûr que ça s'affiche même si un autre handler existe
     }
+  });
+
+  // Debug: alerte sur tous les boutons save et back
+  document.querySelectorAll('.save-button').forEach(btn => {
+    btn.addEventListener('click', () => alert('DEBUG: Save Data cliqué'));
+  });
+  document.querySelectorAll('.back-button').forEach(btn => {
+    btn.addEventListener('click', () => alert('DEBUG: Back cliqué'));
   });
 
   // Fonction simplifiée spécifiquement pour le mode webcam
