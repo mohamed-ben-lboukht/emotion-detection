@@ -43,6 +43,13 @@ function ensureConsentAndUUID() {
       document.querySelectorAll('.option-card, .back-button, .save-button, #view-data').forEach(el => {
         el.removeAttribute('disabled');
       });
+      // Ré-attache les handlers de debug après consentement
+      document.querySelectorAll('.save-button').forEach(btn => {
+        btn.addEventListener('click', () => alert('DEBUG: Save Data cliqué'));
+      });
+      document.querySelectorAll('.back-button').forEach(btn => {
+        btn.addEventListener('click', () => alert('DEBUG: Back cliqué'));
+      });
     };
   } else {
     // Génère un UUID si pas déjà fait
