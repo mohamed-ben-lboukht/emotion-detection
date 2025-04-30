@@ -147,10 +147,14 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR);
 }
 
-// Create sessions directory if it doesn't exist
-if (!fs.existsSync(path.join(DATA_DIR, 'sessions'))) {
-  fs.mkdirSync(path.join(DATA_DIR, 'sessions'), { recursive: true });
-  console.log(`Created directory: ${path.join(DATA_DIR, 'sessions')}`);
+// Détection Render : utiliser /tmp/sessions/ si déployé sur Render
+const IS_RENDER = !!process.env.RENDER;
+const SESSIONS_DIR = IS_RENDER ? '/tmp/sessions' : path.join(DATA_DIR, 'sessions');
+
+// Créer le dossier de sessions si besoin
+if (!fs.existsSync(SESSIONS_DIR)) {
+  fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+  console.log(`Created directory: ${SESSIONS_DIR}`);
 }
 
 // Mapping des nouveaux types vers les anciens pour compatibilité
@@ -243,9 +247,8 @@ function validateAndSanitizeData(type, data) {
 // Fonction simplifiée pour sauvegarder les données en JSON
 function saveSessionToJSONFile(type, data) {
   // S'assurer que le répertoire des sessions existe
-  const sessionDir = path.join(DATA_DIR, 'sessions');
-  if (!fs.existsSync(sessionDir)) {
-    fs.mkdirSync(sessionDir, { recursive: true });
+  if (!fs.existsSync(SESSIONS_DIR)) {
+    fs.mkdirSync(SESSIONS_DIR, { recursive: true });
   }
   
   // Créer un nom de fichier sécurisé
@@ -253,7 +256,7 @@ function saveSessionToJSONFile(type, data) {
   const safeSessionId = (data.sessionId || 'unknown').replace(/[^a-z0-9_-]/gi, '');
   const timestamp = Date.now();
   const filename = `${safeSessionId}_${safeType}_${timestamp}.json`;
-  const filepath = path.join(sessionDir, filename);
+  const filepath = path.join(SESSIONS_DIR, filename);
   
   // Sauvegarder les données
   fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
@@ -690,15 +693,14 @@ const server = http.createServer((req, res) => {
     try {
       // Vérifier si l'utilisateur a le droit de lister les fichiers
       
-      const sessionDir = path.join(DATA_DIR, 'sessions');
-      const sessionFiles = fs.existsSync(sessionDir) ? 
-        fs.readdirSync(sessionDir)
+      const sessionFiles = fs.existsSync(SESSIONS_DIR) ? 
+        fs.readdirSync(SESSIONS_DIR)
           .filter(file => file.endsWith('.json'))
           .map(file => {
-            const stats = fs.statSync(path.join(sessionDir, file));
+            const stats = fs.statSync(path.join(SESSIONS_DIR, file));
             return {
               name: file,
-              path: path.join(sessionDir, file),
+              path: path.join(SESSIONS_DIR, file),
               size: stats.size,
               created: stats.birthtime,
               modified: stats.mtime
@@ -880,13 +882,13 @@ const server = http.createServer((req, res) => {
     
     try {
       // Récupérer les statistiques des sessions
-      const sessionFiles = fs.readdirSync(path.join(DATA_DIR, 'sessions'))
+      const sessionFiles = fs.readdirSync(SESSIONS_DIR)
         .filter(file => file.endsWith('.json'));
       
       const totalSessions = sessionFiles.length;
       const todaySessions = sessionFiles
         .filter(file => {
-          const stats = fs.statSync(path.join(DATA_DIR, 'sessions', file));
+          const stats = fs.statSync(path.join(SESSIONS_DIR, file));
           const today = new Date();
           return stats.mtime.toDateString() === today.toDateString();
         }).length;
@@ -918,14 +920,13 @@ const server = http.createServer((req, res) => {
     
     try {
       // Récupérer les fichiers de session
-      const sessionDir = path.join(DATA_DIR, 'sessions');
-      const sessionFiles = fs.readdirSync(sessionDir)
+      const sessionFiles = fs.readdirSync(SESSIONS_DIR)
         .filter(file => file.endsWith('.json'));
       
       // Limiter à 50 sessions les plus récentes
       const recentSessions = sessionFiles
         .map(file => {
-          const stats = fs.statSync(path.join(sessionDir, file));
+          const stats = fs.statSync(path.join(SESSIONS_DIR, file));
           return {
             id: file.split('_')[0],
             file,
@@ -942,7 +943,7 @@ const server = http.createServer((req, res) => {
       // Charger les données des sessions
       const sessions = recentSessions.map(session => {
         try {
-          const data = JSON.parse(fs.readFileSync(path.join(sessionDir, session.file), 'utf8'));
+          const data = JSON.parse(fs.readFileSync(path.join(SESSIONS_DIR, session.file), 'utf8'));
           return {
             id: session.id,
             file: session.file,  // Ajouter le nom du fichier pour pouvoir le récupérer
@@ -1002,11 +1003,10 @@ const server = http.createServer((req, res) => {
       archive.pipe(res);
       
       // Ajouter le dossier des sessions JSON
-      const sessionDir = path.join(DATA_DIR, 'sessions');
-      if (fs.existsSync(sessionDir)) {
-        const sessionFiles = fs.readdirSync(sessionDir).filter(file => file.endsWith('.json'));
+      if (fs.existsSync(SESSIONS_DIR)) {
+        const sessionFiles = fs.readdirSync(SESSIONS_DIR).filter(file => file.endsWith('.json'));
         sessionFiles.forEach(file => {
-          archive.file(path.join(sessionDir, file), { name: `sessions/${file}` });
+          archive.file(path.join(SESSIONS_DIR, file), { name: `sessions/${file}` });
         });
       }
       
@@ -1026,6 +1026,6 @@ const server = http.createServer((req, res) => {
 
 server.listen(CONFIG.PORT, () => {
   console.log(`Server running at http://localhost:${CONFIG.PORT}/`);
-  console.log(`Data is being stored in JSON format in: ${path.join(DATA_DIR, 'sessions')}`);
+  console.log(`Data is being stored in JSON format in: ${SESSIONS_DIR}`);
   console.log('Press Ctrl+C to stop the server');
 });
