@@ -45,10 +45,10 @@ function ensureConsentAndUUID() {
       });
       // Ré-attache les handlers de debug après consentement
       document.querySelectorAll('.save-button').forEach(btn => {
-        btn.addEventListener('click', () => alert('DEBUG: Save Data cliqué'));
+        btn.addEventListener('click', () => {});
       });
       document.querySelectorAll('.back-button').forEach(btn => {
-        btn.addEventListener('click', () => alert('DEBUG: Back cliqué'));
+        btn.addEventListener('click', () => {});
       });
     };
   } else {
@@ -62,9 +62,38 @@ function ensureConsentAndUUID() {
 // Appel dès le chargement
 ensureConsentAndUUID();
 
-alert('DEBUG: main.js chargé et exécuté');
-
 document.addEventListener('DOMContentLoaded', () => {
+  // S'assurer que les boutons sont activés
+  document.querySelectorAll('.back-button, .save-button').forEach(btn => btn.removeAttribute('disabled'));
+
+  // Nettoyage : remplacement des boutons pour supprimer tout ancien gestionnaire
+  document.querySelectorAll('.back-button').forEach(btn => {
+    const cleanBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(cleanBtn, btn);
+  });
+  document.querySelectorAll('.save-button').forEach(btn => {
+    const cleanBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(cleanBtn, btn);
+  });
+
+  // Gestionnaire unique pour chaque bouton Back (sans alerte)
+  document.querySelectorAll('.back-button').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelectorAll('.tracking-section').forEach(section => section.classList.add('hidden'));
+      const options = document.querySelector('.options');
+      if (options) options.classList.remove('hidden');
+    });
+  });
+
+  // Gestionnaire unique pour chaque bouton SaveData (sans alerte)
+  document.querySelectorAll('.save-button').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Ici, on peut appeler la logique de sauvegarde si besoin
+    });
+  });
+
   // Initialize trackers with display elements
   const manualKeystrokeTracker = new KeystrokeTracker('typing-area', 'typing-speed', 'keystroke-count');
   const musicKeystrokeTracker = new KeystrokeTracker('music-typing-area', 'music-typing-speed', 'music-keystroke-count');
@@ -177,9 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // Make sure the modal is visible by setting both hidden and active classes
       modal.classList.remove('hidden');
       modal.classList.add('active');
-      
-      console.log("Emotion modal element:", modal);
-      console.log("Modal visibility:", window.getComputedStyle(modal).display, window.getComputedStyle(modal).visibility);
       
       const form = document.getElementById('emotion-form');
       form.onsubmit = e => {
@@ -301,14 +327,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       return true; // Assume server is running in production
     } catch (error) {
-      console.error("Server check failed:", error);
       return false;
     }
   }
 
   // Update the saveSimpleSession function to check server status first
   async function saveSimpleSession(type, tracker) {
-    console.log(`Save ${type} session triggered`);
     
     // First check if server is running to give early feedback
     const serverAvailable = await isServerRunning();
@@ -330,18 +354,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const timestamp = new Date().toISOString().replace(/:/g, '-');
         const localStorageKey = `keystroke_data_${type}_${timestamp}`;
         localStorage.setItem(localStorageKey, JSON.stringify(data));
-        console.log(`Data saved locally with key: ${localStorageKey}`);
         alert('Data has been saved locally. Please try again when the server is available.');
         return;
       } catch (storageError) {
-        console.error("Failed to save locally:", storageError);
         alert('Failed to save data: ' + storageError.message);
         return;
       }
     }
     
     const keystrokeData = tracker.getData();
-    console.log("Keystroke data:", keystrokeData);
     
     if (keystrokeData.text.length < 10) {
       alert('Please type at least 10 characters before saving');
@@ -353,15 +374,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (type === 'webcam') {
       // Récupérer les émotions détectées automatiquement par la webcam
       const webcamData = webcamTracker.getData();
-      console.log("Webcam data:", webcamData);
       
       // Create and show a summary of detected emotions before saving
       if (webcamData.emotionTimeline && webcamData.emotionTimeline.length > 0) {
-        console.log("Showing emotion summary");
         const confirmSave = await showEmotionSummary(webcamData.emotionTimeline);
         if (!confirmSave) return; // User cancelled the save
       } else {
-        console.log("No emotions detected in webcam mode");
         
         // Proposition à l'utilisateur de choisir son émotion manuellement
         const manualEmotions = ["neutral", "happy", "sad", "angry", "fearful", "surprised"];
@@ -389,9 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
       emotions = webcamData.emotionTimeline || [];
     } else {
       // Pour les modes manual et music, on demande toujours les émotions manuellement
-      console.log("Asking for emotions manually");
       emotions = await askEmotions();
-      console.log("Emotions received:", emotions);
     }
     
     // Convert array of emotions to format expected by the server for webcam mode
@@ -422,10 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
       detectionType: Array.isArray(processedEmotions) ? 'automatic' : 'manual'
     };
     
-    console.log("Preparing to send data:", data);
-    
     try {
-      console.log("Sending fetch request to /save-data");
       
       // Check if the server is running
       let saveUrl;
@@ -438,22 +451,17 @@ document.addEventListener('DOMContentLoaded', () => {
         saveUrl = '/save-data';
       }
       
-      console.log("Using save URL:", saveUrl);
-      
       const response = await fetch(saveUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, data })
       });
       
-      console.log("Response received:", response);
-      
       if (!response.ok) {
         throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
       }
       
       const result = await response.json();
-      console.log("Result:", result);
       
       if (result.success) {
         alert('Session saved successfully!');
@@ -465,7 +473,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Error saving session: ' + result.message);
       }
     } catch (e) {
-      console.error("Fetch error:", e);
       
       // Check if it's a network error
       if (e.name === 'TypeError' && e.message.includes('fetch')) {
@@ -479,10 +486,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const timestamp = new Date().toISOString().replace(/:/g, '-');
         const localStorageKey = `keystroke_data_${type}_${timestamp}`;
         localStorage.setItem(localStorageKey, JSON.stringify(data));
-        console.log(`Data saved locally with key: ${localStorageKey}`);
         alert('Data has been saved locally as a backup. Please try again when the server is available.');
       } catch (storageError) {
-        console.error("Failed to save locally:", storageError);
       }
     }
   }
@@ -492,32 +497,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('save-music').onclick = () => saveSimpleSession('music', musicKeystrokeTracker);
   document.getElementById('save-webcam').onclick = () => saveWebcamSession(webcamKeystrokeTracker);
 
-  // Ajout d'une alerte de debug sur les boutons Save Data
-  ['save-manual', 'save-music', 'save-webcam'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) {
-      btn.addEventListener('click', () => {
-        alert('DEBUG: JS Save Data cliqué (' + id + ')');
-      }, { capture: true }); // capture pour être sûr que ça s'affiche même si un autre handler existe
-    }
-  });
-
-  // Debug: alerte sur tous les boutons save et back
-  document.querySelectorAll('.save-button').forEach(btn => {
-    btn.addEventListener('click', () => alert('DEBUG: Save Data cliqué'));
-  });
-  document.querySelectorAll('.back-button').forEach(btn => {
-    btn.addEventListener('click', () => alert('DEBUG: Back cliqué'));
-  });
-
   // Fonction simplifiée spécifiquement pour le mode webcam
   async function saveWebcamSession(tracker) {
-    console.log("==== SAVE WEBCAM SESSION TRIGGERED ====");
     
     try {
       // 1. Vérifier si assez de texte
       const keystrokeData = tracker.getData();
-      console.log("Keystroke data:", keystrokeData);
       
       if (keystrokeData.text.length < 10) {
         alert('Please type at least 10 characters before saving');
@@ -526,13 +511,11 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // 2. Obtenir les données d'émotions de la webcam
       const webcamData = webcamTracker.getData();
-      console.log("Webcam data:", webcamData);
       
       // 3. Si pas d'émotions détectées, demander à l'utilisateur
       let emotionTimeline = webcamData.emotionTimeline || [];
       
       if (emotionTimeline.length === 0) {
-        console.log("No emotions detected, prompting user");
         const manualEmotions = ["neutral", "happy", "sad", "angry", "fearful", "surprised"];
         const selectedEmotion = prompt(
           "Aucune émotion n'a été détectée par la caméra. " +
@@ -542,7 +525,6 @@ document.addEventListener('DOMContentLoaded', () => {
         );
         
         if (!selectedEmotion) {
-          console.log("User cancelled emotion selection");
           return false; // L'utilisateur a annulé
         }
         
@@ -550,8 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const emotion = manualEmotions.includes(selectedEmotion.toLowerCase()) 
           ? selectedEmotion.toLowerCase() 
           : "neutral";
-        
-        console.log("Using manually selected emotion:", emotion);
         
         // Créer une entrée d'émotion
         emotionTimeline = [{
@@ -590,10 +570,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // 5. Sauvegarder en local d'abord (backup)
       const localKey = `keystroke_data_webcam_${sessionId}`;
       localStorage.setItem(localKey, JSON.stringify(data));
-      console.log("Data saved to localStorage with key:", localKey);
       
       // 6. Envoyer au serveur
-      console.log("Sending data to server");
       
       // Check if the server is running
       let saveUrl;
@@ -606,22 +584,17 @@ document.addEventListener('DOMContentLoaded', () => {
         saveUrl = '/save-data';
       }
       
-      console.log("Using save URL:", saveUrl);
-      
       const response = await fetch(saveUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
       
-      console.log("Server response status:", response.status);
-      
       if (!response.ok) {
         throw new Error(`HTTP error ${response.status}`);
       }
       
       const result = await response.json();
-      console.log("Server response data:", result);
       
       if (result.success) {
         alert('Session saved successfully!');
@@ -632,7 +605,6 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(result.message || "Unknown server error");
       }
     } catch (error) {
-      console.error("Error saving webcam session:", error);
       alert("La sauvegarde a échoué, mais vos données sont enregistrées localement. Erreur: " + error.message);
       return false;
     }
@@ -751,15 +723,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Force this emotion in the webcam tracker
       webcamTracker.forceEmotion(emotion, 100);
-      
-      console.log(`Manually set emotion: ${emotion}`);
     });
-  });
-
-  // Ajout d'une alerte de debug sur les boutons Back
-  Array.from(document.getElementsByClassName('back-button')).forEach(btn => {
-    btn.addEventListener('click', () => {
-      alert('DEBUG: JS Back cliqué');
-    }, { capture: true });
   });
 });
