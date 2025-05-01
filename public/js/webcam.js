@@ -76,8 +76,8 @@ class WebcamTracker {
       }
 
       this.video.srcObject = stream;
-      this.video.width = 320;
-      this.video.height = 240;
+      this.video.width = 400;
+      this.video.height = 300;
       this.video.style.display = 'block'; // Ensure video is visible
       this.isActive = true;
       this.emotionTimeline = [];

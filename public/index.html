@@ -22,6 +22,16 @@
       overflow: hidden;
       border-radius: 12px;
       transition: all 0.3s ease;
+      margin: 0 auto;
+      max-width: 560px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    #webcam {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
     }
     
     .detection-indicator {
@@ -34,6 +44,7 @@
       background-color: #F44336;
       box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
       transition: all 0.3s ease;
+      z-index: 10;
     }
     
     .detection-indicator.active {
@@ -47,6 +58,13 @@
     
     .emotion-debug-panel {
       transition: all 0.5s ease;
+      margin: 5px auto;
+      max-width: 400px;
+      background-color: rgba(0,0,0,0.7) !important;
+      border-radius: 8px;
+      padding: 8px !important;
+      font-size: 0.8rem !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
     
     @keyframes fadeInUp {
