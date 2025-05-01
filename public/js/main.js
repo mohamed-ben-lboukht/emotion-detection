@@ -202,36 +202,38 @@ document.addEventListener('DOMContentLoaded', () => {
   function askEmotions() {
     return new Promise(resolve => {
       const modal = document.getElementById('emotion-modal');
-      
-      // Make sure the modal is visible by setting both hidden and active classes
       modal.classList.remove('hidden');
       modal.classList.add('active');
-      
       const form = document.getElementById('emotion-form');
+      // Nettoyage : supprimer tout bouton Cancel déjà présent
+      const oldCancel = form.querySelector('button.cancel-emotion');
+      if (oldCancel) oldCancel.remove();
       form.onsubmit = e => {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(form).entries());
-        // Convertir en nombre
         Object.keys(data).forEach(k => data[k] = Number(data[k]));
         modal.classList.add('hidden');
         modal.classList.remove('active');
         resolve(data);
       };
-      
-      // Add manual cancel button
+      // Ajout du bouton Cancel (une seule fois)
       const cancelButton = document.createElement('button');
       cancelButton.textContent = 'Cancel';
       cancelButton.type = 'button';
+      cancelButton.className = 'cancel-emotion';
       cancelButton.style.marginRight = '10px';
       cancelButton.onclick = () => {
         modal.classList.add('hidden');
         modal.classList.remove('active');
-        resolve({happy: 50, sad: 50, anger: 50, fear: 50, surprise: 50}); // Default values
+        // Reset textarea si présent
+        const textarea = form.closest('.tracking-section')?.querySelector('textarea');
+        if (textarea) textarea.value = '';
+        resolve(false); // On retourne false pour signaler l'annulation
       };
-      
-      // Add the cancel button before the submit button
       const submitButton = form.querySelector('button[type="submit"]');
-      submitButton.parentNode.insertBefore(cancelButton, submitButton);
+      if (submitButton && !form.querySelector('button.cancel-emotion')) {
+        submitButton.parentNode.insertBefore(cancelButton, submitButton);
+      }
     });
   }
 
@@ -407,7 +409,12 @@ document.addEventListener('DOMContentLoaded', () => {
       emotions = webcamData.emotionTimeline || [];
     } else {
       // Pour les modes manual et music, on demande toujours les émotions manuellement
-      emotions = await askEmotions();
+      const emotionsResult = await askEmotions();
+      if (emotionsResult === false) {
+        // Annulation : on ne sauvegarde rien
+        return;
+      }
+      emotions = emotionsResult;
     }
     
     // Convert array of emotions to format expected by the server for webcam mode
@@ -493,9 +500,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Remplacer les anciens handlers avec des fonctions spécifiques pour chaque mode
-  document.getElementById('save-manual').onclick = () => saveSimpleSession('manual', manualKeystrokeTracker);
-  document.getElementById('save-music').onclick = () => saveSimpleSession('music', musicKeystrokeTracker);
-  document.getElementById('save-webcam').onclick = () => saveWebcamSession(webcamKeystrokeTracker);
+  document.getElementById('save-manual').onclick = () => {
+    if (confirm("Voulez-vous sauvegarder les données de cette session?")) {
+      saveSimpleSession('manual', manualKeystrokeTracker);
+    }
+  };
+
+  document.getElementById('save-music').onclick = () => {
+    if (confirm("Voulez-vous sauvegarder les données de cette session?")) {
+      saveSimpleSession('music', musicKeystrokeTracker);
+    }
+  };
+
+  document.getElementById('save-webcam').onclick = () => {
+    if (confirm("Voulez-vous sauvegarder les données de cette session?")) {
+      saveWebcamSession(webcamKeystrokeTracker);
+    }
+  };
 
   // Fonction simplifiée spécifiquement pour le mode webcam
   async function saveWebcamSession(tracker) {

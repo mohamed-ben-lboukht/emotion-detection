@@ -136,6 +136,15 @@ class KeystrokeTracker {
       const charsCount = this.textarea.value.length;
       const cpm = Math.round(charsCount / elapsedMinutes);
       this.speedDisplay.textContent = `Typing Speed: ${cpm} CPM`;
+    } else {
+      // If time elapsed is too small, use a fixed small value to avoid division by zero
+      const charsCount = this.textarea.value.length;
+      if (charsCount > 0) {
+        const cpm = Math.round(charsCount / 0.01); // Assume at least 0.01 minutes
+        this.speedDisplay.textContent = `Typing Speed: ${cpm} CPM`;
+      } else {
+        this.speedDisplay.textContent = `Typing Speed: 0 CPM`;
+      }
     }
   }
 

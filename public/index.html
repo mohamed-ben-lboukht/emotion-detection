@@ -5,6 +5,95 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Keystroke Dynamics Collector</title>
   <link rel="stylesheet" href="/css/styles.css">
+  <!-- Ajouter des polices modernes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Meta for better mobile experience -->
+  <meta name="theme-color" content="#4361ee">
+  <style>
+    /* Override styles for a more professional look */
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .webcam-container {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      margin: 0 auto;
+      max-width: 560px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    #webcam {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+    
+    .detection-indicator {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #F44336;
+      box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    
+    .detection-indicator.active {
+      background-color: #4CAF50;
+      box-shadow: 0 0 12px rgba(76, 175, 80, 0.7);
+    }
+    
+    #detection-status {
+      transition: all 0.3s ease;
+    }
+    
+    .emotion-debug-panel {
+      transition: all 0.5s ease;
+      margin: 5px auto;
+      max-width: 400px;
+      background-color: rgba(0,0,0,0.7) !important;
+      border-radius: 8px;
+      padding: 8px !important;
+      font-size: 0.8rem !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .webcam-typing-ui {
+      animation: fadeInUp 0.5s ease-out;
+    }
+    
+    /* Pour assurer que l'interface utilisateur est toujours réactive */
+    @media (max-width: 768px) {
+      .webcam-container {
+        max-height: 240px;
+      }
+      
+      .emotion-debug-panel {
+        max-width: 100%;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- Modal de consentement RGPD -->
@@ -116,29 +205,34 @@
         <p><em>This mode shows the camera feed and emotion detection statistics in real-time.</em></p>
       </div>
       <div class="webcam-container">
+        <div class="detection-indicator" id="detection-indicator"></div>
         <video id="webcam" autoplay muted></video>
         <p id="detection-status">Waiting for camera permission...</p>
       </div>
       
-      <!-- Ajout des boutons d'émotions manuelles -->
-      <div id="manual-emotions" class="manual-emotions">
-        <p>Si la détection ne fonctionne pas, cliquez pour définir votre émotion manuellement :</p>
-        <div class="emotion-buttons">
-          <button data-emotion="neutral" class="emotion-btn">Neutre</button>
-          <button data-emotion="happy" class="emotion-btn">Content</button>
-          <button data-emotion="sad" class="emotion-btn">Triste</button>
-          <button data-emotion="angry" class="emotion-btn">En colère</button>
-          <button data-emotion="fearful" class="emotion-btn">Effrayé</button>
-          <button data-emotion="surprised" class="emotion-btn">Surpris</button>
+      <div class="webcam-typing-ui">
+        <!-- Manual emotion selection section -->
+        <div id="manual-emotions" class="manual-emotions">
+          <h3>Sélection Manuelle d'Émotion</h3>
+          <p>Si la détection automatique ne fonctionne pas, cliquez sur un bouton pour définir votre émotion :</p>
+          <div class="emotion-buttons">
+            <button data-emotion="neutral" class="emotion-btn">Neutre</button>
+            <button data-emotion="happy" class="emotion-btn">Content</button>
+            <button data-emotion="sad" class="emotion-btn">Triste</button>
+            <button data-emotion="angry" class="emotion-btn">En colère</button>
+            <button data-emotion="fearful" class="emotion-btn">Effrayé</button>
+            <button data-emotion="surprised" class="emotion-btn">Surpris</button>
+          </div>
+          <div id="manual-emotion-status" class="manual-emotion-status"></div>
         </div>
+        
+        <textarea id="webcam-typing-area" placeholder="Type here while camera is active..."></textarea>
+        <div class="typing-metrics">
+          <div id="webcam-typing-speed">Typing Speed: 0 CPM</div>
+          <div id="webcam-keystroke-count">Keystrokes: 0</div>
+        </div>
+        <button id="save-webcam" class="save-button">Save Data</button>
       </div>
-      
-      <textarea id="webcam-typing-area" placeholder="Type here while camera is active..."></textarea>
-      <div class="typing-metrics">
-        <div id="webcam-typing-speed">Typing Speed: 0 CPM</div>
-        <div id="webcam-keystroke-count">Keystrokes: 0</div>
-      </div>
-      <button id="save-webcam" class="save-button">Save Data</button>
     </section>
 
     <footer>
@@ -148,10 +242,61 @@
 
   <!-- Using locally hosted face-api.js instead of CDN -->
   <script src="/js/lib/face-api.min.js"></script>
+  <!-- Attendre que face-api soit chargé avant d'initialiser les autres scripts -->
+  <script>
+    // Vérifier si face-api est correctement chargé
+    window.addEventListener('DOMContentLoaded', function() {
+      if (typeof faceapi === 'undefined') {
+        console.error("ERREUR: face-api.js n'est pas chargé correctement!");
+        document.getElementById('detection-status').textContent = 
+          "Erreur: Bibliothèque de détection non chargée. Utilisez les boutons manuels.";
+      } else {
+        console.log("face-api.js chargé avec succès, version:", faceapi.version || "inconnue");
+        
+        // Préchargement forcé des modèles
+        async function preloadModels() {
+          try {
+            const modelPath = window.location.origin + '/models/weights';
+            console.log("Préchargement des modèles depuis:", modelPath);
+            
+            // Mettre à jour l'indicateur visuel
+            const indicator = document.getElementById('detection-indicator');
+            if (indicator) {
+              indicator.style.backgroundColor = '#FFC107'; // Jaune = chargement
+            }
+            
+            // Forcer le chargement des modèles avant tout
+            await faceapi.nets.tinyFaceDetector.load(modelPath);
+            await faceapi.nets.faceExpressionNet.load(modelPath);
+            
+            console.log("Modèles préchargés avec succès!");
+            document.getElementById('detection-status').textContent = 
+              "Modèles préchargés, initialisation de la détection...";
+              
+            // Mettre à jour l'indicateur visuel pour montrer que c'est prêt
+            if (indicator) {
+              indicator.style.backgroundColor = '#4CAF50'; // Vert = prêt
+            }
+          } catch (error) {
+            console.error("Erreur lors du préchargement des modèles:", error);
+            
+            // Mettre à jour l'indicateur visuel pour montrer l'erreur
+            const indicator = document.getElementById('detection-indicator');
+            if (indicator) {
+              indicator.style.backgroundColor = '#F44336'; // Rouge = erreur
+            }
+          }
+        }
+        
+        // Lancer le préchargement
+        preloadModels();
+      }
+    });
+  </script>
+  <script src="/js/facedetection.js"></script>
   <script src="/js/keystroke.js"></script>
   <script src="/js/emotions.js"></script>
   <script src="/js/webcam.js"></script>
   <script src="/js/main.js"></script>
-  <script src="/js/facedetection.js"></script>
 </body>
 </html>

@@ -1,13 +1,15 @@
-# Add to your render.yaml
+# Configuration pour déploiement sur Render.com
 services:
   - type: web
     name: emotion-detection
-    env: node
-    buildCommand: npm install
-    startCommand: npm start
+    env: docker
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: NODE_ENV
         value: production
-    staticDirs:
-      - source: ./public
-        destination: /
+      - key: PORT
+        value: 3001
+    disk:
+      name: data
+      mountPath: /app/data
+      sizeGB: 1
