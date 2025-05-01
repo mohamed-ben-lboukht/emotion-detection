@@ -500,9 +500,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Remplacer les anciens handlers avec des fonctions spécifiques pour chaque mode
-  document.getElementById('save-manual').onclick = () => saveSimpleSession('manual', manualKeystrokeTracker);
-  document.getElementById('save-music').onclick = () => saveSimpleSession('music', musicKeystrokeTracker);
-  document.getElementById('save-webcam').onclick = () => saveWebcamSession(webcamKeystrokeTracker);
+  document.getElementById('save-manual').onclick = () => {
+    if (confirm("Voulez-vous sauvegarder les données de cette session?")) {
+      saveSimpleSession('manual', manualKeystrokeTracker);
+    }
+  };
+
+  document.getElementById('save-music').onclick = () => {
+    if (confirm("Voulez-vous sauvegarder les données de cette session?")) {
+      saveSimpleSession('music', musicKeystrokeTracker);
+    }
+  };
+
+  document.getElementById('save-webcam').onclick = () => {
+    if (confirm("Voulez-vous sauvegarder les données de cette session?")) {
+      saveWebcamSession(webcamKeystrokeTracker);
+    }
+  };
 
   // Fonction simplifiée spécifiquement pour le mode webcam
   async function saveWebcamSession(tracker) {
