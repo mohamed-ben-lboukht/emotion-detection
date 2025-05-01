@@ -17,7 +17,6 @@ if (!fs.existsSync(DATA_DIR)) {
 // Create sessions directory if it doesn't exist
 if (!fs.existsSync(path.join(DATA_DIR, 'sessions'))) {
   fs.mkdirSync(path.join(DATA_DIR, 'sessions'), { recursive: true });
-  // DEBUG console.log(`Created directory: ${path.join(DATA_DIR, 'sessions')}`);
 }
 
 // Serve static files with proper MIME types
@@ -88,26 +87,21 @@ function saveSessionToJSONFile(type, data) {
   
   // Save the data
   fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
-  // DEBUG console.log(`Data saved to: ${filepath}`);
   
   return filepath;
 }
 
 // Function to validate and sanitize data
 function validateAndSanitizeData(type, data) {
-  // DEBUG console.log("Validating and sanitizing data for type:", type);
-  
   // Clone to avoid modifying the original
   const sanitizedData = JSON.parse(JSON.stringify(data));
   
   // Ensure required fields
   if (!sanitizedData.userId) {
-    // DEBUG console.log("No userId provided, generating a random one");
     sanitizedData.userId = crypto.randomBytes(16).toString('hex');
   }
   
   if (!sanitizedData.sessionId) {
-    // DEBUG console.log("No sessionId provided, generating one");
     sanitizedData.sessionId = crypto.randomBytes(16).toString('hex');
   }
   
@@ -126,8 +120,6 @@ function validateAndSanitizeData(type, data) {
   // Handle different formats of emotions data
   if (sanitizedData.emotions) {
     if (typeof sanitizedData.emotions === 'object' && !Array.isArray(sanitizedData.emotions)) {
-      // Convert object format to array format for consistency
-      // DEBUG console.log("Converting emotions object to timeline format");
       const emotionValues = Object.entries(sanitizedData.emotions)
         .map(([emotion, value]) => ({ emotion, value }));
       
@@ -157,14 +149,11 @@ function validateAndSanitizeData(type, data) {
     sanitizedData.context = type;
   }
   
-  // DEBUG console.log("Validation complete, returning sanitized data");
   return sanitizedData;
 }
 
 // API endpoint for data saving
 app.post('/save-data', (req, res) => {
-  // DEBUG console.log("==== SAVE DATA REQUEST RECEIVED ====");
-  
   try {
     const payload = req.body;
     
@@ -176,19 +165,16 @@ app.post('/save-data', (req, res) => {
     
     // Check if it's the new format (direct data in payload)
     if (payload.type && payload.userId && payload.sessionId) {
-      // DEBUG console.log("Detected direct data format");
       type = payload.type;
       data = payload; // Use the payload directly as data
     } 
     // Check if it's the original format with type and data
     else if (payload.type && payload.data) {
-      // DEBUG console.log("Detected {type, data} format");
       type = payload.type;
       data = payload.data;
     }
     // Legacy format with just data and context
     else if (payload.context) {
-      // DEBUG console.log("Detected legacy format with context");
       type = payload.context;
       data = payload;
     }
@@ -218,33 +204,12 @@ app.post('/save-data', (req, res) => {
       });
     }
     
-    // DEBUG console.log("Data received for type:", type);
-    // DEBUG console.log("Data keys:", Object.keys(data));
-    
-    // Process emotions data
-    if (data.emotions) {
-      // DEBUG console.log("Emotions data present:", 
-      //   Array.isArray(data.emotions) 
-      //     ? `Array with ${data.emotions.length} items` 
-      //     : "Object with keys: " + Object.keys(data.emotions).join(", ")
-      // );
-    } else {
-      // DEBUG console.log("No emotions data present");
-    }
-    
-    if (data.emotionTimeline) {
-      // DEBUG console.log("Emotion timeline present with", 
-      //   data.emotionTimeline.length, "entries");
-    }
-    
     try {
       // Validate and sanitize data
       const sanitizedData = validateAndSanitizeData(type, data);
-      // DEBUG console.log("Data validated and sanitized successfully");
       
       // Save to file
       const filepath = saveSessionToJSONFile(type, sanitizedData);
-      // DEBUG console.log("Data saved successfully to:", filepath);
       
       return res.json({ 
         success: true, 
@@ -276,5 +241,4 @@ app.get('*', (req, res) => {
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Data is being stored in JSON format in: ${path.join(DATA_DIR, 'sessions')}`);
 }); 
