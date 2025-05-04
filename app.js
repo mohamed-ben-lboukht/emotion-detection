@@ -270,27 +270,79 @@ app.get('/api/admin/sessions', (req, res) => {
     if (err) {
       return res.status(500).json({ error: 'Impossible de lire les sessions.' });
     }
+    
+    console.log("===== LISTE DES SESSIONS =====");
+    
     // Filtrer les fichiers JSON
     const jsonFiles = files.filter(f => f.endsWith('.json'));
     const sessions = [];
     jsonFiles.forEach(file => {
       try {
-        const content = fs.readFileSync(path.join(sessionsDir, file), 'utf-8');
+        const filePath = path.join(sessionsDir, file);
+        console.log(`Lecture du fichier: ${file}`);
+        
+        const content = fs.readFileSync(filePath, 'utf-8');
         const data = JSON.parse(content);
+        
+        // Debug: afficher les propriétés liées à la durée
+        console.log(`Fichier ${file} - propriétés:`, {
+          hasSessionDuration: 'sessionDuration' in data,
+          sessionDuration: data.sessionDuration,
+          hasDuration: 'duration' in data,
+          duration: data.duration,
+          hasTimings: 'timings' in data && Array.isArray(data.timings),
+          timingsLength: data.timings && Array.isArray(data.timings) ? data.timings.length : 0
+        });
+        
+        // Calculer la durée de session en millisecondes
+        let durationMs = null;
+        
+        // 1. Utiliser sessionDuration si disponible
+        if ('sessionDuration' in data && data.sessionDuration !== null) {
+          durationMs = Number(data.sessionDuration);
+          console.log(`${file}: Durée trouvée via sessionDuration: ${durationMs}ms`);
+        }
+        // 2. Utiliser duration si disponible
+        else if ('duration' in data && data.duration !== null) {
+          durationMs = Number(data.duration);
+          console.log(`${file}: Durée trouvée via duration: ${durationMs}ms`);
+        }
+        // 3. Calculer à partir des timings si disponibles
+        else if (data.timings && Array.isArray(data.timings) && data.timings.length > 1) {
+          durationMs = data.timings[data.timings.length - 1] - data.timings[0];
+          console.log(`${file}: Durée calculée via timings: ${durationMs}ms`);
+        }
+        
+        // Utiliser une durée par défaut si aucune n'est disponible
+        if (durationMs === null || isNaN(durationMs)) {
+          durationMs = 0;
+          console.log(`${file}: Aucune durée valide trouvée, utilisation de 0 par défaut`);
+        }
+        
+        // Créer l'objet session avec la durée calculée
         sessions.push({
-          id: data.sessionId || file,
+          id: data.sessionId || file.split('_')[0],
           participantUsername: data.userId || 'Anonyme',
           date: data.timestamp || null,
-          type: data.context || 'N/A',
-          duration: data.duration || null,
+          type: data.context || data.type || 'N/A',
+          duration: durationMs,
+          sessionDuration: durationMs,
           file: file
         });
+        
+        console.log(`Session ajoutée: ${file} avec durée: ${durationMs}ms`);
       } catch (e) {
+        console.error(`Erreur lors du traitement du fichier ${file}:`, e);
         // ignorer les fichiers corrompus
       }
     });
+    
     // Trier par date décroissante
     sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    console.log(`Nombre total de sessions trouvées: ${sessions.length}`);
+    console.log("Premières sessions:", sessions.slice(0, 2));
+    
     res.json(sessions);
   });
 });
@@ -351,6 +403,125 @@ app.get('/admin/dashboard', (req, res) => {
 });
 app.get('/admin/unauthorized', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin', 'unauthorized.html'));
+});
+
+// Route pour télécharger un fichier de session spécifique
+app.get('/api/admin/download/:sessionId', (req, res) => {
+  try {
+    const sessionId = req.params.sessionId;
+    const sessionDir = path.join(__dirname, 'data', 'sessions');
+    const files = fs.readdirSync(sessionDir);
+    
+    console.log(`Tentative de téléchargement du fichier de session: ${sessionId}`);
+    
+    // Trouver le fichier qui correspond à l'ID de session
+    let sessionFile = null;
+    for (const file of files) {
+      if (file.includes(sessionId) && file.endsWith('.json')) {
+        sessionFile = file;
+        break;
+      }
+    }
+    
+    if (!sessionFile) {
+      console.log(`Aucun fichier trouvé pour la session: ${sessionId}`);
+      return res.status(404).json({
+        success: false,
+        message: 'Fichier de session introuvable'
+      });
+    }
+    
+    const filePath = path.join(sessionDir, sessionFile);
+    console.log(`Fichier trouvé: ${filePath}`);
+    
+    // Vérifier si le fichier existe
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Fichier de session introuvable'
+      });
+    }
+    
+    // Lire le contenu du fichier
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    
+    // Définir les en-têtes pour forcer le téléchargement
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${sessionFile}"`);
+    
+    // Envoyer le contenu du fichier
+    return res.send(fileContent);
+  } catch (error) {
+    console.error('Erreur lors du téléchargement du fichier:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur lors du téléchargement du fichier: ' + error.message
+    });
+  }
+});
+
+// Route pour récupérer des infos sur une session spécifique
+app.get('/api/admin/session/:sessionId', (req, res) => {
+  try {
+    const sessionId = req.params.sessionId;
+    const sessionDir = path.join(__dirname, 'data', 'sessions');
+    const files = fs.readdirSync(sessionDir);
+    
+    // Trouver le fichier qui correspond à l'ID de session
+    let sessionFile = null;
+    for (const file of files) {
+      if (file.includes(sessionId) && file.endsWith('.json')) {
+        sessionFile = file;
+        break;
+      }
+    }
+    
+    if (!sessionFile) {
+      return res.status(404).json({
+        success: false,
+        message: 'Session introuvable'
+      });
+    }
+    
+    const filePath = path.join(sessionDir, sessionFile);
+    
+    // Vérifier si le fichier existe
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Fichier de session introuvable'
+      });
+    }
+    
+    // Lire le contenu du fichier
+    const rawData = fs.readFileSync(filePath, 'utf8');
+    
+    try {
+      // Parser le contenu JSON
+      const data = JSON.parse(rawData);
+      
+      // Renvoyer les informations de la session
+      return res.json({
+        success: true,
+        data: data,
+        sessionId: sessionId,
+        filename: sessionFile,
+        downloadUrl: `/api/admin/download/${sessionId}`
+      });
+    } catch (parseError) {
+      console.error(`Erreur lors du parsing du fichier JSON: ${parseError.message}`);
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur lors du parsing du fichier JSON: ' + parseError.message
+      });
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la session:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération de la session: ' + error.message
+    });
+  }
 });
 
 // Handle all other routes by serving index.html

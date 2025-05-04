@@ -997,6 +997,9 @@
                 // Prendre les 5 premières sessions pour le tableau de bord
                 const recentSessions = sessions.slice(0, 5);
                 updateSessionsTable('recent-sessions-table', recentSessions);
+                
+                // Mettre à jour les statistiques avec toutes les sessions
+                updateStatisticsFromSessions(sessions);
             })
             .catch(error => {
                 console.error('Erreur de chargement des sessions récentes:', error);
@@ -1047,11 +1050,43 @@
                 return;
             }
             
+            console.log('Structure complète des sessions:', JSON.stringify(sessions.slice(0, 2), null, 2));
+            
             let html = '';
             sessions.forEach(session => {
+                // Log pour chaque session individuelle
+                console.log('Données d\'une session:', session);
+                
                 const date = new Date(session.date);
                 const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-                const duration = session.duration ? `${session.duration}s` : 'N/A';
+                
+                // Gérer tous les formats possibles de durée
+                let durationText = 'N/A';
+                let durationMs = null;
+                
+                // Vérifier si duration ou sessionDuration existent
+                if (session.duration !== undefined && session.duration !== null) {
+                    durationMs = Number(session.duration);
+                    console.log(`Durée trouvée (duration): ${durationMs}ms`);
+                } else if (session.sessionDuration !== undefined && session.sessionDuration !== null) {
+                    durationMs = Number(session.sessionDuration);
+                    console.log(`Durée trouvée (sessionDuration): ${durationMs}ms`);
+                }
+                
+                // Formater la durée si elle a été trouvée
+                if (durationMs !== null && !isNaN(durationMs)) {
+                    if (durationMs >= 60000) {
+                        // Format minutes:secondes
+                        const minutes = Math.floor(durationMs / 60000);
+                        const seconds = Math.floor((durationMs % 60000) / 1000);
+                        durationText = `${minutes}m ${seconds}s`;
+                    } else {
+                        // Format secondes avec décimales
+                        durationText = `${(durationMs / 1000).toFixed(1)}s`;
+                    }
+                    console.log(`Durée formatée: ${durationText}`);
+                }
+                
                 const participant = session.participantUsername || 'Anonyme';
                 
                 html += `
@@ -1059,23 +1094,129 @@
                     <td>${session.id || 'N/A'}</td>
                     <td>${participant}</td>
                     <td>${formattedDate}</td>
-                    <td>${session.type ? session.type.split('.')[0] : 'N/A'}</td>
-                    <td>${duration}</td>
+                    <td>${session.type || 'N/A'}</td>
+                    <td>${durationText}</td>
                     <td>
                         <button class="btn btn-secondary btn-sm" onclick="viewSession('${session.id}')">Voir</button>
-                        <a class="btn btn-primary btn-sm" href="/data/sessions/${session.file}" download="${session.file}">Télécharger</a>
+                        <button class="btn btn-primary btn-sm" onclick="downloadSession('${session.id}', '${session.file || ''}')">Télécharger</button>
                     </td>
                 </tr>
                 `;
             });
             
             tbody.innerHTML = html;
+            
+            // Calculer et mettre à jour les statistiques après avoir chargé les sessions
+            updateStatisticsFromSessions(sessions);
+        }
+        
+        // Fonction pour mettre à jour les statistiques à partir des sessions
+        function updateStatisticsFromSessions(sessions) {
+            if (!sessions || sessions.length === 0) {
+                return;
+            }
+            
+            console.log('Calcul des statistiques à partir de', sessions.length, 'sessions');
+            
+            // 1. Total des sessions
+            document.getElementById('total-sessions').textContent = sessions.length;
+            
+            // 2. Sessions d'aujourd'hui
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const todaySessions = sessions.filter(session => {
+                const sessionDate = new Date(session.date);
+                return sessionDate >= today;
+            });
+            
+            document.getElementById('today-sessions').textContent = todaySessions.length;
+            
+            // 3. Participants uniques
+            const uniqueParticipants = new Set();
+            sessions.forEach(session => {
+                if (session.participantUsername) {
+                    uniqueParticipants.add(session.participantUsername);
+                }
+            });
+            
+            document.getElementById('total-participants').textContent = uniqueParticipants.size;
+            
+            // 4. Durée moyenne
+            let totalDuration = 0;
+            let sessionWithDuration = 0;
+            
+            sessions.forEach(session => {
+                let durationMs = null;
+                
+                // Vérifier si duration ou sessionDuration existent
+                if (session.duration !== undefined && session.duration !== null) {
+                    durationMs = Number(session.duration);
+                } else if (session.sessionDuration !== undefined && session.sessionDuration !== null) {
+                    durationMs = Number(session.sessionDuration);
+                }
+                
+                if (durationMs !== null && !isNaN(durationMs)) {
+                    totalDuration += durationMs;
+                    sessionWithDuration++;
+                }
+            });
+            
+            // Calculer la durée moyenne en secondes
+            const avgDuration = sessionWithDuration > 0 ? Math.round(totalDuration / sessionWithDuration / 1000) : 0;
+            
+            // Formater la durée moyenne
+            if (avgDuration >= 60) {
+                const minutes = Math.floor(avgDuration / 60);
+                const seconds = avgDuration % 60;
+                document.getElementById('average-duration').textContent = seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+            } else {
+                document.getElementById('average-duration').textContent = `${avgDuration}s`;
+            }
+            
+            console.log('Statistiques calculées:', {
+                totalSessions: sessions.length,
+                todaySessions: todaySessions.length,
+                uniqueParticipants: uniqueParticipants.size,
+                totalDuration,
+                sessionWithDuration,
+                avgDuration
+            });
+        }
+        
+        // Fonction pour télécharger une session
+        function downloadSession(id, file) {
+            console.log('Téléchargement de la session:', id, 'fichier:', file);
+            
+            let downloadUrl = '';
+            
+            // Si nous avons un fichier, utilisez-le directement
+            if (file && file.trim() !== '') {
+                downloadUrl = `/data/sessions/${file}`;
+            } else {
+                // Sinon, utilisez l'API avec l'ID
+                downloadUrl = `/api/admin/download/${id}`;
+            }
+            
+            // Créer et déclencher automatiquement un lien de téléchargement
+            const downloadLink = document.createElement('a');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = file || `session_${id}.json`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            
+            // Nettoyer le lien après le téléchargement
+            setTimeout(() => {
+                document.body.removeChild(downloadLink);
+            }, 100);
         }
         
         // Fonction pour voir une session (à implémenter)
         function viewSession(id) {
-            // Trouver la session correspondante dans le tableau des sessions
-            fetch(`/api/admin/sessions?id=${id}`, {
+            console.log('Affichage de la session:', id);
+            
+            // Récupérer les détails de la session via l'API
+            fetch(`/api/admin/session/${id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1088,50 +1229,61 @@
                 }
                 return response.json();
             })
-            .then(sessions => {
-                // Trouver la session avec l'ID correspondant
-                const session = sessions.find(s => s.id === id);
-                
-                if (!session || !session.file) {
-                    throw new Error('Session introuvable');
+            .then(sessionData => {
+                if (!sessionData.success || !sessionData.data) {
+                    throw new Error('Données de session non valides');
                 }
                 
-                // Récupérer le fichier de session
-                return fetch(`/data/sessions/${session.file}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include'
-                });
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Erreur lors du chargement du fichier: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Créer un blob et l'ouvrir dans un nouvel onglet
-                const dataStr = JSON.stringify(data, null, 2);
-                const blob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                const newTab = window.open(url, '_blank');
-                
-                // Si l'ouverture est bloquée
-                if (!newTab) {
-                    alert("L'ouverture d'un nouvel onglet a été bloquée. Essayez de télécharger les données.");
-                }
-                
-                // Nettoyer après ouverture
-                setTimeout(() => {
-                    URL.revokeObjectURL(url);
-                }, 1000);
+                // Afficher les données dans une modal
+                showSessionModal(sessionData.data);
             })
             .catch(error => {
                 console.error('Erreur lors de l\'affichage de la session:', error);
                 alert(`Erreur: ${error.message}`);
+            });
+        }
+        
+        // Fonction pour afficher une modal avec les données de session
+        function showSessionModal(data) {
+            // Créer l'élément modal
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.position = 'fixed';
+            modal.style.zIndex = '1000';
+            modal.style.left = '0';
+            modal.style.top = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.overflow = 'auto';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.4)';
+            
+            // Contenu de la modal
+            modal.innerHTML = `
+                <div style="background-color: white; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 800px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                        <h2 style="margin: 0;">Détails de la session</h2>
+                        <span id="close-modal" style="cursor: pointer; font-size: 24px;">&times;</span>
+                    </div>
+                    <div style="max-height: 70vh; overflow: auto;">
+                        <pre style="white-space: pre-wrap; word-break: break-all;">${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                </div>
+            `;
+            
+            // Ajouter la modal au body
+            document.body.appendChild(modal);
+            
+            // Fermer la modal au clic sur la croix
+            document.getElementById('close-modal').addEventListener('click', function() {
+                document.body.removeChild(modal);
+            });
+            
+            // Fermer la modal au clic en dehors du contenu
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    document.body.removeChild(modal);
+                }
             });
         }
         
