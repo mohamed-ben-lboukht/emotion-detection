@@ -1188,15 +1188,8 @@
         function downloadSession(id, file) {
             console.log('Téléchargement de la session:', id, 'fichier:', file);
             
-            let downloadUrl = '';
-            
-            // Si nous avons un fichier, utilisez-le directement
-            if (file && file.trim() !== '') {
-                downloadUrl = `/data/sessions/${file}`;
-            } else {
-                // Sinon, utilisez l'API avec l'ID
-                downloadUrl = `/api/admin/download/${id}`;
-            }
+            // Toujours utiliser l'API endpoint pour s'assurer que le content-type est correct
+            const downloadUrl = `/api/admin/download/${id}`;
             
             // Créer et déclencher automatiquement un lien de téléchargement
             const downloadLink = document.createElement('a');

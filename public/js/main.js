@@ -579,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionId: sessionId,
         deviceInfo: getDeviceInfo(),
         text: keystrokeData.text,
-        keystrokeData: keystrokeData.keystrokeData,
+        timings: keystrokeData.keystrokeData.map(entry => entry.timeMs),
         sessionDuration: keystrokeData.sessionDurationMs,
         keystrokeCount: keystrokeData.keystrokeCount,
         timestamp: new Date().toISOString(),
