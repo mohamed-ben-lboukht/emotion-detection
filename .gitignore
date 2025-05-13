@@ -6,7 +6,6 @@ yarn-error.log
 package-lock.json
 
 # Données et backups
-/data/
 /backups/
 *.csv
 *.json
