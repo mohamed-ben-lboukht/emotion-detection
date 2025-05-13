@@ -87,4 +87,51 @@ L'application implémente plusieurs mesures de sécurité:
 
 ## Licence
 
-Ce projet est sous licence MIT. 
+Ce projet est sous licence MIT.
+
+# Emotion Detection App
+
+This app captures and analyzes emotions during typing sessions, with data persistence in MongoDB.
+
+## Setup for Data Persistence on Render
+
+### 1. Create a MongoDB Atlas Account
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a free account
+2. Create a new cluster (the free tier is sufficient)
+3. Create a database user with password
+4. In Network Access, allow access from everywhere (or specify your Render IP)
+5. Get your connection string from "Connect" > "Connect your application"
+
+### 2. Configure Environment Variables on Render
+Add the following environment variables to your Render deployment:
+
+```
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/emotion-detection?retryWrites=true&w=majority
+PORT=3000
+ADMIN_PASSWORD=admin123
+```
+
+Replace the `MONGODB_URI` with your actual MongoDB connection string, and change the admin password.
+
+### 3. How to Access Your Data
+
+#### From Admin Dashboard
+1. Go to `/admin/dashboard` in your application
+2. Use the "MongoDB Data" section to:
+   - Load MongoDB data
+   - Download all data
+   - Extract to JSON files
+
+#### From API Endpoints
+- `/api/sessions` - Get all sessions as JSON
+- `/api/json-files` - Browse and download JSON files
+- `/view-data` - View both MongoDB and JSON data
+
+### 4. Testing the MongoDB Connection
+
+To check if your MongoDB connection is working correctly:
+1. Go to `/admin/dashboard`
+2. Click "Load MongoDB Data"
+3. You should see your sessions listed in a table
+
+All typed data is now automatically saved to both local JSON files and MongoDB. The MongoDB data will persist even when Render restarts your application. 

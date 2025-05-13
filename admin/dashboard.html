@@ -593,6 +593,153 @@
             background-color: rgba(255, 152, 0, 0.15);
             color: var(--warning-color);
         }
+        
+        /* MongoDB Data Viewer Styles */
+        .data-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .data-container h3 {
+            font-size: 1.3rem;
+            margin-bottom: var(--spacing-md);
+            color: var(--gray-800);
+            border-bottom: 1px solid var(--gray-300);
+            padding-bottom: var(--spacing-sm);
+        }
+        
+        .data-controls {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .data-controls button {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+        }
+        
+        .data-controls button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .data-list {
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: var(--spacing-sm);
+            background-color: var(--gray-200);
+            border-bottom: 2px solid var(--gray-300);
+            color: var(--gray-700);
+            font-weight: 600;
+        }
+        
+        .data-table td {
+            padding: var(--spacing-sm);
+            border-bottom: 1px solid var(--gray-300);
+            color: var(--gray-700);
+        }
+        
+        .data-table tr:hover {
+            background-color: var(--gray-100);
+        }
+        
+        .data-table button {
+            padding: 3px 8px;
+            margin: 0 3px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background var(--transition-fast);
+        }
+        
+        .data-table button:hover {
+            background: var(--primary-dark);
+        }
+        
+        .modal {
+            display: block;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            width: 80%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow: auto;
+        }
+        
+        .modal pre {
+            background-color: var(--gray-100);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            overflow: auto;
+            font-size: 0.9rem;
+        }
+        
+        .close {
+            color: var(--gray-600);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: var(--gray-900);
+        }
+        
+        .admin-button {
+            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .admin-button:hover {
+            background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
     </style>
 </head>
 <body>
@@ -678,6 +825,26 @@
             </div>
             
             <div id="stats-loader" class="loader"></div>
+            
+            <!-- MongoDB Data Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>MongoDB Data</h2>
+                    <div class="card-actions">
+                        <button id="load-mongodb" class="btn btn-primary"><i class="fas fa-database"></i> Load MongoDB Data</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>Access all session data stored in MongoDB here. This data persists even when the server restarts on Render.</p>
+                    <div id="mongodb-container" style="display: none;">
+                        <div class="mongodb-actions" style="margin-bottom: 15px;">
+                            <button id="download-all-mongodb" class="btn btn-success"><i class="fas fa-download"></i> Download All</button>
+                            <button id="extract-to-json" class="btn btn-secondary"><i class="fas fa-file-export"></i> Extract to JSON</button>
+                        </div>
+                        <div id="mongodb-data" style="max-height: 500px; overflow: auto;"></div>
+                    </div>
+                </div>
+            </div>
             
             <div class="card">
                 <div class="card-header">
@@ -1326,9 +1493,272 @@
         function toggleLoader(id, show) {
             document.getElementById(id).style.display = show ? 'block' : 'none';
         }
+        
+        // MongoDB Data Integration
+        document.addEventListener('DOMContentLoaded', function() {
+            // MongoDB data handling
+            const loadMongoDBBtn = document.getElementById('load-mongodb');
+            if (loadMongoDBBtn) {
+                loadMongoDBBtn.addEventListener('click', function() {
+                    loadMongoDBData();
+                });
+            }
+            
+            const downloadAllMongoDBBtn = document.getElementById('download-all-mongodb');
+            if (downloadAllMongoDBBtn) {
+                downloadAllMongoDBBtn.addEventListener('click', function() {
+                    downloadAllMongoDBData();
+                });
+            }
+            
+            const extractToJsonBtn = document.getElementById('extract-to-json');
+            if (extractToJsonBtn) {
+                extractToJsonBtn.addEventListener('click', function() {
+                    extractMongoDBToJSON();
+                });
+            }
+        });
+        
+        // Function to load MongoDB data
+        function loadMongoDBData() {
+            const mongoDBContainer = document.getElementById('mongodb-container');
+            const mongoDBData = document.getElementById('mongodb-data');
+            
+            mongoDBData.innerHTML = '<p>Loading MongoDB data...</p>';
+            mongoDBContainer.style.display = 'block';
+            
+            fetch('/api/sessions')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data || data.length === 0) {
+                        mongoDBData.innerHTML = '<p>No MongoDB data found.</p>';
+                        return;
+                    }
+                    
+                    // Create a table to display the data
+                    const table = document.createElement('table');
+                    table.className = 'data-table';
+                    table.style.width = '100%';
+                    table.style.borderCollapse = 'collapse';
+                    table.style.marginTop = '10px';
+                    
+                    // Create table header
+                    const thead = document.createElement('thead');
+                    thead.innerHTML = `
+                        <tr>
+                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Session ID</th>
+                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Date</th>
+                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Context</th>
+                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">User ID</th>
+                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Actions</th>
+                        </tr>
+                    `;
+                    table.appendChild(thead);
+                    
+                    // Create table body
+                    const tbody = document.createElement('tbody');
+                    data.forEach(session => {
+                        const tr = document.createElement('tr');
+                        tr.style.borderBottom = '1px solid #ddd';
+                        
+                        // Format date
+                        const date = session.startTime ? new Date(session.startTime).toLocaleString() : 'N/A';
+                        
+                        tr.innerHTML = `
+                            <td style="padding: 8px;">${session.sessionId || 'N/A'}</td>
+                            <td style="padding: 8px;">${date}</td>
+                            <td style="padding: 8px;">${session.context || 'N/A'}</td>
+                            <td style="padding: 8px;">${session.userId || 'N/A'}</td>
+                            <td style="padding: 8px;">
+                                <button class="btn btn-sm btn-primary view-mongodb-session" data-id="${session._id}">View</button>
+                                <button class="btn btn-sm btn-success download-mongodb-session" data-id="${session._id}">Download</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+                    
+                    // Clear previous content and add the table
+                    mongoDBData.innerHTML = '';
+                    mongoDBData.appendChild(table);
+                    
+                    // Add event listeners for buttons
+                    document.querySelectorAll('.view-mongodb-session').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const id = this.getAttribute('data-id');
+                            viewMongoDBSession(id);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.download-mongodb-session').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const id = this.getAttribute('data-id');
+                            downloadMongoDBSession(id);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading MongoDB data:', error);
+                    mongoDBData.innerHTML = `<p>Error loading MongoDB data: ${error.message}</p>`;
+                });
+        }
+        
+        // Function to view a MongoDB session
+        function viewMongoDBSession(id) {
+            const sessionData = document.getElementById('mongodb-data');
+            sessionData.innerHTML = '<p>Loading session details...</p>';
+            
+            fetch(`/api/sessions/${id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Create modal to display session details
+                    const modal = document.createElement('div');
+                    modal.className = 'modal';
+                    modal.style.display = 'block';
+                    modal.style.position = 'fixed';
+                    modal.style.zIndex = '1000';
+                    modal.style.left = '0';
+                    modal.style.top = '0';
+                    modal.style.width = '100%';
+                    modal.style.height = '100%';
+                    modal.style.overflow = 'auto';
+                    modal.style.backgroundColor = 'rgba(0,0,0,0.4)';
+                    
+                    modal.innerHTML = `
+                        <div style="background-color: white; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 800px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                                <h2 style="margin: 0;">Session Details</h2>
+                                <span class="close-modal" style="cursor: pointer; font-size: 24px;">&times;</span>
+                            </div>
+                            <div style="max-height: 70vh; overflow: auto;">
+                                <pre style="white-space: pre-wrap; word-break: break-all;">${JSON.stringify(data, null, 2)}</pre>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    // Close modal when clicking on X
+                    modal.querySelector('.close-modal').addEventListener('click', function() {
+                        document.body.removeChild(modal);
+                    });
+                    
+                    // Close modal when clicking outside content
+                    modal.addEventListener('click', function(event) {
+                        if (event.target === modal) {
+                            document.body.removeChild(modal);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading session details:', error);
+                    sessionData.innerHTML = `<p>Error loading session details: ${error.message}</p>`;
+                });
+        }
+        
+        // Function to download a MongoDB session
+        function downloadMongoDBSession(id) {
+            fetch(`/api/sessions/${id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Create a Blob with the data
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    // Create a link to download it
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `mongodb_session_${id}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    // Clean up
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
+                })
+                .catch(error => {
+                    console.error('Error downloading session:', error);
+                    alert(`Error downloading session: ${error.message}`);
+                });
+        }
+        
+        // Function to download all MongoDB data
+        function downloadAllMongoDBData() {
+            fetch('/api/sessions')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Create a Blob with all data
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    // Create a link to download it
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `all_mongodb_sessions_${new Date().toISOString().slice(0,10)}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    // Clean up
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
+                })
+                .catch(error => {
+                    console.error('Error downloading all sessions:', error);
+                    alert(`Error downloading all sessions: ${error.message}`);
+                });
+        }
+        
+        // Function to extract MongoDB data to JSON files
+        function extractMongoDBToJSON() {
+            const password = prompt('Enter admin password:');
+            if (!password) return;
+            
+            fetch(`/admin/extract-data?password=${encodeURIComponent(password)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert(`Successfully extracted ${data.count} sessions to JSON files.`);
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error extracting data:', error);
+                    alert(`Error extracting data: ${error.message}`);
+                });
+        }
     </script>
     
     <!-- Script d'extraction MongoDB vers JSON -->
-    <script src="/admin/extract-mongo.js"></script>
+    <script src="/admin/js/extract-mongo.js"></script>
 </body>
 </html>

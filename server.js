@@ -151,8 +151,8 @@ app.get('/view-data', async (req, res) => {
   }
 });
 
-// Route pour lister et télécharger les fichiers JSON
-app.get('/json-files', (req, res) => {
+// Modifier le chemin d'accès pour éviter les conflits
+app.get('/api/json-files', (req, res) => {
   try {
     // Vérifier que le dossier sessions existe
     const sessionsDir = path.join(DATA_DIR, 'sessions');
@@ -228,8 +228,8 @@ app.get('/json-files', (req, res) => {
       html += `
         <li>
           <strong>${file}</strong> (${size}, modifié le ${date})
-          <a href="/json-files?file=${encodeURIComponent(file)}">Voir</a>
-          <a href="/json-files?file=${encodeURIComponent(file)}&download=true" class="download">Télécharger</a>
+          <a href="/api/json-files?file=${encodeURIComponent(file)}">Voir</a>
+          <a href="/api/json-files?file=${encodeURIComponent(file)}&download=true" class="download">Télécharger</a>
         </li>
       `;
     });

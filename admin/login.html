@@ -36,7 +36,7 @@
             
             /* Shadows */
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
             --shadow-xl: 0 20px 30px rgba(0,0,0,0.2);
             
@@ -50,7 +50,7 @@
             /* Border radius */
             --radius-sm: 0.25rem;
             --radius-md: 0.5rem;
-            --radius-lg: 1rem;
+            --radius-lg: 0.8rem;
             --radius-xl: 2rem;
             
             /* Transitions */
@@ -79,10 +79,10 @@
         .login-container {
             background-color: white;
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-xl);
+            box-shadow: var(--shadow-md);
             width: 100%;
-            max-width: 450px;
-            padding: var(--spacing-xl);
+            max-width: 400px;
+            padding: var(--spacing-lg);
             position: relative;
             overflow: hidden;
             animation: fadeIn 0.5s ease;
@@ -118,80 +118,58 @@
         }
         
         .login-form .form-group {
-            margin-bottom: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
         }
         
         .login-form label {
             display: block;
-            margin-bottom: var(--spacing-sm);
+            margin-bottom: 5px;
             font-weight: 500;
             color: var(--gray-700);
         }
         
         .login-form input {
             width: 100%;
-            padding: var(--spacing-md);
-            border: 2px solid var(--gray-300);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            transition: all var(--transition-fast);
+            padding: 10px;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 16px;
         }
         
         .login-form input:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
         }
         
         .login-form button {
             width: 100%;
-            padding: var(--spacing-md);
+            padding: 12px;
             background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
             color: white;
             border: none;
-            border-radius: var(--radius-md);
-            font-size: 1rem;
+            border-radius: 4px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all var(--transition-fast);
-            box-shadow: var(--shadow-md);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .login-form button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.7s ease;
         }
         
         .login-form button:hover {
+            opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .login-form button:hover::before {
-            left: 100%;
         }
         
         .login-form button:active {
             transform: translateY(0);
         }
         
-        .error-message {
-            color: var(--danger-color);
-            background-color: rgba(220, 53, 69, 0.1);
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--spacing-lg);
+        .alert {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: var(--spacing-md);
             display: none;
-            border-left: 4px solid var(--danger-color);
-            font-size: 0.9rem;
         }
         
         .logo {

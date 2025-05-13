@@ -1,11 +1,14 @@
 /**
  * Express server for Keystroke Dynamics & Emotion Detection app
  */
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const archiver = require('archiver');
+const mongoose = require('mongoose');
+const Session = require('./models/Session');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -19,6 +22,26 @@ if (!fs.existsSync(DATA_DIR)) {
 if (!fs.existsSync(path.join(DATA_DIR, 'sessions'))) {
   fs.mkdirSync(path.join(DATA_DIR, 'sessions'), { recursive: true });
 }
+
+// Connect to MongoDB
+let isMongoConnected = false;
+
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/emotion-detection', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 10000, // 10 seconds timeout instead of 30
+  retryWrites: true
+})
+.then(() => {
+  console.log('Connected to MongoDB');
+  isMongoConnected = true;
+})
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+  console.error('MongoDB connection is required. Please check your connection string.');
+  // Don't allow the application to continue without MongoDB
+  process.exit(1);
+});
 
 // Serve static files with proper MIME types
 app.use(express.static('public', {
@@ -154,7 +177,7 @@ function validateAndSanitizeData(type, data) {
 }
 
 // API endpoint for data saving
-app.post('/save-data', (req, res) => {
+app.post('/save-data', async (req, res) => {
   try {
     const payload = req.body;
     
@@ -209,14 +232,33 @@ app.post('/save-data', (req, res) => {
       // Validate and sanitize data
       const sanitizedData = validateAndSanitizeData(type, data);
       
-      // Save to file
+      // Create MongoDB session document
+      const session = new Session({
+        sessionId: sanitizedData.sessionId || crypto.randomBytes(16).toString('hex'),
+        startTime: new Date(),
+        endTime: new Date(),
+        keystrokes: sanitizedData.timings || [],
+        typingSpeed: sanitizedData.typingSpeed || 0,
+        totalKeystrokes: sanitizedData.keystrokeCount || 0,
+        emotionData: sanitizedData.emotions || {},
+        emotionTimeline: sanitizedData.emotionTimeline || [],
+        text: sanitizedData.text || '',
+        context: sanitizedData.context || type,
+        deviceInfo: sanitizedData.deviceInfo || {}
+      });
+      
+      // Save to MongoDB (required)
+      await session.save();
+      console.log('Data saved to MongoDB:', session.sessionId);
+      
+      // Also save to local file as backup
       const filepath = saveSessionToJSONFile(type, sanitizedData);
       
       return res.json({ 
         success: true, 
-        message: 'Data saved successfully',
-        filename: path.basename(filepath),
-        sessionId: sanitizedData.sessionId || "unknown"
+        message: 'Data saved successfully to MongoDB',
+        sessionId: sanitizedData.sessionId || session.sessionId,
+        mongoDbId: session._id
       });
     } catch (processingError) {
       console.error("Error processing data:", processingError);
@@ -521,6 +563,274 @@ app.get('/api/admin/session/:sessionId', (req, res) => {
       success: false,
       message: 'Erreur lors de la récupération de la session: ' + error.message
     });
+  }
+});
+
+// === MongoDB API routes ===
+// Route to get all sessions from MongoDB
+app.get('/api/sessions', async (req, res) => {
+  try {
+    // Get data from MongoDB
+    const sessions = await Session.find().sort({ startTime: -1 });
+    console.log('Retrieved MongoDB sessions:', sessions.length);
+    res.json(sessions);
+  } catch (error) {
+    console.error('Error retrieving MongoDB sessions:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Route to extract MongoDB data to JSON files
+app.get('/admin/extract-data', async (req, res) => {
+  try {
+    // Simple authentication (improve in production)
+    const password = req.query.password;
+    if (password !== 'admin123') {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    // Get sessions from MongoDB
+    const sessions = await Session.find().sort({ startTime: -1 });
+    
+    if (sessions.length === 0) {
+      return res.json({ success: false, message: 'No data to extract from MongoDB' });
+    }
+    
+    // Create sessions directory if it doesn't exist
+    const sessionsDir = path.join(DATA_DIR, 'sessions');
+    if (!fs.existsSync(sessionsDir)) {
+      fs.mkdirSync(sessionsDir, { recursive: true });
+    }
+    
+    // Extract each session as a JSON file
+    const savedFiles = [];
+    for (const session of sessions) {
+      // Create a filename based on sessionId and date
+      const timestamp = new Date(session.startTime || Date.now()).getTime();
+      const context = session.context || 'unknown';
+      const sessionId = session.sessionId || crypto.randomBytes(16).toString('hex');
+      const filename = `${sessionId}_${context}_${timestamp}.json`;
+      const filepath = path.join(sessionsDir, filename);
+      
+      // Convert MongoDB document to JSON object without MongoDB internal fields
+      const sessionData = session.toObject();
+      delete sessionData._id;
+      delete sessionData.__v;
+      
+      // Save JSON file
+      fs.writeFileSync(filepath, JSON.stringify(sessionData, null, 2));
+      savedFiles.push({
+        filename,
+        path: filepath,
+        sessionId: sessionId
+      });
+    }
+    
+    // Return JSON response
+    return res.json({
+      success: true,
+      message: 'Extraction successful',
+      count: savedFiles.length,
+      files: savedFiles
+    });
+  } catch (error) {
+    console.error('Error extracting MongoDB data:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: `Error: ${error.message}` 
+    });
+  }
+});
+
+// Route to view both MongoDB and JSON data
+app.get('/view-data', async (req, res) => {
+  try {
+    // Retrieve MongoDB data if connected
+    const mongoSessions = isMongoConnected 
+      ? await Session.find().sort({ startTime: -1 }) 
+      : [];
+    
+    // Read JSON files from sessions folder
+    const sessionFiles = fs.existsSync(path.join(DATA_DIR, 'sessions')) 
+      ? fs.readdirSync(path.join(DATA_DIR, 'sessions'))
+        .filter(file => file.endsWith('.json'))
+      : [];
+    
+    const jsonSessions = [];
+    
+    // Read content of each JSON file (limit to 10 for performance)
+    for (const file of sessionFiles.slice(0, 10)) {
+      try {
+        const content = fs.readFileSync(path.join(DATA_DIR, 'sessions', file), 'utf8');
+        const data = JSON.parse(content);
+        jsonSessions.push(data);
+      } catch (err) {
+        console.error(`Error reading file ${file}:`, err);
+      }
+    }
+    
+    // Create HTML page to display data
+    let html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Collected Data</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1, h2 { color: #4361ee; }
+          .container { margin-bottom: 30px; }
+          pre { background: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; }
+          .status { padding: 5px 10px; border-radius: 4px; display: inline-block; margin-left: 10px; }
+          .connected { background-color: #d4edda; color: #155724; }
+          .disconnected { background-color: #f8d7da; color: #721c24; }
+        </style>
+      </head>
+      <body>
+        <h1>Collected Data</h1>
+        
+        <div class="container">
+          <h2>
+            MongoDB Sessions (${mongoSessions.length})
+            <span class="status ${isMongoConnected ? 'connected' : 'disconnected'}">
+              ${isMongoConnected ? 'Connected' : 'Not Connected'}
+            </span>
+          </h2>
+          ${isMongoConnected 
+            ? `<pre>${JSON.stringify(mongoSessions, null, 2)}</pre>`
+            : `<p>MongoDB is not connected. Please check your connection settings.</p>`
+          }
+        </div>
+        
+        <div class="container">
+          <h2>JSON Sessions (${jsonSessions.length})</h2>
+          <pre>${JSON.stringify(jsonSessions, null, 2)}</pre>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    res.send(html);
+  } catch (error) {
+    console.error('Error retrieving data:', error);
+    res.status(500).send(`Error retrieving data: ${error.message}`);
+  }
+});
+
+// Route to list and download JSON files
+app.get('/json-files', (req, res) => {
+  try {
+    // Verify sessions directory exists
+    const sessionsDir = path.join(DATA_DIR, 'sessions');
+    if (!fs.existsSync(sessionsDir)) {
+      return res.status(404).send('Sessions directory not found');
+    }
+    
+    // Read directory files
+    const files = fs.readdirSync(sessionsDir)
+      .filter(file => file.endsWith('.json'))
+      .sort((a, b) => {
+        // Sort by modification date (newest first)
+        return fs.statSync(path.join(sessionsDir, b)).mtime.getTime() - 
+               fs.statSync(path.join(sessionsDir, a)).mtime.getTime();
+      });
+    
+    if (files.length === 0) {
+      return res.send('No JSON files found');
+    }
+    
+    // If requesting a specific file
+    if (req.query.file) {
+      const requestedFile = req.query.file;
+      const filePath = path.join(sessionsDir, requestedFile);
+      
+      // Verify file exists and is in sessions directory
+      if (!fs.existsSync(filePath) || !requestedFile.endsWith('.json') || 
+          path.dirname(path.resolve(filePath)) !== path.resolve(sessionsDir)) {
+        return res.status(404).send('File not found');
+      }
+      
+      // Read and return file content
+      const content = fs.readFileSync(filePath, 'utf8');
+      
+      if (req.query.download === 'true') {
+        // Download file
+        res.setHeader('Content-Disposition', `attachment; filename="${requestedFile}"`);
+        res.setHeader('Content-Type', 'application/json');
+        return res.send(content);
+      } else {
+        // Display formatted content
+        res.setHeader('Content-Type', 'application/json');
+        return res.send(content);
+      }
+    }
+    
+    // Generate HTML list of files
+    let html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>JSON Files</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1 { color: #4361ee; }
+          ul { list-style-type: none; padding: 0; }
+          li { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+          a { color: #4361ee; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+          .download { margin-left: 15px; padding: 3px 8px; background: #4CAF50; color: white; border-radius: 4px; }
+        </style>
+      </head>
+      <body>
+        <h1>Available JSON Files (${files.length})</h1>
+        <ul>
+    `;
+    
+    files.forEach(file => {
+      const stats = fs.statSync(path.join(sessionsDir, file));
+      const date = new Date(stats.mtime).toLocaleString();
+      const size = (stats.size / 1024).toFixed(2) + ' KB';
+      
+      html += `
+        <li>
+          <strong>${file}</strong> (${size}, modified on ${date})
+          <a href="/json-files?file=${encodeURIComponent(file)}">View</a>
+          <a href="/json-files?file=${encodeURIComponent(file)}&download=true" class="download">Download</a>
+        </li>
+      `;
+    });
+    
+    html += `
+        </ul>
+      </body>
+      </html>
+    `;
+    
+    res.send(html);
+  } catch (error) {
+    console.error('Error accessing JSON files:', error);
+    res.status(500).send(`Error: ${error.message}`);
+  }
+});
+
+// Route to get a single session from MongoDB by ID
+app.get('/api/sessions/:id', async (req, res) => {
+  try {
+    // Check if MongoDB is connected
+    if (!isMongoConnected) {
+      return res.status(503).json({ 
+        error: 'MongoDB is not connected. Please check your connection settings.',
+        mongoStatus: 'disconnected'
+      });
+    }
+    
+    const session = await Session.findById(req.params.id);
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    res.json(session);
+  } catch (error) {
+    console.error('Error retrieving MongoDB session:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
