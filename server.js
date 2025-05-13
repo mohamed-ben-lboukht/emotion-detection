@@ -39,6 +39,9 @@ app.use(express.static('public', {
   }
 }));
 
+// Servir les fichiers du dossier admin
+app.use('/admin', express.static('admin'));
+
 // Add security middleware
 app.use((req, res, next) => {
   // Add security headers
@@ -87,6 +90,163 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Nouvelle route pour visualiser les données JSON collectées
+app.get('/view-data', async (req, res) => {
+  try {
+    // Récupérer à la fois les données MongoDB et les fichiers JSON
+    const mongoSessions = await Session.find().sort({ startTime: -1 });
+    
+    // Lire les fichiers JSON du dossier sessions
+    const sessionFiles = fs.existsSync(path.join(DATA_DIR, 'sessions')) 
+      ? fs.readdirSync(path.join(DATA_DIR, 'sessions'))
+        .filter(file => file.endsWith('.json'))
+      : [];
+    
+    const jsonSessions = [];
+    
+    // Lire le contenu de chaque fichier JSON
+    for (const file of sessionFiles.slice(0, 10)) { // Limite aux 10 premiers fichiers
+      try {
+        const content = fs.readFileSync(path.join(DATA_DIR, 'sessions', file), 'utf8');
+        const data = JSON.parse(content);
+        jsonSessions.push(data);
+      } catch (err) {
+        console.error(`Erreur lors de la lecture du fichier ${file}:`, err);
+      }
+    }
+    
+    // Créer une page HTML pour afficher les données
+    let html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Données collectées</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1, h2 { color: #4361ee; }
+          .container { margin-bottom: 30px; }
+          pre { background: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        </style>
+      </head>
+      <body>
+        <h1>Données collectées</h1>
+        
+        <div class="container">
+          <h2>Sessions MongoDB (${mongoSessions.length})</h2>
+          <pre>${JSON.stringify(mongoSessions, null, 2)}</pre>
+        </div>
+        
+        <div class="container">
+          <h2>Sessions JSON (${jsonSessions.length})</h2>
+          <pre>${JSON.stringify(jsonSessions, null, 2)}</pre>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    res.send(html);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des données:', error);
+    res.status(500).send(`Erreur lors de la récupération des données: ${error.message}`);
+  }
+});
+
+// Route pour lister et télécharger les fichiers JSON
+app.get('/json-files', (req, res) => {
+  try {
+    // Vérifier que le dossier sessions existe
+    const sessionsDir = path.join(DATA_DIR, 'sessions');
+    if (!fs.existsSync(sessionsDir)) {
+      return res.status(404).send('Dossier sessions introuvable');
+    }
+    
+    // Lire les fichiers du dossier
+    const files = fs.readdirSync(sessionsDir)
+      .filter(file => file.endsWith('.json'))
+      .sort((a, b) => {
+        // Trier par date de modification (plus récent en premier)
+        return fs.statSync(path.join(sessionsDir, b)).mtime.getTime() - 
+               fs.statSync(path.join(sessionsDir, a)).mtime.getTime();
+      });
+    
+    if (files.length === 0) {
+      return res.send('Aucun fichier JSON trouvé');
+    }
+    
+    // Si on demande un fichier spécifique
+    if (req.query.file) {
+      const requestedFile = req.query.file;
+      const filePath = path.join(sessionsDir, requestedFile);
+      
+      // Vérifier que le fichier existe et est dans le dossier sessions
+      if (!fs.existsSync(filePath) || !requestedFile.endsWith('.json') || 
+          path.dirname(path.resolve(filePath)) !== path.resolve(sessionsDir)) {
+        return res.status(404).send('Fichier introuvable');
+      }
+      
+      // Lire et renvoyer le contenu du fichier
+      const content = fs.readFileSync(filePath, 'utf8');
+      
+      if (req.query.download === 'true') {
+        // Télécharger le fichier
+        res.setHeader('Content-Disposition', `attachment; filename="${requestedFile}"`);
+        res.setHeader('Content-Type', 'application/json');
+        return res.send(content);
+      } else {
+        // Afficher le contenu formatté
+        res.setHeader('Content-Type', 'application/json');
+        return res.send(content);
+      }
+    }
+    
+    // Générer une liste HTML des fichiers
+    let html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Fichiers JSON</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1 { color: #4361ee; }
+          ul { list-style-type: none; padding: 0; }
+          li { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+          a { color: #4361ee; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+          .download { margin-left: 15px; padding: 3px 8px; background: #4CAF50; color: white; border-radius: 4px; }
+        </style>
+      </head>
+      <body>
+        <h1>Fichiers JSON disponibles (${files.length})</h1>
+        <ul>
+    `;
+    
+    files.forEach(file => {
+      const stats = fs.statSync(path.join(sessionsDir, file));
+      const date = new Date(stats.mtime).toLocaleString();
+      const size = (stats.size / 1024).toFixed(2) + ' KB';
+      
+      html += `
+        <li>
+          <strong>${file}</strong> (${size}, modifié le ${date})
+          <a href="/json-files?file=${encodeURIComponent(file)}">Voir</a>
+          <a href="/json-files?file=${encodeURIComponent(file)}&download=true" class="download">Télécharger</a>
+        </li>
+      `;
+    });
+    
+    html += `
+        </ul>
+      </body>
+      </html>
+    `;
+    
+    res.send(html);
+  } catch (error) {
+    console.error('Erreur lors de l\'accès aux fichiers JSON:', error);
+    res.status(500).send(`Erreur: ${error.message}`);
+  }
+});
+
 // Route de sauvegarde de données (compatibilité avec l'ancien système)
 app.post('/save-data', async (req, res) => {
   try {
@@ -109,14 +269,19 @@ app.post('/save-data', async (req, res) => {
       });
     }
 
-    // Sauvegarder dans MongoDB
+    // Sauvegarder dans MongoDB avec toutes les données
     const session = new Session({
       sessionId: data.sessionId || crypto.randomBytes(16).toString('hex'),
       startTime: new Date(),
       endTime: new Date(),
-      keystrokes: data.keystrokes || [],
+      keystrokes: data.timings || [],
       typingSpeed: data.typingSpeed || 0,
-      totalKeystrokes: data.totalKeystrokes || 0
+      totalKeystrokes: data.keystrokeCount || 0,
+      emotionData: data.emotions || {},
+      emotionTimeline: data.emotionTimeline || [],
+      text: data.text || '',
+      context: data.context || type,
+      deviceInfo: data.deviceInfo || {}
     });
 
     await session.save();
@@ -136,6 +301,68 @@ app.post('/save-data', async (req, res) => {
     return res.status(500).json({ 
       success: false, 
       message: 'Server error: ' + error.message 
+    });
+  }
+});
+
+// Route pour la page admin permettant d'extraire les données de MongoDB et les sauvegarder en JSON
+app.get('/admin/extract-data', async (req, res) => {
+  try {
+    // Authentification simple (à améliorer en production)
+    const password = req.query.password;
+    if (password !== 'admin123') {
+      return res.status(401).json({ success: false, message: 'Non autorisé.' });
+    }
+
+    // Récupérer les sessions de MongoDB
+    const sessions = await Session.find().sort({ startTime: -1 });
+    
+    if (sessions.length === 0) {
+      return res.json({ success: false, message: 'Aucune donnée à extraire de MongoDB.' });
+    }
+    
+    // Créer le dossier sessions s'il n'existe pas
+    const sessionsDir = path.join(DATA_DIR, 'sessions');
+    if (!fs.existsSync(sessionsDir)) {
+      fs.mkdirSync(sessionsDir, { recursive: true });
+    }
+    
+    // Extraire chaque session en tant que fichier JSON
+    const savedFiles = [];
+    for (const session of sessions) {
+      // Créer un nom de fichier basé sur sessionId et la date
+      const timestamp = new Date(session.startTime || Date.now()).getTime();
+      const context = session.context || 'unknown';
+      const sessionId = session.sessionId || crypto.randomBytes(16).toString('hex');
+      const filename = `${sessionId}_${context}_${timestamp}.json`;
+      const filepath = path.join(sessionsDir, filename);
+      
+      // Convertir le document MongoDB en objet JSON sans les champs MongoDB internes
+      const sessionData = session.toObject();
+      delete sessionData._id;
+      delete sessionData.__v;
+      
+      // Sauvegarder le fichier JSON
+      fs.writeFileSync(filepath, JSON.stringify(sessionData, null, 2));
+      savedFiles.push({
+        filename,
+        path: filepath,
+        sessionId: sessionId
+      });
+    }
+    
+    // Renvoyer une réponse JSON
+    return res.json({
+      success: true,
+      message: 'Extraction réussie',
+      count: savedFiles.length,
+      files: savedFiles
+    });
+  } catch (error) {
+    console.error('Erreur lors de l\'extraction des données MongoDB:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: `Erreur: ${error.message}` 
     });
   }
 });
