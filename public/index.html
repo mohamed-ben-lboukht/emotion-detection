@@ -154,6 +154,11 @@
           <li>Release-to-release intervals</li>
         </ul>
       </div>
+      <div class="typing-mode-choice" style="margin-bottom: 1em;">
+        <label><input type="radio" name="typing-mode" value="free" checked> Free text</label>
+        <label style="margin-left: 1em;"><input type="radio" name="typing-mode" value="fixed"> Fixed text</label>
+      </div>
+      <div id="fixed-text-container" style="display:none; margin-bottom: 1em; background:#f5f5f5; padding:10px; border-radius:6px; font-weight:500;"></div>
       <textarea id="typing-area" placeholder="Start typing here to record your keystroke dynamics..."></textarea>
       <div class="typing-metrics">
         <div id="typing-speed">Typing Speed: 0 CPM</div>
@@ -189,6 +194,12 @@
       
       <div class="currently-playing">No music playing</div>
       
+      <div class="typing-mode-choice" style="margin: 1em 0;">
+        <label><input type="radio" name="typing-mode-music" value="free" checked> Free text</label>
+        <label style="margin-left: 1em;"><input type="radio" name="typing-mode-music" value="fixed"> Fixed text</label>
+      </div>
+      <div id="fixed-text-music-container" style="display:none; margin-bottom: 1em; background:#f5f5f5; padding:10px; border-radius:6px; font-weight:500;"></div>
+      
       <textarea id="music-typing-area" placeholder="Type here while listening to music..."></textarea>
       <div class="typing-metrics">
         <div id="music-typing-speed">Typing Speed: 0 CPM</div>
@@ -212,26 +223,26 @@
       
       <div class="webcam-typing-ui">
         <!-- Manual emotion selection section -->
-        <div id="manual-emotions" class="manual-emotions">
+      <div id="manual-emotions" class="manual-emotions">
           <h3>Sélection Manuelle d'Émotion</h3>
           <p>Si la détection automatique ne fonctionne pas, cliquez sur un bouton pour définir votre émotion :</p>
-          <div class="emotion-buttons">
-            <button data-emotion="neutral" class="emotion-btn">Neutre</button>
-            <button data-emotion="happy" class="emotion-btn">Content</button>
-            <button data-emotion="sad" class="emotion-btn">Triste</button>
-            <button data-emotion="angry" class="emotion-btn">En colère</button>
-            <button data-emotion="fearful" class="emotion-btn">Effrayé</button>
-            <button data-emotion="surprised" class="emotion-btn">Surpris</button>
-          </div>
+        <div class="emotion-buttons">
+          <button data-emotion="neutral" class="emotion-btn">Neutre</button>
+          <button data-emotion="happy" class="emotion-btn">Content</button>
+          <button data-emotion="sad" class="emotion-btn">Triste</button>
+          <button data-emotion="angry" class="emotion-btn">En colère</button>
+          <button data-emotion="fearful" class="emotion-btn">Effrayé</button>
+          <button data-emotion="surprised" class="emotion-btn">Surpris</button>
+        </div>
           <div id="manual-emotion-status" class="manual-emotion-status"></div>
-        </div>
-        
-        <textarea id="webcam-typing-area" placeholder="Type here while camera is active..."></textarea>
-        <div class="typing-metrics">
-          <div id="webcam-typing-speed">Typing Speed: 0 CPM</div>
-          <div id="webcam-keystroke-count">Keystrokes: 0</div>
-        </div>
-        <button id="save-webcam" class="save-button">Save Data</button>
+      </div>
+      
+      <textarea id="webcam-typing-area" placeholder="Type here while camera is active..."></textarea>
+      <div class="typing-metrics">
+        <div id="webcam-typing-speed">Typing Speed: 0 CPM</div>
+        <div id="webcam-keystroke-count">Keystrokes: 0</div>
+      </div>
+      <button id="save-webcam" class="save-button">Save Data</button>
       </div>
     </section>
 

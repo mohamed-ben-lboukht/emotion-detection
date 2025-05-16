@@ -62,6 +62,38 @@ function ensureConsentAndUUID() {
 // Appel dès le chargement
 ensureConsentAndUUID();
 
+// === PHRASES FIXES POUR LE MODE FIXED TEXT ===
+const FIXED_PHRASES = [
+  // Phrases sur les émotions en anglais
+  "i feel happy when i listen to my favorite music in the morning",
+  "sometimes i am sad when the sky is grey and it rains all day",
+  "my heart beats fast when i am surprised by good news",
+  "i am calm when i walk alone in the quiet park",
+  "i feel fear when i hear strange noises at night",
+  "i am angry when things do not go as planned",
+  "i am excited when i see my friends after a long time",
+  "i feel peaceful when i read a book in silence",
+  "i am proud when i finish a difficult task by myself",
+  "i feel nervous before speaking in front of many people",
+  // Phrases sur les émotions en francais sans accents
+  "je ressens de la joie quand je vois mes amis sourire",
+  "parfois je me sens triste quand il fait sombre dehors",
+  "mon coeur bat vite quand je recois une bonne nouvelle",
+  "je suis calme quand j entends le chant des oiseaux le matin",
+  "j ai peur quand j entends un bruit etrange la nuit",
+  "je suis en colere quand rien ne se passe comme prevu",
+  "je suis surpris quand quelqu un me fait un cadeau",
+  "je me sens apaise quand je marche dans la foret tranquille",
+  "je suis fier quand je termine un travail difficile tout seul",
+  "je suis nerveux avant de parler devant beaucoup de gens"
+];
+let currentFixedPhrase = '';
+let currentTypingMode = 'free';
+
+// Variables pour le mode text fixe - musique
+let currentMusicFixedPhrase = '';
+let currentMusicTypingMode = 'free';
+
 document.addEventListener('DOMContentLoaded', () => {
   // S'assurer que les boutons sont activés
   document.querySelectorAll('.back-button, .save-button').forEach(btn => btn.removeAttribute('disabled'));
@@ -198,78 +230,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // Fonction pour afficher le modal émotions et retourner une promesse
-  function askEmotions() {
-    return new Promise(resolve => {
-      const modal = document.getElementById('emotion-modal');
-      modal.classList.remove('hidden');
-      modal.classList.add('active');
-      const form = document.getElementById('emotion-form');
-      // Nettoyage : supprimer tout bouton Cancel déjà présent
-      const oldCancel = form.querySelector('button.cancel-emotion');
-      if (oldCancel) oldCancel.remove();
-      form.onsubmit = e => {
-        e.preventDefault();
-        const data = Object.fromEntries(new FormData(form).entries());
-        Object.keys(data).forEach(k => data[k] = Number(data[k]));
-        modal.classList.add('hidden');
-        modal.classList.remove('active');
-        resolve(data);
-      };
-      // Ajout du bouton Cancel (une seule fois)
-      const cancelButton = document.createElement('button');
-      cancelButton.textContent = 'Cancel';
-      cancelButton.type = 'button';
-      cancelButton.className = 'cancel-emotion';
-      cancelButton.style.marginRight = '10px';
-      cancelButton.onclick = () => {
-        modal.classList.add('hidden');
-        modal.classList.remove('active');
-        // Reset textarea si présent
-        const textarea = form.closest('.tracking-section')?.querySelector('textarea');
-        if (textarea) textarea.value = '';
-        resolve(false); // On retourne false pour signaler l'annulation
-      };
-      const submitButton = form.querySelector('button[type="submit"]');
-      if (submitButton && !form.querySelector('button.cancel-emotion')) {
-        submitButton.parentNode.insertBefore(cancelButton, submitButton);
-      }
-    });
-  }
-
   // Create emotion modal in English with improved styling
   const emotionModalHtml = `
     <div id="emotion-modal" class="modal hidden">
       <div class="modal-content">
         <h2>How do you feel after this session?</h2>
+        <p>Adjust percentage for each emotion:</p>
         <form id="emotion-form">
-          <div class="emotion-slider">
-            <label for="happy">Happy:</label>
-            <input type="range" min="0" max="100" value="50" name="happy" id="happy">
-            <span id="happy-val">50</span>%
+          <div class="emotion-sliders" style="margin: 20px 0;">
+            <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😊 Happy</div>
+              <input type="range" min="0" max="100" value="0" name="happy" id="happy" style="flex-grow: 1; margin: 0 10px;">
+              <span id="happy-val" style="width: 40px; text-align: right;">0</span>%
+            </div>
+            <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😢 Sad</div>
+              <input type="range" min="0" max="100" value="0" name="sad" id="sad" style="flex-grow: 1; margin: 0 10px;">
+              <span id="sad-val" style="width: 40px; text-align: right;">0</span>%
+            </div>
+            <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😠 Angry</div>
+              <input type="range" min="0" max="100" value="0" name="anger" id="anger" style="flex-grow: 1; margin: 0 10px;">
+              <span id="anger-val" style="width: 40px; text-align: right;">0</span>%
+            </div>
+            <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😨 Fearful</div>
+              <input type="range" min="0" max="100" value="0" name="fear" id="fear" style="flex-grow: 1; margin: 0 10px;">
+              <span id="fear-val" style="width: 40px; text-align: right;">0</span>%
+            </div>
+            <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😲 Surprised</div>
+              <input type="range" min="0" max="100" value="0" name="surprise" id="surprise" style="flex-grow: 1; margin: 0 10px;">
+              <span id="surprise-val" style="width: 40px; text-align: right;">0</span>%
+            </div>
+            <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😐 Neutral</div>
+              <input type="range" min="0" max="100" value="0" name="neutral" id="neutral" style="flex-grow: 1; margin: 0 10px;">
+              <span id="neutral-val" style="width: 40px; text-align: right;">0</span>%
+            </div>
           </div>
-          <div class="emotion-slider">
-            <label for="sad">Sad:</label>
-            <input type="range" min="0" max="100" value="50" name="sad" id="sad">
-            <span id="sad-val">50</span>%
-          </div>
-          <div class="emotion-slider">
-            <label for="anger">Angry:</label>
-            <input type="range" min="0" max="100" value="50" name="anger" id="anger">
-            <span id="anger-val">50</span>%
-          </div>
-          <div class="emotion-slider">
-            <label for="fear">Fearful:</label>
-            <input type="range" min="0" max="100" value="50" name="fear" id="fear">
-            <span id="fear-val">50</span>%
-          </div>
-          <div class="emotion-slider">
-            <label for="surprise">Surprised:</label>
-            <input type="range" min="0" max="100" value="50" name="surprise" id="surprise">
-            <span id="surprise-val">50</span>%
-          </div>
-          <div class="button-container">
-            <button type="submit" class="btn-primary">Submit</button>
+          <div class="button-container" style="display: flex; justify-content: center; margin-top: 20px;">
+            <button type="submit" class="btn-primary" style="margin: 0 10px;">Submit</button>
           </div>
         </form>
       </div>
@@ -279,25 +280,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Insert the improved modal HTML
   document.body.insertAdjacentHTML('beforeend', emotionModalHtml);
 
-  // Add a style tag for the emotion sliders
+  // Add a style tag for the emotion modal
   const styleTag = document.createElement('style');
   styleTag.textContent = `
-    .emotion-slider {
-      margin-bottom: 15px;
+    .emotion-slider-item input[type="range"] {
+      height: 8px;
+      border-radius: 4px;
+      appearance: none;
+      background: #e0e0e0;
+      outline: none;
     }
-    .emotion-slider label {
-      display: inline-block;
-      width: 80px;
-      font-weight: 500;
-    }
-    .emotion-slider input[type="range"] {
-      width: 200px;
-      margin: 0 10px;
-      vertical-align: middle;
-    }
-    .button-container {
-      margin-top: 20px;
-      text-align: center;
+    .emotion-slider-item input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #4361ee;
+      cursor: pointer;
     }
     .modal.active {
       opacity: 1 !important;
@@ -307,12 +306,78 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
   document.head.appendChild(styleTag);
 
-  // Affichage dynamique des valeurs
-  ['happy','sad','anger','fear','surprise'].forEach(emotion => {
-    document.querySelector(`input[name='${emotion}']`).addEventListener('input', e => {
-      document.getElementById(`${emotion}-val`).textContent = e.target.value;
-    });
+  // Affichage dynamique des valeurs des sliders
+  ['happy', 'sad', 'anger', 'fear', 'surprise', 'neutral'].forEach(emotion => {
+    const input = document.querySelector(`input[name='${emotion}']`);
+    const valueDisplay = document.getElementById(`${emotion}-val`);
+    if (input && valueDisplay) {
+      input.addEventListener('input', e => {
+        valueDisplay.textContent = e.target.value;
+      });
+    }
   });
+
+  // Modifier la fonction askEmotions pour retourner la nouvelle structure
+  function askEmotions() {
+    return new Promise(resolve => {
+      const modal = document.getElementById('emotion-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('active');
+      const form = document.getElementById('emotion-form');
+      
+      // Reset previous selections
+      ['happy', 'sad', 'anger', 'fear', 'surprise', 'neutral'].forEach(emotion => {
+        const input = document.querySelector(`input[name='${emotion}']`);
+        if (input) input.value = 0;
+        const valueDisplay = document.getElementById(`${emotion}-val`);
+        if (valueDisplay) valueDisplay.textContent = '0';
+      });
+      
+      // Nettoyage : supprimer tout bouton Cancel déjà présent
+      const oldCancel = form.querySelector('button.cancel-emotion');
+      if (oldCancel) oldCancel.remove();
+      
+      form.onsubmit = e => {
+        e.preventDefault();
+        
+        const emotions = {
+          happy: parseInt(document.querySelector('input[name="happy"]').value) || 0,
+          sad: parseInt(document.querySelector('input[name="sad"]').value) || 0,
+          anger: parseInt(document.querySelector('input[name="anger"]').value) || 0,
+          fear: parseInt(document.querySelector('input[name="fear"]').value) || 0,
+          surprise: parseInt(document.querySelector('input[name="surprise"]').value) || 0,
+          neutral: parseInt(document.querySelector('input[name="neutral"]').value) || 0
+        };
+        
+        modal.classList.add('hidden');
+        modal.classList.remove('active');
+        resolve(emotions);
+      };
+      
+      // Add Cancel button
+      const cancelButton = document.createElement('button');
+      cancelButton.textContent = 'Cancel';
+      cancelButton.type = 'button';
+      cancelButton.className = 'cancel-emotion';
+      cancelButton.style = 'margin: 0 10px; padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;';
+      
+      cancelButton.onclick = () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('active');
+        // Reset textarea if present
+        const textarea = form.closest('.tracking-section')?.querySelector('textarea');
+        if (textarea) textarea.value = '';
+        resolve(false); // Return false to indicate cancellation
+      };
+      
+      const submitButton = form.querySelector('button[type="submit"]');
+      const buttonContainer = submitButton.parentNode;
+      
+      if (buttonContainer && !form.querySelector('button.cancel-emotion')) {
+        buttonContainer.insertBefore(cancelButton, submitButton);
+      }
+    });
+  }
 
   // Add a utility function to check if the server is running
   async function isServerRunning() {
@@ -334,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Update the saveSimpleSession function to check server status first
-  async function saveSimpleSession(type, tracker) {
+  async function saveSimpleSession(type, tracker, options = {}) {
     
     // First check if server is running to give early feedback
     const serverAvailable = await isServerRunning();
@@ -350,7 +415,8 @@ document.addEventListener('DOMContentLoaded', () => {
           text: keystrokeData.text,
           keystrokeData: keystrokeData.keystrokeData,
           timestamp: new Date().toISOString(),
-          context: type
+          context: type,
+          ...options // Ajoute fixedText et typingMode si présents
         };
         
         const timestamp = new Date().toISOString().replace(/:/g, '-');
@@ -425,6 +491,18 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       // For manual emotions (object format from askEmotions)
       processedEmotions = emotions;
+      
+      // Correction: Adapter les clés du nouvel objet emotions 
+      // pour qu'elles correspondent à ce qui est attendu par le serveur
+      if (processedEmotions.anger === undefined && processedEmotions.angry !== undefined) {
+        processedEmotions.anger = processedEmotions.angry;
+        delete processedEmotions.angry;
+      }
+      
+      if (processedEmotions.fear === undefined && processedEmotions.fearful !== undefined) {
+        processedEmotions.fear = processedEmotions.fearful;
+        delete processedEmotions.fearful;
+      }
     }
     
     const timings = keystrokeData.keystrokeData.map(entry => entry.timeMs);
@@ -442,7 +520,8 @@ document.addEventListener('DOMContentLoaded', () => {
       keystrokeCount: keystrokeData.keystrokeCount,
       timestamp: new Date().toISOString(),
       context: type,
-      detectionType: Array.isArray(processedEmotions) ? 'automatic' : 'manual'
+      detectionType: Array.isArray(processedEmotions) ? 'automatic' : 'manual',
+      ...options // Ajoute fixedText et typingMode si présents
     };
     
     try {
@@ -500,15 +579,87 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Remplacer les anciens handlers avec des fonctions spécifiques pour chaque mode
-  document.getElementById('save-manual').onclick = () => {
-    if (confirm("Voulez-vous sauvegarder les données de cette session?")) {
-      saveSimpleSession('manual', manualKeystrokeTracker);
+  const saveManualBtn = document.getElementById('save-manual');
+  saveManualBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    // Vérification pour le mode fixed : d'abord, et on arrête tout si ce n'est pas bon
+    if (currentTypingMode === 'fixed') {
+      const userText = typingArea.value.trim();
+      // Fonction utilitaire pour normaliser (enlever majuscules, espaces, accents, caractères non-lettres)
+      function normalize(str) {
+        return str
+          .toLowerCase()
+          .normalize('NFD').replace(/[ -]/g, '') // retire accents
+          .replace(/[^a-z]/g, ''); // ne garde que les lettres
+      }
+      if (normalize(userText) !== normalize(currentFixedPhrase)) {
+        alert('Veuillez recopier exactement la phrase affichée (lettres uniquement, sans tenir compte des majuscules ou accents).');
+        return;
+      }
     }
-  };
+    // Ensuite seulement, on vérifie la longueur et on demande les émotions
+    await saveSimpleSession(currentTypingMode === 'fixed' ? 'manual-fixed' : 'manual', manualKeystrokeTracker, {
+      fixedText: currentTypingMode === 'fixed' ? currentFixedPhrase : undefined,
+      typingMode: currentTypingMode
+    });
+  });
 
+  // Ajout gestion du mode texte libre/fixe pour le mode musique
+  const typingModeMusicRadios = document.querySelectorAll('input[name="typing-mode-music"]');
+  const fixedTextMusicContainer = document.getElementById('fixed-text-music-container');
+  const musicTypingArea = document.getElementById('music-typing-area');
+
+  function setMusicTypingMode(mode) {
+    currentMusicTypingMode = mode;
+    if (mode === 'fixed') {
+      // Choisir une phrase aléatoire
+      currentMusicFixedPhrase = FIXED_PHRASES[Math.floor(Math.random() * FIXED_PHRASES.length)];
+      fixedTextMusicContainer.textContent = currentMusicFixedPhrase;
+      fixedTextMusicContainer.style.display = '';
+      musicTypingArea.value = '';
+      musicTypingArea.placeholder = 'Recopiez la phrase ci-dessus ici...';
+    } else {
+      currentMusicFixedPhrase = '';
+      fixedTextMusicContainer.textContent = '';
+      fixedTextMusicContainer.style.display = 'none';
+      musicTypingArea.value = '';
+      musicTypingArea.placeholder = 'Type here while listening to music...';
+    }
+  }
+
+  typingModeMusicRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      setMusicTypingMode(e.target.value);
+    });
+  });
+
+  // Initialiser le mode par défaut pour la musique
+  setMusicTypingMode('free');
+
+  // Modifier le click handler pour le mode musique
   document.getElementById('save-music').onclick = () => {
+    // Vérification pour le mode fixed d'abord
+    if (currentMusicTypingMode === 'fixed') {
+      const userText = musicTypingArea.value.trim();
+      // Fonction utilitaire pour normaliser (enlever majuscules, espaces, accents, caractères non-lettres)
+      function normalizeMusic(str) {
+        return str
+          .toLowerCase()
+          .normalize('NFD').replace(/[ -]/g, '') // retire accents
+          .replace(/[^a-z]/g, ''); // ne garde que les lettres
+      }
+      if (normalizeMusic(userText) !== normalizeMusic(currentMusicFixedPhrase)) {
+        alert('Veuillez recopier exactement la phrase affichée (lettres uniquement, sans tenir compte des majuscules ou accents).');
+        return;
+      }
+    }
+    
+    // Si on arrive ici, soit c'est un texte libre, soit le texte fixe a été correctement recopié
     if (confirm("Voulez-vous sauvegarder les données de cette session?")) {
-      saveSimpleSession('music', musicKeystrokeTracker);
+      saveSimpleSession(currentMusicTypingMode === 'fixed' ? 'music-fixed' : 'music', musicKeystrokeTracker, {
+        fixedText: currentMusicTypingMode === 'fixed' ? currentMusicFixedPhrase : undefined,
+        typingMode: currentMusicTypingMode
+      });
     }
   };
 
@@ -746,4 +897,36 @@ document.addEventListener('DOMContentLoaded', () => {
       webcamTracker.forceEmotion(emotion, 100);
     });
   });
+
+  // Ajout gestion du mode texte libre/fixe
+  const typingModeRadios = document.querySelectorAll('input[name="typing-mode"]');
+  const fixedTextContainer = document.getElementById('fixed-text-container');
+  const typingArea = document.getElementById('typing-area');
+
+  function setTypingMode(mode) {
+    currentTypingMode = mode;
+    if (mode === 'fixed') {
+      // Choisir une phrase aléatoire
+      currentFixedPhrase = FIXED_PHRASES[Math.floor(Math.random() * FIXED_PHRASES.length)];
+      fixedTextContainer.textContent = currentFixedPhrase;
+      fixedTextContainer.style.display = '';
+      typingArea.value = '';
+      typingArea.placeholder = 'Recopiez la phrase ci-dessus ici...';
+    } else {
+      currentFixedPhrase = '';
+      fixedTextContainer.textContent = '';
+      fixedTextContainer.style.display = 'none';
+      typingArea.value = '';
+      typingArea.placeholder = 'Start typing here to record your keystroke dynamics...';
+    }
+  }
+
+  typingModeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      setTypingMode(e.target.value);
+    });
+  });
+
+  // Initialiser le mode par défaut
+  setTypingMode('free');
 });

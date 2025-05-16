@@ -722,24 +722,6 @@
         .close:hover {
             color: var(--gray-900);
         }
-        
-        .admin-button {
-            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
-            color: white;
-            border: none;
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md) var(--spacing-lg);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            margin-bottom: var(--spacing-md);
-        }
-        
-        .admin-button:hover {
-            background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
     </style>
 </head>
 <body>
@@ -775,6 +757,7 @@
                 <li><a href="#" class="active" data-page="dashboard"><i class="fas fa-chart-line"></i> <span>Tableau de bord</span></a></li>
                 <li><a href="#" data-page="sessions"><i class="fas fa-list"></i> <span>Sessions</span></a></li>
                 <li><a href="#" data-page="export"><i class="fas fa-download"></i> <span>Exportation</span></a></li>
+                <li><a href="#" data-page="analysis"><i class="fas fa-brain"></i> <span>Analyse des émotions</span></a></li>
                 <li><a href="#" data-page="settings"><i class="fas fa-cog"></i> <span>Paramètres</span></a></li>
                 <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Déconnexion</span></a></li>
             </ul>
@@ -826,20 +809,20 @@
             
             <div id="stats-loader" class="loader"></div>
             
-            <!-- MongoDB Data Section -->
+            <!-- MongoDB Data Section - Consolidated -->
             <div class="card">
                 <div class="card-header">
-                    <h2>MongoDB Data</h2>
+                    <h2>Données Collectées</h2>
                     <div class="card-actions">
-                        <button id="load-mongodb" class="btn btn-primary"><i class="fas fa-database"></i> Load MongoDB Data</button>
+                        <button id="charger-donnees" class="btn btn-primary"><i class="fas fa-database"></i> Charger Données</button>
                     </div>
                 </div>
                 <div class="card-body">
-                    <p>Access all session data stored in MongoDB here. This data persists even when the server restarts on Render.</p>
+                    <p>Gérez toutes les données de sessions collectées et stockées dans la base de données MongoDB. Analysez les motifs émotionnels et les interactions.</p>
                     <div id="mongodb-container" style="display: none;">
                         <div class="mongodb-actions" style="margin-bottom: 15px;">
-                            <button id="download-all-mongodb" class="btn btn-success"><i class="fas fa-download"></i> Download All</button>
-                            <button id="extract-to-json" class="btn btn-secondary"><i class="fas fa-file-export"></i> Extract to JSON</button>
+                            <button id="download-all-mongodb" class="btn btn-success"><i class="fas fa-download"></i> Télécharger Tout</button>
+                            <button id="extract-to-json" class="btn btn-secondary"><i class="fas fa-file-export"></i> Exporter en JSON</button>
                         </div>
                         <div id="mongodb-data" style="max-height: 500px; overflow: auto;"></div>
                     </div>
@@ -848,7 +831,7 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h2>Sessions récentes</h2>
+                    <h2>Collecte d'Émotions Récentes</h2>
                 </div>
                 <table id="recent-sessions-table">
                     <thead>
@@ -857,16 +840,62 @@
                             <th>Participant</th>
                             <th>Date</th>
                             <th>Type</th>
+                            <th>Émotion dominante</th>
                             <th>Durée</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="6" style="text-align: center;">Chargement des sessions...</td>
+                            <td colspan="7" style="text-align: center;">Chargement des sessions...</td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            
+            <!-- Nouvelle section d'analyse des données -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Analyse des Émotions</h2>
+                    <div class="card-actions">
+                        <button id="refresh-analysis" class="btn btn-primary"><i class="fas fa-chart-bar"></i> Actualiser l'analyse</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>Visualisation et analyse des données émotionnelles collectées.</p>
+                    
+                    <div class="analysis-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                        <div class="analysis-card" style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 15px;">
+                            <h3>Distribution des émotions</h3>
+                            <div id="emotions-distribution" style="height: 300px;">
+                                <!-- Chart will be inserted here -->
+                                <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                    <p>Cliquez sur "Actualiser l'analyse" pour générer les graphiques</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="analysis-card" style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 15px;">
+                            <h3>Évolution temporelle</h3>
+                            <div id="emotions-timeline" style="height: 300px;">
+                                <!-- Chart will be inserted here -->
+                                <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                    <p>Cliquez sur "Actualiser l'analyse" pour générer les graphiques</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-card" style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 15px; margin-top: 20px;">
+                        <h3>Tendances par type de session</h3>
+                        <div id="emotions-by-type" style="height: 300px;">
+                            <!-- Chart will be inserted here -->
+                            <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                <p>Cliquez sur "Actualiser l'analyse" pour générer les graphiques</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -935,6 +964,71 @@
                 <p>Cette fonctionnalité sera disponible dans une prochaine mise à jour.</p>
             </div>
         </div>
+        
+        <!-- Analyse des émotions -->
+        <div id="analysis-page" class="content-page" style="display: none;">
+            <div class="page-header">
+                <h1>Analyse des données émotionnelles</h1>
+                <button id="analysis-refresh" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Analyser les données</button>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>Distribution des émotions</h2>
+                </div>
+                <div class="card-body">
+                    <p>Répartition globale des émotions détectées dans toutes les sessions collectées.</p>
+                    <div id="emotion-distribution-chart" style="height: 300px;">
+                        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                            <p>Cliquez sur "Analyser les données" pour générer le graphique</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>Évolution temporelle</h2>
+                </div>
+                <div class="card-body">
+                    <p>Évolution des émotions dominantes au fil du temps.</p>
+                    <div id="emotion-timeline-chart" style="height: 300px;">
+                        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                            <p>Cliquez sur "Analyser les données" pour générer le graphique</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>Analyse par contexte</h2>
+                </div>
+                <div class="card-body">
+                    <p>Comparaison des émotions selon le contexte d'utilisation (manuel, musique, texte fixe).</p>
+                    <div id="emotion-context-chart" style="height: 300px;">
+                        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                            <p>Cliquez sur "Analyser les données" pour générer le graphique</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>Exportation des analyses</h2>
+                </div>
+                <div class="card-body">
+                    <p>Téléchargez les résultats d'analyse sous différents formats.</p>
+                    <div style="margin-top: 20px;">
+                        <button id="export-analysis-csv" class="btn btn-success" disabled><i class="fas fa-file-csv"></i> Exporter en CSV</button>
+                        <button id="export-analysis-json" class="btn btn-primary" disabled><i class="fas fa-file-code"></i> Exporter en JSON</button>
+                        <button id="export-analysis-pdf" class="btn btn-danger" disabled><i class="fas fa-file-pdf"></i> Exporter en PDF</button>
+                    </div>
+                    <p style="margin-top: 15px; font-style: italic;">Note: Les fonctionnalités d'exportation seront activées après l'analyse.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -994,6 +1088,23 @@
             document.getElementById('export-data').addEventListener('click', function() {
                 exportData();
             });
+            
+            // Ajouter l'écouteur pour le bouton d'analyse des émotions
+            const refreshAnalysisBtn = document.getElementById('refresh-analysis');
+            if (refreshAnalysisBtn) {
+                refreshAnalysisBtn.addEventListener('click', function() {
+                    analyzeEmotionData();
+                });
+            }
+            
+            // Ajouter l'écouteur pour la page d'analyse dédiée
+            const analysisRefreshBtn = document.getElementById('analysis-refresh');
+            if (analysisRefreshBtn) {
+                analysisRefreshBtn.addEventListener('click', function() {
+                    // Appelez la fonction d'analyse et mettez à jour les graphiques dédiés
+                    analyzeEmotionDataForPage();
+                });
+            }
         });
         
         // Fonction pour vérifier l'authentification
@@ -1137,40 +1248,6 @@
             .finally(() => {
                 toggleLoader('stats-loader', false);
             });
-            
-            // Charger les sessions récentes
-            loadRecentSessions();
-        }
-        
-        // Charger les sessions récentes
-        function loadRecentSessions() {
-            fetch('/api/admin/sessions', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        throw new Error('Non authentifié');
-                    }
-                    throw new Error('Erreur serveur');
-                }
-                return response.json();
-            })
-            .then(sessions => {
-                // Prendre les 5 premières sessions pour le tableau de bord
-                const recentSessions = sessions.slice(0, 5);
-                updateSessionsTable('recent-sessions-table', recentSessions);
-                
-                // Mettre à jour les statistiques avec toutes les sessions
-                updateStatisticsFromSessions(sessions);
-            })
-            .catch(error => {
-                console.error('Erreur de chargement des sessions récentes:', error);
-            });
         }
         
         // Charger toutes les sessions
@@ -1272,83 +1349,6 @@
             });
             
             tbody.innerHTML = html;
-            
-            // Calculer et mettre à jour les statistiques après avoir chargé les sessions
-            updateStatisticsFromSessions(sessions);
-        }
-        
-        // Fonction pour mettre à jour les statistiques à partir des sessions
-        function updateStatisticsFromSessions(sessions) {
-            if (!sessions || sessions.length === 0) {
-                return;
-            }
-            
-            console.log('Calcul des statistiques à partir de', sessions.length, 'sessions');
-            
-            // 1. Total des sessions
-            document.getElementById('total-sessions').textContent = sessions.length;
-            
-            // 2. Sessions d'aujourd'hui
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            const todaySessions = sessions.filter(session => {
-                const sessionDate = new Date(session.date);
-                return sessionDate >= today;
-            });
-            
-            document.getElementById('today-sessions').textContent = todaySessions.length;
-            
-            // 3. Participants uniques
-            const uniqueParticipants = new Set();
-            sessions.forEach(session => {
-                if (session.participantUsername) {
-                    uniqueParticipants.add(session.participantUsername);
-                }
-            });
-            
-            document.getElementById('total-participants').textContent = uniqueParticipants.size;
-            
-            // 4. Durée moyenne
-            let totalDuration = 0;
-            let sessionWithDuration = 0;
-            
-            sessions.forEach(session => {
-                let durationMs = null;
-                
-                // Vérifier si duration ou sessionDuration existent
-                if (session.duration !== undefined && session.duration !== null) {
-                    durationMs = Number(session.duration);
-                } else if (session.sessionDuration !== undefined && session.sessionDuration !== null) {
-                    durationMs = Number(session.sessionDuration);
-                }
-                
-                if (durationMs !== null && !isNaN(durationMs)) {
-                    totalDuration += durationMs;
-                    sessionWithDuration++;
-                }
-            });
-            
-            // Calculer la durée moyenne en secondes
-            const avgDuration = sessionWithDuration > 0 ? Math.round(totalDuration / sessionWithDuration / 1000) : 0;
-            
-            // Formater la durée moyenne
-            if (avgDuration >= 60) {
-                const minutes = Math.floor(avgDuration / 60);
-                const seconds = avgDuration % 60;
-                document.getElementById('average-duration').textContent = seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
-            } else {
-                document.getElementById('average-duration').textContent = `${avgDuration}s`;
-            }
-            
-            console.log('Statistiques calculées:', {
-                totalSessions: sessions.length,
-                todaySessions: todaySessions.length,
-                uniqueParticipants: uniqueParticipants.size,
-                totalDuration,
-                sessionWithDuration,
-                avgDuration
-            });
         }
         
         // Fonction pour télécharger une session
@@ -1497,7 +1497,7 @@
         // MongoDB Data Integration
         document.addEventListener('DOMContentLoaded', function() {
             // MongoDB data handling
-            const loadMongoDBBtn = document.getElementById('load-mongodb');
+            const loadMongoDBBtn = document.getElementById('charger-donnees');
             if (loadMongoDBBtn) {
                 loadMongoDBBtn.addEventListener('click', function() {
                     loadMongoDBData();
@@ -1519,14 +1519,42 @@
             }
         });
         
+        // Function to extract MongoDB data to JSON files
+        function extractMongoDBToJSON() {
+            const password = prompt('Enter admin password:');
+            if (!password) return;
+            
+            fetch(`/admin/extract-data?password=${encodeURIComponent(password)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert(`Successfully extracted ${data.count} sessions to JSON files.`);
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error extracting data:', error);
+                    alert(`Error extracting data: ${error.message}`);
+                });
+        }
+        
         // Function to load MongoDB data
         function loadMongoDBData() {
+            console.log("Chargement des données MongoDB...");
             const mongoDBContainer = document.getElementById('mongodb-container');
             const mongoDBData = document.getElementById('mongodb-data');
             
-            mongoDBData.innerHTML = '<p>Loading MongoDB data...</p>';
+            // Afficher un indicateur de chargement
+            mongoDBData.innerHTML = '<div style="text-align: center; padding: 20px;"><div class="loader" style="display: inline-block;"></div><p style="margin-top: 10px;">Chargement des données...</p></div>';
             mongoDBContainer.style.display = 'block';
             
+            // Récupérer les données depuis l'API
             fetch('/api/sessions')
                 .then(response => {
                     if (!response.ok) {
@@ -1536,58 +1564,57 @@
                 })
                 .then(data => {
                     if (!data || data.length === 0) {
-                        mongoDBData.innerHTML = '<p>No MongoDB data found.</p>';
+                        mongoDBData.innerHTML = '<p style="text-align: center; padding: 20px;">Aucune donnée trouvée dans MongoDB.</p>';
                         return;
                     }
                     
-                    // Create a table to display the data
+                    console.log(`${data.length} sessions trouvées dans MongoDB`);
+                    
+                    // Créer un tableau pour afficher les données
                     const table = document.createElement('table');
-                    table.className = 'data-table';
                     table.style.width = '100%';
                     table.style.borderCollapse = 'collapse';
-                    table.style.marginTop = '10px';
                     
-                    // Create table header
+                    // Créer l'en-tête du tableau
                     const thead = document.createElement('thead');
                     thead.innerHTML = `
                         <tr>
-                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Session ID</th>
-                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Date</th>
-                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Context</th>
-                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">User ID</th>
-                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Actions</th>
+                            <th>ID Session</th>
+                            <th>Date</th>
+                            <th>Contexte</th>
+                            <th>ID Utilisateur</th>
+                            <th>Actions</th>
                         </tr>
                     `;
                     table.appendChild(thead);
                     
-                    // Create table body
+                    // Créer le corps du tableau
                     const tbody = document.createElement('tbody');
                     data.forEach(session => {
                         const tr = document.createElement('tr');
-                        tr.style.borderBottom = '1px solid #ddd';
                         
-                        // Format date
+                        // Formater la date
                         const date = session.startTime ? new Date(session.startTime).toLocaleString() : 'N/A';
                         
                         tr.innerHTML = `
-                            <td style="padding: 8px;">${session.sessionId || 'N/A'}</td>
-                            <td style="padding: 8px;">${date}</td>
-                            <td style="padding: 8px;">${session.context || 'N/A'}</td>
-                            <td style="padding: 8px;">${session.userId || 'N/A'}</td>
-                            <td style="padding: 8px;">
-                                <button class="btn btn-sm btn-primary view-mongodb-session" data-id="${session._id}">View</button>
-                                <button class="btn btn-sm btn-success download-mongodb-session" data-id="${session._id}">Download</button>
+                            <td>${session.sessionId || 'N/A'}</td>
+                            <td>${date}</td>
+                            <td>${session.context || 'N/A'}</td>
+                            <td>${session.userId || 'N/A'}</td>
+                            <td>
+                                <button class="btn btn-secondary btn-sm view-mongodb-session" data-id="${session._id}">Voir</button>
+                                <button class="btn btn-primary btn-sm download-mongodb-session" data-id="${session._id}">Télécharger</button>
                             </td>
                         `;
                         tbody.appendChild(tr);
                     });
                     table.appendChild(tbody);
                     
-                    // Clear previous content and add the table
+                    // Vider et ajouter le tableau
                     mongoDBData.innerHTML = '';
                     mongoDBData.appendChild(table);
                     
-                    // Add event listeners for buttons
+                    // Ajouter les écouteurs d'événements pour les boutons
                     document.querySelectorAll('.view-mongodb-session').forEach(button => {
                         button.addEventListener('click', function() {
                             const id = this.getAttribute('data-id');
@@ -1603,66 +1630,8 @@
                     });
                 })
                 .catch(error => {
-                    console.error('Error loading MongoDB data:', error);
-                    mongoDBData.innerHTML = `<p>Error loading MongoDB data: ${error.message}</p>`;
-                });
-        }
-        
-        // Function to view a MongoDB session
-        function viewMongoDBSession(id) {
-            const sessionData = document.getElementById('mongodb-data');
-            sessionData.innerHTML = '<p>Loading session details...</p>';
-            
-            fetch(`/api/sessions/${id}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Create modal to display session details
-                    const modal = document.createElement('div');
-                    modal.className = 'modal';
-                    modal.style.display = 'block';
-                    modal.style.position = 'fixed';
-                    modal.style.zIndex = '1000';
-                    modal.style.left = '0';
-                    modal.style.top = '0';
-                    modal.style.width = '100%';
-                    modal.style.height = '100%';
-                    modal.style.overflow = 'auto';
-                    modal.style.backgroundColor = 'rgba(0,0,0,0.4)';
-                    
-                    modal.innerHTML = `
-                        <div style="background-color: white; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 800px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                                <h2 style="margin: 0;">Session Details</h2>
-                                <span class="close-modal" style="cursor: pointer; font-size: 24px;">&times;</span>
-                            </div>
-                            <div style="max-height: 70vh; overflow: auto;">
-                                <pre style="white-space: pre-wrap; word-break: break-all;">${JSON.stringify(data, null, 2)}</pre>
-                            </div>
-                        </div>
-                    `;
-                    
-                    document.body.appendChild(modal);
-                    
-                    // Close modal when clicking on X
-                    modal.querySelector('.close-modal').addEventListener('click', function() {
-                        document.body.removeChild(modal);
-                    });
-                    
-                    // Close modal when clicking outside content
-                    modal.addEventListener('click', function(event) {
-                        if (event.target === modal) {
-                            document.body.removeChild(modal);
-                        }
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading session details:', error);
-                    sessionData.innerHTML = `<p>Error loading session details: ${error.message}</p>`;
+                    console.error('Erreur de chargement des données MongoDB:', error);
+                    mongoDBData.innerHTML = `<p style="text-align: center; color: red; padding: 20px;">Erreur de chargement des données: ${error.message}</p>`;
                 });
         }
         
@@ -1695,7 +1664,62 @@
                 })
                 .catch(error => {
                     console.error('Error downloading session:', error);
-                    alert(`Error downloading session: ${error.message}`);
+                    alert(`Erreur lors du téléchargement: ${error.message}`);
+                });
+        }
+        
+        // Function to view a MongoDB session
+        function viewMongoDBSession(id) {
+            fetch(`/api/sessions/${id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Create modal to display session details
+                    const modal = document.createElement('div');
+                    modal.className = 'modal';
+                    modal.style.display = 'block';
+                    modal.style.position = 'fixed';
+                    modal.style.zIndex = '1000';
+                    modal.style.left = '0';
+                    modal.style.top = '0';
+                    modal.style.width = '100%';
+                    modal.style.height = '100%';
+                    modal.style.overflow = 'auto';
+                    modal.style.backgroundColor = 'rgba(0,0,0,0.4)';
+                    
+                    modal.innerHTML = `
+                        <div style="background-color: white; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 800px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                                <h2 style="margin: 0;">Détails de la Session</h2>
+                                <span class="close-modal" style="cursor: pointer; font-size: 24px;">&times;</span>
+                            </div>
+                            <div style="max-height: 70vh; overflow: auto;">
+                                <pre style="white-space: pre-wrap; word-break: break-all;">${JSON.stringify(data, null, 2)}</pre>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    // Close modal when clicking on X
+                    modal.querySelector('.close-modal').addEventListener('click', function() {
+                        document.body.removeChild(modal);
+                    });
+                    
+                    // Close modal when clicking outside content
+                    modal.addEventListener('click', function(event) {
+                        if (event.target === modal) {
+                            document.body.removeChild(modal);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error viewing session details:', error);
+                    alert(`Erreur lors de l'affichage des détails: ${error.message}`);
                 });
         }
         
@@ -1728,37 +1752,699 @@
                 })
                 .catch(error => {
                     console.error('Error downloading all sessions:', error);
-                    alert(`Error downloading all sessions: ${error.message}`);
+                    alert(`Erreur lors du téléchargement de toutes les sessions: ${error.message}`);
                 });
         }
         
-        // Function to extract MongoDB data to JSON files
-        function extractMongoDBToJSON() {
-            const password = prompt('Enter admin password:');
-            if (!password) return;
+        // Fonctions d'analyse des émotions
+        // Fonction pour analyser les données émotionnelles
+        async function analyzeEmotionData() {
+            console.log("Analyse des données émotionnelles...");
             
-            fetch(`/admin/extract-data?password=${encodeURIComponent(password)}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error ${response.status}`);
+            // Récupérer les données depuis MongoDB
+            try {
+                const response = await fetch('/api/sessions');
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                
+                const sessions = await response.json();
+                if (!sessions || sessions.length === 0) {
+                    alert("Aucune donnée disponible pour l'analyse.");
+                    return;
+                }
+                
+                console.log(`Analyse de ${sessions.length} sessions...`);
+                
+                // Traiter les données pour l'analyse
+                const emotionDistribution = calculateEmotionDistribution(sessions);
+                const emotionTimeline = calculateEmotionTimeline(sessions);
+                const emotionsByType = calculateEmotionsByType(sessions);
+                
+                // Afficher les résultats
+                displayEmotionDistribution(emotionDistribution);
+                displayEmotionTimeline(emotionTimeline);
+                displayEmotionsByType(emotionsByType);
+                
+            } catch (error) {
+                console.error("Erreur lors de l'analyse des données:", error);
+                alert(`Erreur lors de l'analyse: ${error.message}`);
+            }
+        }
+        
+        // Calculer la distribution des émotions
+        function calculateEmotionDistribution(sessions) {
+            const distribution = {
+                happy: 0,
+                sad: 0,
+                angry: 0,
+                fearful: 0,
+                disgusted: 0,
+                surprised: 0,
+                neutral: 0
+            };
+            
+            let total = 0;
+            
+            sessions.forEach(session => {
+                if (session.emotionData) {
+                    // Trouver l'émotion dominante
+                    let dominantEmotion = null;
+                    let maxScore = 0;
+                    
+                    Object.entries(session.emotionData).forEach(([emotion, score]) => {
+                        if (score > maxScore) {
+                            maxScore = score;
+                            dominantEmotion = emotion;
+                        }
+                    });
+                    
+                    if (dominantEmotion && distribution.hasOwnProperty(dominantEmotion)) {
+                        distribution[dominantEmotion]++;
+                        total++;
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        alert(`Successfully extracted ${data.count} sessions to JSON files.`);
-                    } else {
-                        alert(`Error: ${data.message}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error extracting data:', error);
-                    alert(`Error extracting data: ${error.message}`);
+                }
+            });
+            
+            // Convertir en pourcentages
+            if (total > 0) {
+                Object.keys(distribution).forEach(key => {
+                    distribution[key] = (distribution[key] / total) * 100;
                 });
+            }
+            
+            return distribution;
+        }
+        
+        // Calculer l'évolution temporelle des émotions
+        function calculateEmotionTimeline(sessions) {
+            // Trier les sessions par date
+            const sortedSessions = [...sessions].sort((a, b) => {
+                return new Date(a.startTime || a.date) - new Date(b.startTime || b.date);
+            });
+            
+            // Regrouper par jour
+            const timelineData = {};
+            
+            sortedSessions.forEach(session => {
+                if (!session.startTime && !session.date) return;
+                
+                const date = new Date(session.startTime || session.date);
+                const dateKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+                
+                if (!timelineData[dateKey]) {
+                    timelineData[dateKey] = {
+                        happy: 0,
+                        sad: 0,
+                        angry: 0,
+                        fearful: 0,
+                        disgusted: 0,
+                        surprised: 0,
+                        neutral: 0,
+                        total: 0
+                    };
+                }
+                
+                if (session.emotionData) {
+                    // Trouver l'émotion dominante
+                    let dominantEmotion = null;
+                    let maxScore = 0;
+                    
+                    Object.entries(session.emotionData).forEach(([emotion, score]) => {
+                        if (score > maxScore) {
+                            maxScore = score;
+                            dominantEmotion = emotion;
+                        }
+                    });
+                    
+                    if (dominantEmotion && timelineData[dateKey].hasOwnProperty(dominantEmotion)) {
+                        timelineData[dateKey][dominantEmotion]++;
+                        timelineData[dateKey].total++;
+                    }
+                }
+            });
+            
+            return timelineData;
+        }
+        
+        // Calculer les émotions par type de session
+        function calculateEmotionsByType(sessions) {
+            const typeData = {};
+            
+            sessions.forEach(session => {
+                const type = session.context || session.type || "unknown";
+                
+                if (!typeData[type]) {
+                    typeData[type] = {
+                        happy: 0,
+                        sad: 0,
+                        angry: 0,
+                        fearful: 0,
+                        disgusted: 0,
+                        surprised: 0,
+                        neutral: 0,
+                        total: 0
+                    };
+                }
+                
+                if (session.emotionData) {
+                    // Trouver l'émotion dominante
+                    let dominantEmotion = null;
+                    let maxScore = 0;
+                    
+                    Object.entries(session.emotionData).forEach(([emotion, score]) => {
+                        if (score > maxScore) {
+                            maxScore = score;
+                            dominantEmotion = emotion;
+                        }
+                    });
+                    
+                    if (dominantEmotion && typeData[type].hasOwnProperty(dominantEmotion)) {
+                        typeData[type][dominantEmotion]++;
+                        typeData[type].total++;
+                    }
+                }
+            });
+            
+            return typeData;
+        }
+        
+        // Afficher la distribution des émotions
+        function displayEmotionDistribution(distribution) {
+            const container = document.getElementById('emotions-distribution');
+            container.innerHTML = '';
+            
+            // Créer un graphique simple pour la démonstration
+            const chart = document.createElement('div');
+            chart.style.display = 'flex';
+            chart.style.height = '100%';
+            chart.style.alignItems = 'flex-end';
+            chart.style.gap = '10px';
+            chart.style.padding = '20px 0';
+            
+            const colors = {
+                happy: '#4CAF50',
+                sad: '#2196F3',
+                angry: '#F44336',
+                fearful: '#9C27B0',
+                disgusted: '#795548',
+                surprised: '#FF9800',
+                neutral: '#9E9E9E'
+            };
+            
+            const labels = {
+                happy: 'Joie',
+                sad: 'Tristesse',
+                angry: 'Colère',
+                fearful: 'Peur',
+                disgusted: 'Dégoût',
+                surprised: 'Surprise',
+                neutral: 'Neutre'
+            };
+            
+            Object.entries(distribution).forEach(([emotion, percentage]) => {
+                const bar = document.createElement('div');
+                bar.style.flex = '1';
+                bar.style.display = 'flex';
+                bar.style.flexDirection = 'column';
+                bar.style.alignItems = 'center';
+                bar.style.position = 'relative';
+                
+                const barValue = document.createElement('div');
+                barValue.style.width = '100%';
+                barValue.style.height = `${percentage}%`;
+                barValue.style.backgroundColor = colors[emotion] || '#ccc';
+                barValue.style.borderRadius = '4px 4px 0 0';
+                
+                const barLabel = document.createElement('div');
+                barLabel.textContent = labels[emotion] || emotion;
+                barLabel.style.marginTop = '8px';
+                barLabel.style.fontSize = '12px';
+                barLabel.style.fontWeight = 'bold';
+                barLabel.style.textAlign = 'center';
+                
+                const barPercentage = document.createElement('div');
+                barPercentage.textContent = `${Math.round(percentage)}%`;
+                barPercentage.style.position = 'absolute';
+                barPercentage.style.bottom = `${percentage + 5}%`;
+                barPercentage.style.fontSize = '12px';
+                barPercentage.style.fontWeight = 'bold';
+                
+                bar.appendChild(barValue);
+                bar.appendChild(barPercentage);
+                bar.appendChild(barLabel);
+                chart.appendChild(bar);
+            });
+            
+            container.appendChild(chart);
+        }
+        
+        // Afficher l'évolution temporelle des émotions
+        function displayEmotionTimeline(timelineData) {
+            const container = document.getElementById('emotions-timeline');
+            container.innerHTML = '';
+            
+            // S'il n'y a pas assez de données
+            if (Object.keys(timelineData).length < 2) {
+                container.innerHTML = '<p style="text-align: center; margin-top: 100px;">Pas assez de données temporelles pour l\'analyse</p>';
+                return;
+            }
+            
+            // Simulation d'un graphique simple
+            const chart = document.createElement('div');
+            chart.style.height = '100%';
+            chart.style.display = 'flex';
+            chart.style.flexDirection = 'column';
+            chart.style.justifyContent = 'center';
+            chart.style.alignItems = 'center';
+            
+            chart.innerHTML = `
+                <p style="margin-bottom: 20px;">Données disponibles pour ${Object.keys(timelineData).length} jours</p>
+                <p>Ce graphique montrerait l'évolution des émotions au fil du temps</p>
+                <p style="margin-top: 20px; font-style: italic;">Implémentation complète nécessiterait une bibliothèque de graphiques comme Chart.js</p>
+            `;
+            
+            container.appendChild(chart);
+        }
+        
+        // Afficher les émotions par type de session
+        function displayEmotionsByType(typeData) {
+            const container = document.getElementById('emotions-by-type');
+            container.innerHTML = '';
+            
+            // S'il n'y a pas assez de données
+            if (Object.keys(typeData).length === 0) {
+                container.innerHTML = '<p style="text-align: center; margin-top: 100px;">Pas assez de données par type pour l\'analyse</p>';
+                return;
+            }
+            
+            // Création d'un tableau pour la démo
+            const table = document.createElement('table');
+            table.style.width = '100%';
+            table.style.borderCollapse = 'collapse';
+            table.style.marginTop = '20px';
+            
+            // En-tête
+            const thead = document.createElement('thead');
+            thead.innerHTML = `
+                <tr>
+                    <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ddd;">Type de session</th>
+                    <th style="text-align: center; padding: 8px; border-bottom: 2px solid #ddd;">Émotion dominante</th>
+                    <th style="text-align: right; padding: 8px; border-bottom: 2px solid #ddd;">Sessions</th>
+                </tr>
+            `;
+            table.appendChild(thead);
+            
+            // Corps
+            const tbody = document.createElement('tbody');
+            
+            Object.entries(typeData).forEach(([type, emotions]) => {
+                // Trouver l'émotion dominante pour ce type
+                let dominantEmotion = 'N/A';
+                let maxCount = 0;
+                
+                Object.entries(emotions).forEach(([emotion, count]) => {
+                    if (emotion !== 'total' && count > maxCount) {
+                        maxCount = count;
+                        dominantEmotion = emotion;
+                    }
+                });
+                
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid #ddd';
+                
+                tr.innerHTML = `
+                    <td style="text-align: left; padding: 8px;">${type}</td>
+                    <td style="text-align: center; padding: 8px;">${dominantEmotion}</td>
+                    <td style="text-align: right; padding: 8px;">${emotions.total}</td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+            
+            table.appendChild(tbody);
+            container.appendChild(table);
+            
+            // Note explicative
+            const note = document.createElement('p');
+            note.style.textAlign = 'center';
+            note.style.marginTop = '20px';
+            note.style.fontStyle = 'italic';
+            note.textContent = "Une implémentation complète inclurait des graphiques interactifs pour chaque type de session";
+            
+            container.appendChild(note);
+        }
+        
+        // Fonction d'analyse pour la page dédiée
+        async function analyzeEmotionDataForPage() {
+            console.log("Analyse des données émotionnelles pour la page dédiée...");
+            
+            // Afficher des loaders dans les conteneurs de graphiques
+            document.getElementById('emotion-distribution-chart').innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%;"><div class="loader" style="display: block;"></div></div>';
+            document.getElementById('emotion-timeline-chart').innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%;"><div class="loader" style="display: block;"></div></div>';
+            document.getElementById('emotion-context-chart').innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%;"><div class="loader" style="display: block;"></div></div>';
+            
+            // Désactiver les boutons d'exportation
+            document.getElementById('export-analysis-csv').disabled = true;
+            document.getElementById('export-analysis-json').disabled = true;
+            document.getElementById('export-analysis-pdf').disabled = true;
+            
+            try {
+                // Récupérer les données depuis MongoDB
+                const response = await fetch('/api/sessions');
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                
+                const sessions = await response.json();
+                if (!sessions || sessions.length === 0) {
+                    document.getElementById('emotion-distribution-chart').innerHTML = '<p style="text-align: center;">Aucune donnée disponible pour l\'analyse.</p>';
+                    document.getElementById('emotion-timeline-chart').innerHTML = '<p style="text-align: center;">Aucune donnée disponible pour l\'analyse.</p>';
+                    document.getElementById('emotion-context-chart').innerHTML = '<p style="text-align: center;">Aucune donnée disponible pour l\'analyse.</p>';
+                    return;
+                }
+                
+                console.log(`Analyse de ${sessions.length} sessions...`);
+                
+                // Analyser et afficher les données
+                const emotionDistribution = calculateEmotionDistribution(sessions);
+                displayEmotionDistributionChart(emotionDistribution, 'emotion-distribution-chart');
+                
+                const emotionTimeline = calculateEmotionTimeline(sessions);
+                displayEmotionTimelineChart(emotionTimeline, 'emotion-timeline-chart');
+                
+                const emotionsByType = calculateEmotionsByType(sessions);
+                displayEmotionContextChart(emotionsByType, 'emotion-context-chart');
+                
+                // Activer les boutons d'exportation
+                document.getElementById('export-analysis-csv').disabled = false;
+                document.getElementById('export-analysis-json').disabled = false;
+                document.getElementById('export-analysis-pdf').disabled = false;
+                
+            } catch (error) {
+                console.error("Erreur lors de l'analyse des données:", error);
+                document.getElementById('emotion-distribution-chart').innerHTML = `<p style="text-align: center; color: red;">Erreur: ${error.message}</p>`;
+                document.getElementById('emotion-timeline-chart').innerHTML = `<p style="text-align: center; color: red;">Erreur: ${error.message}</p>`;
+                document.getElementById('emotion-context-chart').innerHTML = `<p style="text-align: center; color: red;">Erreur: ${error.message}</p>`;
+            }
+        }
+        
+        // Afficher le graphique de distribution d'émotions
+        function displayEmotionDistributionChart(distribution, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            // Créer un graphique simple pour la démonstration
+            const chart = document.createElement('div');
+            chart.style.display = 'flex';
+            chart.style.height = '100%';
+            chart.style.alignItems = 'flex-end';
+            chart.style.gap = '10px';
+            chart.style.padding = '20px 0';
+            
+            const colors = {
+                happy: '#4CAF50',
+                sad: '#2196F3',
+                angry: '#F44336',
+                fearful: '#9C27B0',
+                disgusted: '#795548',
+                surprised: '#FF9800',
+                neutral: '#9E9E9E'
+            };
+            
+            const labels = {
+                happy: 'Joie',
+                sad: 'Tristesse',
+                angry: 'Colère',
+                fearful: 'Peur',
+                disgusted: 'Dégoût',
+                surprised: 'Surprise',
+                neutral: 'Neutre'
+            };
+            
+            Object.entries(distribution).forEach(([emotion, percentage]) => {
+                const bar = document.createElement('div');
+                bar.style.flex = '1';
+                bar.style.display = 'flex';
+                bar.style.flexDirection = 'column';
+                bar.style.alignItems = 'center';
+                bar.style.position = 'relative';
+                
+                const barValue = document.createElement('div');
+                barValue.style.width = '100%';
+                barValue.style.height = `${percentage}%`;
+                barValue.style.backgroundColor = colors[emotion] || '#ccc';
+                barValue.style.borderRadius = '4px 4px 0 0';
+                
+                const barLabel = document.createElement('div');
+                barLabel.textContent = labels[emotion] || emotion;
+                barLabel.style.marginTop = '8px';
+                barLabel.style.fontSize = '12px';
+                barLabel.style.fontWeight = 'bold';
+                barLabel.style.textAlign = 'center';
+                
+                const barPercentage = document.createElement('div');
+                barPercentage.textContent = `${Math.round(percentage)}%`;
+                barPercentage.style.position = 'absolute';
+                barPercentage.style.bottom = `${percentage + 5}%`;
+                barPercentage.style.fontSize = '12px';
+                barPercentage.style.fontWeight = 'bold';
+                
+                bar.appendChild(barValue);
+                bar.appendChild(barPercentage);
+                bar.appendChild(barLabel);
+                chart.appendChild(bar);
+            });
+            
+            container.appendChild(chart);
+        }
+        
+        // Afficher le graphique d'évolution temporelle
+        function displayEmotionTimelineChart(timelineData, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            // S'il n'y a pas assez de données
+            if (Object.keys(timelineData).length < 2) {
+                container.innerHTML = '<p style="text-align: center; margin-top: 100px;">Pas assez de données temporelles pour l\'analyse</p>';
+                return;
+            }
+            
+            // Simulation d'un graphique temporel simple
+            const chart = document.createElement('div');
+            chart.style.height = '100%';
+            chart.style.display = 'flex';
+            chart.style.flexDirection = 'column';
+            chart.style.padding = '20px';
+            
+            // En-tête
+            const header = document.createElement('div');
+            header.style.textAlign = 'center';
+            header.style.marginBottom = '20px';
+            header.innerHTML = `<h3>Données collectées sur ${Object.keys(timelineData).length} jours</h3>`;
+            chart.appendChild(header);
+            
+            // Timeline simplifiée
+            const timeline = document.createElement('div');
+            timeline.style.display = 'flex';
+            timeline.style.height = '200px';
+            timeline.style.alignItems = 'flex-end';
+            timeline.style.gap = '2px';
+            timeline.style.overflow = 'auto';
+            timeline.style.padding = '10px 0';
+            
+            // Couleurs pour les émotions
+            const colors = {
+                happy: '#4CAF50',
+                sad: '#2196F3',
+                angry: '#F44336',
+                fearful: '#9C27B0',
+                disgusted: '#795548',
+                surprised: '#FF9800',
+                neutral: '#9E9E9E'
+            };
+            
+            // Créer une barre pour chaque jour
+            Object.entries(timelineData).sort((a, b) => a[0].localeCompare(b[0])).forEach(([date, emotions]) => {
+                // Trouver l'émotion dominante
+                let dominantEmotion = 'neutral';
+                let maxCount = 0;
+                
+                Object.entries(emotions).forEach(([emotion, count]) => {
+                    if (emotion !== 'total' && count > maxCount) {
+                        maxCount = count;
+                        dominantEmotion = emotion;
+                    }
+                });
+                
+                // Calculer le pourcentage
+                const percentage = emotions.total > 0 ? (maxCount / emotions.total) * 100 : 0;
+                
+                // Créer la barre
+                const dayBar = document.createElement('div');
+                dayBar.style.flex = '0 0 40px';
+                dayBar.style.display = 'flex';
+                dayBar.style.flexDirection = 'column';
+                dayBar.style.alignItems = 'center';
+                dayBar.style.cursor = 'pointer';
+                dayBar.title = `Date: ${date}, Émotion: ${dominantEmotion}, Sessions: ${emotions.total}`;
+                
+                const barValue = document.createElement('div');
+                barValue.style.width = '100%';
+                barValue.style.height = `${Math.max(20, percentage)}%`;
+                barValue.style.backgroundColor = colors[dominantEmotion] || '#ccc';
+                barValue.style.borderRadius = '4px 4px 0 0';
+                
+                const barLabel = document.createElement('div');
+                barLabel.textContent = date.split('-')[2]; // Jour
+                barLabel.style.marginTop = '5px';
+                barLabel.style.fontSize = '10px';
+                barLabel.style.fontWeight = 'bold';
+                
+                dayBar.appendChild(barValue);
+                dayBar.appendChild(barLabel);
+                timeline.appendChild(dayBar);
+            });
+            
+            chart.appendChild(timeline);
+            
+            // Légende
+            const legend = document.createElement('div');
+            legend.style.display = 'flex';
+            legend.style.justifyContent = 'center';
+            legend.style.flexWrap = 'wrap';
+            legend.style.gap = '10px';
+            legend.style.marginTop = '20px';
+            
+            Object.entries(colors).forEach(([emotion, color]) => {
+                const item = document.createElement('div');
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.marginRight = '10px';
+                
+                const colorBox = document.createElement('div');
+                colorBox.style.width = '15px';
+                colorBox.style.height = '15px';
+                colorBox.style.backgroundColor = color;
+                colorBox.style.marginRight = '5px';
+                
+                const label = document.createElement('span');
+                label.textContent = emotion;
+                label.style.fontSize = '12px';
+                
+                item.appendChild(colorBox);
+                item.appendChild(label);
+                legend.appendChild(item);
+            });
+            
+            chart.appendChild(legend);
+            container.appendChild(chart);
+        }
+        
+        // Afficher le graphique par contexte
+        function displayEmotionContextChart(contextData, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            // S'il n'y a pas assez de données
+            if (Object.keys(contextData).length === 0) {
+                container.innerHTML = '<p style="text-align: center; margin-top: 100px;">Pas assez de données contextuelles pour l\'analyse</p>';
+                return;
+            }
+            
+            // Créer un tableau pour afficher les résultats
+            const tableContainer = document.createElement('div');
+            tableContainer.style.marginTop = '20px';
+            tableContainer.style.overflowX = 'auto';
+            
+            const table = document.createElement('table');
+            table.style.width = '100%';
+            table.style.borderCollapse = 'collapse';
+            
+            // Créer l'en-tête du tableau
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            
+            const headers = ['Contexte', 'Sessions', 'Joie', 'Tristesse', 'Colère', 'Peur', 'Dégoût', 'Surprise', 'Neutre', 'Émotion dominante'];
+            
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                th.style.padding = '8px';
+                th.style.backgroundColor = '#4361ee';
+                th.style.color = 'white';
+                th.style.textAlign = headerText === 'Contexte' ? 'left' : 'center';
+                headerRow.appendChild(th);
+            });
+            
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            
+            // Créer le corps du tableau
+            const tbody = document.createElement('tbody');
+            
+            Object.entries(contextData).forEach(([context, emotions], index) => {
+                const row = document.createElement('tr');
+                row.style.backgroundColor = index % 2 === 0 ? '#f8f9fa' : 'white';
+                
+                // Trouver l'émotion dominante
+                let dominantEmotion = 'N/A';
+                let maxCount = 0;
+                
+                Object.entries(emotions).forEach(([emotion, count]) => {
+                    if (emotion !== 'total' && count > maxCount) {
+                        maxCount = count;
+                        dominantEmotion = emotion;
+                    }
+                });
+                
+                // Colonne de contexte
+                const contextCell = document.createElement('td');
+                contextCell.textContent = context;
+                contextCell.style.padding = '8px';
+                contextCell.style.fontWeight = 'bold';
+                row.appendChild(contextCell);
+                
+                // Colonne de total des sessions
+                const totalCell = document.createElement('td');
+                totalCell.textContent = emotions.total;
+                totalCell.style.padding = '8px';
+                totalCell.style.textAlign = 'center';
+                row.appendChild(totalCell);
+                
+                // Colonnes d'émotions
+                ['happy', 'sad', 'angry', 'fearful', 'disgusted', 'surprised', 'neutral'].forEach(emotion => {
+                    const percentage = emotions.total > 0 ? (emotions[emotion] / emotions.total) * 100 : 0;
+                    
+                    const cell = document.createElement('td');
+                    cell.textContent = `${Math.round(percentage)}%`;
+                    cell.style.padding = '8px';
+                    cell.style.textAlign = 'center';
+                    
+                    // Mettre en évidence l'émotion dominante
+                    if (emotion === dominantEmotion) {
+                        cell.style.fontWeight = 'bold';
+                        cell.style.color = '#4361ee';
+                    }
+                    
+                    row.appendChild(cell);
+                });
+                
+                // Colonne d'émotion dominante
+                const dominantCell = document.createElement('td');
+                dominantCell.textContent = dominantEmotion;
+                dominantCell.style.padding = '8px';
+                dominantCell.style.textAlign = 'center';
+                dominantCell.style.fontWeight = 'bold';
+                row.appendChild(dominantCell);
+                
+                tbody.appendChild(row);
+            });
+            
+            table.appendChild(tbody);
+            tableContainer.appendChild(table);
+            container.appendChild(tableContainer);
         }
     </script>
-    
-    <!-- Script d'extraction MongoDB vers JSON -->
-    <script src="/admin/js/extract-mongo.js"></script>
 </body>
 </html>

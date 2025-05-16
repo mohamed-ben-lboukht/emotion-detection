@@ -34,4 +34,4 @@ const sessionSchema = new mongoose.Schema({
   musicId: String
 });
 
-module.exports = mongoose.model('Session', sessionSchema); 
+module.exports = mongoose.model('Session', sessionSchema);

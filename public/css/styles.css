@@ -782,26 +782,6 @@ footer {
   max-width: 400px;
 }
 
-/* Styles pour le bouton de visualisation des données */
-#view-data-button {
-  display: block;
-  margin: 20px auto 0;
-  padding: 10px 20px;
-  background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: var(--shadow-md);
-}
-
-#view-data-button:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
 /* Styles pour le modal de visualisation des données */
 #data-view-modal .modal-content {
   width: 90%;

@@ -91,7 +91,7 @@ class WebcamTracker {
         const videoReadyCheck = () => {
           if (this.video.readyState >= 2) {
             resolve();
-          } else {
+        } else {
             setTimeout(videoReadyCheck, 100);
           }
         };
@@ -294,18 +294,18 @@ class WebcamTracker {
     return `
       <div style="display: flex; flex-wrap: wrap; gap: 4px;">
         ${topEmotions.map(([emotion, score]) => {
-          const percentage = Math.round(score * 100);
-          return `
+      const percentage = Math.round(score * 100);
+      return `
             <div style="flex: 0 0 30%; min-width: 70px;">
               <div style="font-size: 11px; display: flex; justify-content: space-between;">
-                <span>${emotion}</span>
-                <span>${percentage}%</span>
-              </div>
+            <span>${emotion}</span>
+            <span>${percentage}%</span>
+          </div>
               <div style="background-color: #444; height: 6px; border-radius: 3px;">
                 <div style="background-color: ${this.getEmotionColor(emotion)}; width: ${percentage}%; height: 100%; border-radius: 3px;"></div>
-              </div>
-            </div>
-          `;
+          </div>
+        </div>
+      `;
         }).join('')}
       </div>
     `;
@@ -388,7 +388,7 @@ class WebcamTracker {
       this.detectionStatus.textContent = 'Les modèles de détection ne sont pas chargés.';
       this.tryLoadModels().then(success => {
         if (success) {
-          setTimeout(() => this.startEmotionDetection(), 500);
+      setTimeout(() => this.startEmotionDetection(), 500);
         } else {
           this.useManualMode = true;
           this.detectionStatus.textContent = 'Impossible de charger les modèles. Mode manuel activé.';
@@ -484,10 +484,10 @@ class WebcamTracker {
             
             this.debugPanel.innerHTML = '<div>Aucun visage détecté. Regardez directement la caméra.</div>';
             this.detectionStatus.textContent = 'Ajustez votre position face à la caméra.';
-            this.frameTimer = setTimeout(analyze, this.frameInterval);
-            return;
-          }
-          
+          this.frameTimer = setTimeout(analyze, this.frameInterval);
+          return;
+        }
+        
           // Reset attempts counter since we found a face
           this.detectionAttempts = 0;
           console.log("Face detected with score:", faceDetection.score);
@@ -516,9 +516,9 @@ class WebcamTracker {
             console.error("Error getting expressions:", expressionError);
             this.debugPanel.innerHTML = '<div>Visage détecté mais erreur lors de l\'analyse des émotions.</div>';
             this.detectionStatus.textContent = 'Visage détecté, erreur lors de l\'analyse des émotions.';
-            this.frameTimer = setTimeout(analyze, this.frameInterval);
-            return;
-          }
+          this.frameTimer = setTimeout(analyze, this.frameInterval);
+          return;
+        }
           
           if (fullDetection && fullDetection.expressions) {
             console.log("Got expressions:", fullDetection.expressions);
@@ -530,18 +530,18 @@ class WebcamTracker {
             const sorted = Object.entries(fullDetection.expressions)
               .sort((a, b) => b[1] - a[1]);
             
-            const [emotion, score] = sorted[0];
-            
+          const [emotion, score] = sorted[0];
+          
             // Use an extremely low threshold for better sensitivity
             if (score > 0.005) { // Extremely low threshold to detect any emotion
               // Appliquer le lissage d'émotion pour éviter les fluctuations
               const smoothed = this.smoothEmotion(emotion, Math.round(score * 100));
               
-              const entry = {
-                timestamp: Date.now() - this.sessionStartTime,
+            const entry = {
+              timestamp: Date.now() - this.sessionStartTime,
                 emotion: smoothed.emotion,
                 score: smoothed.score,
-                allEmotions: Object.fromEntries(
+              allEmotions: Object.fromEntries(
                   Object.entries(fullDetection.expressions).map(([e, s]) => [e, Math.round(s * 100)])
                 )
               };
@@ -551,7 +551,7 @@ class WebcamTracker {
                   this.lastDetectedEmotion.emotion !== smoothed.emotion || 
                   Math.abs(this.lastDetectedEmotion.score - smoothed.score) > 5) {
                 
-                this.emotionTimeline.push(entry);
+            this.emotionTimeline.push(entry);
                 this.lastDetectedEmotion = smoothed;
                 
                 // Animation fluide de changement d'émotion

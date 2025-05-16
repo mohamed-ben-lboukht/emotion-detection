@@ -107,7 +107,7 @@
         console.log("Loading TinyFaceDetector...");
         await faceapi.nets.tinyFaceDetector.load(tinyFaceDetectorPath);
         console.log("TinyFaceDetector loaded:", faceapi.nets.tinyFaceDetector.isLoaded);
-        
+      
         // Then load FaceExpressionNet
         console.log("Loading FaceExpressionNet...");
         await faceapi.nets.faceExpressionNet.load(faceExpressionPath);
@@ -139,12 +139,12 @@
         try {
           await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_PATH);
           await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_PATH);
-          
+      
           if (faceapi.nets.tinyFaceDetector.isLoaded && faceapi.nets.faceExpressionNet.isLoaded) {
             console.log("✅ All models loaded with fallback method");
-            document.dispatchEvent(new CustomEvent('faceDetectionModelsLoaded'));
+        document.dispatchEvent(new CustomEvent('faceDetectionModelsLoaded'));
             return true;
-          } else {
+      } else {
             console.error("❌ Fallback loading failed");
             document.dispatchEvent(new CustomEvent('faceDetectionModelsError', {
               detail: { error: "Fallback loading failed" }
