@@ -126,11 +126,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Initialize trackers with display elements
+  // Initialize handlers
   const manualKeystrokeTracker = new KeystrokeTracker('typing-area', 'typing-speed', 'keystroke-count');
   const musicKeystrokeTracker = new KeystrokeTracker('music-typing-area', 'music-typing-speed', 'music-keystroke-count');
   const webcamKeystrokeTracker = new KeystrokeTracker('webcam-typing-area', 'webcam-typing-speed', 'webcam-keystroke-count');
   const musicHandler = new MusicHandler();
+  const emotionsHandler = new EmotionsHandler();
   const webcamTracker = new WebcamTracker();
   
   // Get DOM elements
@@ -319,63 +320,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Modifier la fonction askEmotions pour retourner la nouvelle structure
   function askEmotions() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const modal = document.getElementById('emotion-modal');
+      if (!modal) {
+        console.error('Emotion modal not found');
+        resolve({});
+        return;
+      }
+
       modal.classList.remove('hidden');
-      modal.classList.add('active');
-      const form = document.getElementById('emotion-form');
       
-      // Reset previous selections
-      ['happy', 'sad', 'anger', 'fear', 'surprise', 'neutral'].forEach(emotion => {
-        const input = document.querySelector(`input[name='${emotion}']`);
-        if (input) input.value = 0;
-        const valueDisplay = document.getElementById(`${emotion}-val`);
-        if (valueDisplay) valueDisplay.textContent = '0';
+      // Reset all sliders
+      document.querySelectorAll('.emotion-slider input[type="range"]').forEach(slider => {
+        slider.value = 0;
+        const valueDisplay = document.getElementById(`${slider.name}-val`);
+        if (valueDisplay) {
+          valueDisplay.textContent = '0';
+        }
       });
-      
-      // Nettoyage : supprimer tout bouton Cancel déjà présent
-      const oldCancel = form.querySelector('button.cancel-emotion');
-      if (oldCancel) oldCancel.remove();
-      
-      form.onsubmit = e => {
+
+      document.getElementById('emotion-form').onsubmit = (e) => {
         e.preventDefault();
         
-        const emotions = {
-          happy: parseInt(document.querySelector('input[name="happy"]').value) || 0,
-          sad: parseInt(document.querySelector('input[name="sad"]').value) || 0,
-          anger: parseInt(document.querySelector('input[name="anger"]').value) || 0,
-          fear: parseInt(document.querySelector('input[name="fear"]').value) || 0,
-          surprise: parseInt(document.querySelector('input[name="surprise"]').value) || 0,
-          neutral: parseInt(document.querySelector('input[name="neutral"]').value) || 0
-        };
+        // Get all emotion values
+        const emotions = {};
+        document.querySelectorAll('.emotion-slider input[type="range"]').forEach(slider => {
+          emotions[slider.name] = parseInt(slider.value);
+        });
+        
+        // Update emotions handler
+        Object.entries(emotions).forEach(([emotion, value]) => {
+          emotionsHandler.updateEmotion(emotion, value);
+        });
         
         modal.classList.add('hidden');
-        modal.classList.remove('active');
-        resolve(emotions);
+        resolve(emotionsHandler.getData());
       };
-      
-      // Add Cancel button
-      const cancelButton = document.createElement('button');
-      cancelButton.textContent = 'Cancel';
-      cancelButton.type = 'button';
-      cancelButton.className = 'cancel-emotion';
-      cancelButton.style = 'margin: 0 10px; padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;';
-      
-      cancelButton.onclick = () => {
-        modal.classList.add('hidden');
-        modal.classList.remove('active');
-        // Reset textarea if present
-        const textarea = form.closest('.tracking-section')?.querySelector('textarea');
-        if (textarea) textarea.value = '';
-        resolve(false); // Return false to indicate cancellation
-      };
-      
-      const submitButton = form.querySelector('button[type="submit"]');
-      const buttonContainer = submitButton.parentNode;
-      
-      if (buttonContainer && !form.querySelector('button.cancel-emotion')) {
-        buttonContainer.insertBefore(cancelButton, submitButton);
-      }
     });
   }
 
