@@ -93,6 +93,42 @@ let currentTypingMode = 'free';
 let currentMusicFixedPhrase = '';
 let currentMusicTypingMode = 'free';
 
+// Handle face detection model loading errors
+window.addEventListener('DOMContentLoaded', function() {
+  // Add error handling for face detection model loading
+  const detectStatus = document.getElementById('detection-status');
+  
+  // Track model loading errors
+  window.addEventListener('error', function(event) {
+    // Check if error is related to model files
+    if (event.target && event.target.src && 
+        event.target.src.includes('models/')) {
+      console.warn('Face detection model failed to load:', event.target.src);
+      
+      if (detectStatus) {
+        detectStatus.textContent = 'Face detection models not found. Using manual mode.';
+        detectStatus.style.color = '#FF9800';
+      }
+      
+      // Show manual controls
+      const manualEmotions = document.getElementById('manual-emotions');
+      if (manualEmotions) {
+        manualEmotions.style.display = 'block';
+        manualEmotions.style.padding = '15px';
+        manualEmotions.style.background = '#f8f9fa';
+        manualEmotions.style.border = '1px solid #dee2e6';
+        manualEmotions.style.borderRadius = '8px';
+        manualEmotions.style.marginTop = '20px';
+        manualEmotions.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+      }
+      
+      // Mark the event as handled
+      event.preventDefault();
+      return false;
+    }
+  }, true);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   // S'assurer que les boutons sont activés
   document.querySelectorAll('.back-button, .save-button').forEach(btn => btn.removeAttribute('disabled'));

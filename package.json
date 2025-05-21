@@ -1,11 +1,12 @@
 {
   "name": "emotion-detection",
   "version": "1.0.0",
-  "description": "Application de détection d'émotions",
-  "main": "server.js",
+  "description": "Emotion Detection and Keystroke Dynamics Application",
+  "main": "app.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "node test.js"
   },
   "dependencies": {
     "archiver": "^5.3.1",
@@ -18,5 +19,11 @@
   },
   "engines": {
     "node": ">=14.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/emotion-detection"
+  },
+  "author": "",
+  "license": "MIT"
 }

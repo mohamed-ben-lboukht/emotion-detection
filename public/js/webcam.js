@@ -725,3 +725,111 @@ class WebcamTracker {
 
 // Export the WebcamTracker
 window.WebcamTracker = WebcamTracker;
+
+// Webcam initialization and handling
+document.addEventListener('DOMContentLoaded', function() {
+  // Only initialize when webcam section is shown
+  document.getElementById('webcam-option').addEventListener('click', function() {
+    initWebcam();
+  });
+
+  function initWebcam() {
+    const video = document.getElementById('webcam');
+    const statusEl = document.getElementById('detection-status');
+    
+    if (!video || !statusEl) return;
+    
+    // Check if we're already initialized
+    if (video.srcObject) {
+      console.log('Webcam already initialized');
+      return;
+    }
+    
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      statusEl.textContent = 'Camera access not supported in your browser. Please use manual mode.';
+      statusEl.style.color = '#F44336';
+      showManualEmotionControls();
+      return;
+    }
+    
+    // Start camera with error handling
+    navigator.mediaDevices.getUserMedia({
+      video: {
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+        facingMode: 'user'
+      },
+      audio: false
+    })
+    .then(stream => {
+      // Connect the camera stream to video element
+      video.srcObject = stream;
+      statusEl.textContent = 'Camera connected. Initializing face detection...';
+      
+      // When video is playing, initialize face detection
+      video.addEventListener('play', function() {
+        // Initialize face detection once video is playing
+        FaceDetectionService.initFaceDetection()
+          .then(success => {
+            if (success) {
+              FaceDetectionService.startDetection(video);
+            } else {
+              showManualEmotionControls();
+            }
+          })
+          .catch(error => {
+            console.error('Error initializing face detection:', error);
+            statusEl.textContent = 'Face detection error. Please use manual mode.';
+            showManualEmotionControls();
+          });
+      });
+    })
+    .catch(error => {
+      console.error('Error accessing the camera:', error);
+      let errorMessage = 'Camera access denied or camera not available.';
+      
+      if (error.name === 'NotAllowedError') {
+        errorMessage = 'Camera access denied. Please allow camera access and reload the page.';
+      } else if (error.name === 'NotFoundError') {
+        errorMessage = 'No camera detected. Please connect a camera and reload the page.';
+      } else if (error.name === 'NotReadableError') {
+        errorMessage = 'Camera is being used by another application. Please close other camera apps.';
+      }
+      
+      statusEl.textContent = errorMessage;
+      statusEl.style.color = '#F44336';
+      showManualEmotionControls();
+    });
+  }
+  
+  function showManualEmotionControls() {
+    const manualControls = document.getElementById('manual-emotions');
+    if (manualControls) {
+      manualControls.style.display = 'block';
+      manualControls.style.padding = '20px';
+      manualControls.style.background = '#f8f9fa';
+      manualControls.style.border = '1px solid #dee2e6';
+      manualControls.style.borderRadius = '8px';
+      manualControls.style.marginTop = '20px';
+      manualControls.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+    }
+  }
+  
+  // Back button should stop webcam
+  document.querySelectorAll('.back-button').forEach(button => {
+    button.addEventListener('click', function() {
+      const video = document.getElementById('webcam');
+      if (video && video.srcObject) {
+        // Stop all video tracks
+        const tracks = video.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+        video.srcObject = null;
+      }
+      
+      // Stop face detection if active
+      if (window.FaceDetectionService) {
+        window.FaceDetectionService.stopDetection();
+      }
+    });
+  });
+});

@@ -9,7 +9,7 @@
   console.log("FaceDetection module loaded");
   
   // Path to face detection models
-  const MODEL_PATH = window.location.origin + '/models/weights';
+  const MODEL_PATH = window.location.origin + '/models/face-api-models';
   
   // Check if face-api.js is loaded
   if (typeof faceapi === 'undefined') {
@@ -40,7 +40,6 @@
     try {
       console.log("Preloading face detection models from", MODEL_PATH);
       
-      // Check if model manifest files are accessible
       try {
         // First try to fetch the manifest to check if it's accessible
         const tinyFaceResponse = await fetch(`${MODEL_PATH}/tiny_face_detector_model-weights_manifest.json`);
@@ -55,8 +54,7 @@
           }));
           return false;
         }
-        
-        // Also check binary files
+        2
         const tinyFaceBinResponse = await fetch(`${MODEL_PATH}/tiny_face_detector_model-shard1.bin`);
         const expressionBinResponse = await fetch(`${MODEL_PATH}/face_expression_model-shard1.bin`);
         
@@ -330,3 +328,181 @@
     }
   };
 })(); 
+
+// Face Detection Services
+const FaceDetectionService = {
+  modelLoaded: false,
+  detectionActive: false,
+  lastDetectionTime: 0,
+  detectionInterval: 500, // Detection frequency in ms
+  currentEmotion: 'neutral',
+  confidenceThreshold: 0.5,
+  
+  initFaceDetection: async function() {
+    try {
+      // Update status indicator
+      const statusEl = document.getElementById('detection-status');
+      const indicatorEl = document.getElementById('detection-indicator');
+      
+      if (statusEl) statusEl.textContent = 'Loading face detection models...';
+      if (indicatorEl) indicatorEl.style.backgroundColor = '#FFC107'; // Yellow while loading
+      
+      // Set model path
+      const modelPath = '/models/face-api-models';
+      
+      try {
+        // Try loading models with error handling
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.load(modelPath).catch(err => {
+            console.warn('Could not load face detector model:', err.message);
+            throw new Error('Face detector model failed to load');
+          }),
+          faceapi.nets.faceExpressionNet.load(modelPath).catch(err => {
+            console.warn('Could not load expression model:', err.message);
+            throw new Error('Expression model failed to load');
+          })
+        ]);
+        
+        this.modelLoaded = true;
+        if (statusEl) statusEl.textContent = 'Face detection ready';
+        if (indicatorEl) indicatorEl.style.backgroundColor = '#4CAF50'; // Green when ready
+        
+        console.log('Face detection models loaded successfully');
+        return true;
+      } catch (error) {
+        console.error('Error loading face detection models:', error);
+        this.modelLoaded = false;
+        if (statusEl) statusEl.textContent = 'Could not load detection models. Using manual mode.';
+        if (indicatorEl) indicatorEl.style.backgroundColor = '#F44336'; // Red on error
+        
+        // Show manual emotion selection more prominently
+        const manualEmotions = document.getElementById('manual-emotions');
+        if (manualEmotions) {
+          manualEmotions.style.display = 'block';
+          manualEmotions.style.padding = '15px';
+          manualEmotions.style.background = 'rgba(255,255,255,0.9)';
+          manualEmotions.style.borderRadius = '8px';
+          manualEmotions.style.marginTop = '20px';
+          manualEmotions.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+        }
+        
+        return false;
+      }
+    } catch (error) {
+      console.error('Fatal error in face detection initialization:', error);
+      const statusEl = document.getElementById('detection-status');
+      if (statusEl) statusEl.textContent = 'Face detection not available. Please use manual emotion selection.';
+      return false;
+    }
+  },
+  
+  startDetection: async function(videoEl) {
+    if (!this.modelLoaded) {
+      console.warn('Cannot start detection - models not loaded');
+      return false;
+    }
+    
+    if (!videoEl || videoEl.readyState !== 4) {
+      console.warn('Video element not ready');
+      return false;
+    }
+    
+    this.detectionActive = true;
+    this.detectEmotions(videoEl);
+    return true;
+  },
+  
+  stopDetection: function() {
+    this.detectionActive = false;
+  },
+  
+  detectEmotions: async function(videoEl) {
+    if (!this.detectionActive) return;
+    
+    const now = Date.now();
+    if (now - this.lastDetectionTime < this.detectionInterval) {
+      requestAnimationFrame(() => this.detectEmotions(videoEl));
+      return;
+    }
+    
+    this.lastDetectionTime = now;
+    
+    try {
+      if (videoEl.readyState === 4) {
+        const detections = await faceapi.detectSingleFace(
+          videoEl, 
+          new faceapi.TinyFaceDetectorOptions({ inputSize: 224 })
+        ).withFaceExpressions();
+        
+        if (detections) {
+          this.processDetections(detections);
+        } else {
+          // No face detected
+          document.getElementById('detection-indicator').classList.remove('active');
+        }
+      }
+    } catch (error) {
+      console.error('Error during emotion detection:', error);
+    }
+    
+    if (this.detectionActive) {
+      requestAnimationFrame(() => this.detectEmotions(videoEl));
+    }
+  },
+  
+  processDetections: function(detections) {
+    const indicator = document.getElementById('detection-indicator');
+    indicator.classList.add('active');
+    
+    // Get highest confidence emotion
+    const expressions = detections.expressions;
+    let highestEmotion = 'neutral';
+    let highestConfidence = 0;
+    
+    for (const [emotion, confidence] of Object.entries(expressions)) {
+      if (confidence > highestConfidence && confidence > this.confidenceThreshold) {
+        highestConfidence = confidence;
+        highestEmotion = emotion;
+      }
+    }
+    
+    this.currentEmotion = highestEmotion;
+    document.getElementById('detection-status').textContent = 
+      `Detected emotion: ${highestEmotion} (${Math.round(highestConfidence * 100)}%)`;
+    
+    // Emit event for other components
+    const event = new CustomEvent('emotionDetected', {
+      detail: { emotion: highestEmotion, confidence: highestConfidence }
+    });
+    document.dispatchEvent(event);
+  },
+  
+  getCurrentEmotion: function() {
+    return this.currentEmotion;
+  },
+  
+  setManualEmotion: function(emotion) {
+    this.currentEmotion = emotion;
+    document.getElementById('manual-emotion-status').textContent = `Manual emotion set: ${emotion}`;
+    
+    // Emit event for other components
+    const event = new CustomEvent('emotionDetected', {
+      detail: { emotion: emotion, confidence: 1.0, manual: true }
+    });
+    document.dispatchEvent(event);
+  }
+};
+
+// Initialize manual emotion buttons
+document.addEventListener('DOMContentLoaded', function() {
+  const emotionButtons = document.querySelectorAll('.emotion-btn');
+  emotionButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const emotion = this.getAttribute('data-emotion');
+      FaceDetectionService.setManualEmotion(emotion);
+    });
+  });
+});
+
+// Export for use in other modules
+window.FaceDetectionService = FaceDetectionService; 

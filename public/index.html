@@ -12,19 +12,234 @@
   <!-- Meta for better mobile experience -->
   <meta name="theme-color" content="#4361ee">
   <style>
+    /* Variables de couleur pour GREYC */
+    :root {
+      --greyc-purple: #78216B;      /* GREYC primary color */
+      --greyc-dot: #CECECE;         /* GREYC Dot color */
+      --greyc-blue: #095879;        /* ELECTRONIQUE team color */
+      --greyc-light-blue: #02B3DC;  /* IMAGE team color */
+      --greyc-red: #A81924;         /* AMACC team color */
+      --greyc-green: #0F682F;       /* MAD team color */
+      --greyc-light-green: #6AB432; /* CODAG team color */
+      --greyc-orange: #E95D0C;      /* SAFE team color */
+      --greyc-grey: #707070;
+      --greyc-grey-light: #e2e8f0;
+      --greyc-grey-dark: #54595f;
+      --success-color: #20c997;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --info-color: #0dcaf0;
+      --gradient-primary: linear-gradient(90deg, var(--greyc-purple), var(--greyc-blue));
+    }
+    
     /* Override styles for a more professional look */
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f5f7ff;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #fff;
+    }
+
+    header {
+      text-align: center;
+      padding: 60px 0 40px;
+      margin-bottom: 50px;
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: linear-gradient(to bottom, #f5f7ff, #fff);
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      width: 120px;
+      height: 4px;
+      background: var(--gradient-primary);
+      bottom: 0px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 4px;
+    }
+
+    header h1 {
+      color: var(--greyc-purple);
+      font-weight: 700;
+      font-size: 3rem;
+      margin-bottom: 15px;
+      letter-spacing: -0.5px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    header p {
+      color: #555;
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto;
+      font-weight: 400;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+
+    .option-card {
+      flex: 1 1 300px;
+      padding: 35px;
+      border-radius: 20px;
+      background: #ffffff;
+      box-shadow: 0 15px 30px rgba(67, 97, 238, 0.08);
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      display: flex;
+      flex-direction: column;
+      min-height: 320px;
+      height: 100%;
+    }
+
+    .option-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: var(--gradient-primary);
+      opacity: 0.8;
+    }
+
+    .option-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 25px 40px rgba(67, 97, 238, 0.15);
+      border-color: rgba(67, 97, 238, 0.2);
+    }
+
+    .option-card h2 {
+      color: var(--greyc-purple);
+      margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
+      font-size: 1.8rem;
+      font-weight: 600;
+      height: 60px;
+      display: flex;
+      align-items: center;
+    }
+
+    .option-card h2:after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: var(--gradient-primary);
+      border-radius: 3px;
+    }
+
+    .option-card p {
+      color: #666;
+      margin-bottom: 25px;
+      line-height: 1.6;
+      font-size: 1.05rem;
+      flex-grow: 1;
+    }
+    
+    .option-card .card-icon {
+      font-size: 36px;
+      margin-bottom: 20px;
+      color: var(--greyc-purple);
+      height: 50px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .option-card .card-footer {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 20px;
+      border-top: 1px solid rgba(226, 232, 240, 0.8);
+      font-size: 0.9rem;
+      color: #777;
+      width: 100%;
+    }
+    
+    .option-card .card-footer .metrics {
+      display: flex;
+      align-items: center;
+    }
+    
+    .option-card .card-footer .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .option-card .card-footer .free-dot {
+      background-color: #20c997;
+      box-shadow: 0 0 10px rgba(32, 201, 151, 0.4);
+    }
+    
+    .option-card .card-footer .music-dot {
+      background-color: #fd7e14;
+      box-shadow: 0 0 10px rgba(253, 126, 20, 0.4);
+    }
+    
+    .option-card .card-footer .camera-dot {
+      background-color: #dc3545;
+      box-shadow: 0 0 10px rgba(220, 53, 69, 0.4);
+    }
+
+    .badge {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 8px 16px;
+      background: linear-gradient(90deg, var(--greyc-red), var(--greyc-purple));
+      color: white;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+      letter-spacing: 0.5px;
+      z-index: 2;
     }
     
     .webcam-container {
       position: relative;
       overflow: hidden;
-      border-radius: 12px;
+      border-radius: 16px;
       transition: all 0.3s ease;
-      margin: 0 auto;
-      max-width: 560px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      margin: 30px auto;
+      max-width: 640px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      border: 3px solid #fff;
     }
     
     #webcam {
@@ -36,24 +251,34 @@
     
     .detection-indicator {
       position: absolute;
-      top: 15px;
-      right: 15px;
-      width: 12px;
-      height: 12px;
+      top: 20px;
+      right: 20px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
       background-color: #F44336;
-      box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+      box-shadow: 0 0 12px rgba(244, 67, 54, 0.6);
       transition: all 0.3s ease;
       z-index: 10;
     }
     
     .detection-indicator.active {
       background-color: #4CAF50;
-      box-shadow: 0 0 12px rgba(76, 175, 80, 0.7);
+      box-shadow: 0 0 18px rgba(76, 175, 80, 0.7);
     }
     
     #detection-status {
       transition: all 0.3s ease;
+      text-align: center;
+      padding: 10px;
+      background-color: rgba(0,0,0,0.7);
+      color: #fff;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      font-size: 0.9rem;
+      font-weight: 500;
     }
     
     .emotion-debug-panel {
@@ -93,6 +318,552 @@
         font-size: 0.9rem;
       }
     }
+    
+    /* Style for typing areas */
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      padding: 20px;
+      border: 1px solid rgba(67, 97, 238, 0.15);
+      border-radius: 16px;
+      background-color: #fff;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.03), inset 0 2px 5px rgba(0,0,0,0.03);
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      resize: vertical;
+      transition: all 0.3s ease;
+      color: #495057;
+      line-height: 1.6;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: var(--greyc-purple);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05), 0 0 0 3px rgba(120, 33, 107, 0.1);
+    }
+    
+    /* Style for buttons */
+    button {
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(120, 33, 107, 0.15);
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+    }
+    
+    button:hover {
+      background: linear-gradient(135deg, var(--greyc-blue), var(--greyc-purple));
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(120, 33, 107, 0.25);
+    }
+    
+    button:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(120, 33, 107, 0.2);
+    }
+    
+    .back-button {
+      background: linear-gradient(135deg, var(--greyc-blue), #095879);
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      font-size: 0.95rem;
+    }
+    
+    .back-button:hover {
+      background: linear-gradient(135deg, var(--greyc-blue), var(--greyc-blue));
+    }
+    
+    .save-button {
+      background: linear-gradient(135deg, var(--greyc-purple), var(--greyc-purple));
+      margin-top: 25px;
+      padding: 16px 35px;
+      font-size: 1.15rem;
+      border-radius: 50px;
+      box-shadow: 0 8px 20px rgba(120, 33, 107, 0.25);
+    }
+    
+    .save-button:hover {
+      background: linear-gradient(135deg, var(--greyc-purple), var(--greyc-blue));
+      box-shadow: 0 10px 25px rgba(120, 33, 107, 0.35);
+    }
+    
+    /* Style for tracking sections */
+    .tracking-section {
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      margin: 0 auto 40px;
+      animation: fadeIn 0.6s ease-in-out;
+      max-width: 1200px;
+      position: relative;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .tracking-section h2 {
+      color: var(--greyc-purple);
+      margin-bottom: 25px;
+      font-size: 1.8rem;
+      font-weight: 600;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .tracking-section h2:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: var(--gradient-primary);
+      border-radius: 3px;
+    }
+    
+    .typing-metrics {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+      padding: 15px 20px;
+      background-color: #f8f9fa;
+      border-radius: 12px;
+      font-weight: 600;
+      color: #495057;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+      font-size: 1.05rem;
+    }
+    
+    /* Style for emotion buttons */
+    .emotion-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
+      margin: 25px 0 15px;
+    }
+    
+    .emotion-btn {
+      padding: 14px 18px;
+      text-align: center;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+    }
+    
+    .emotion-btn::before {
+      content: '';
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      margin-right: 10px;
+      background-color: currentColor;
+      opacity: 0.3;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .emotion-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    }
+    
+    .emotion-btn[data-emotion="happy"] {
+      background: linear-gradient(135deg, #ffde7d, var(--greyc-orange));
+      color: #664d03;
+    }
+    
+    .emotion-btn[data-emotion="sad"] {
+      background: linear-gradient(135deg, var(--greyc-dot), var(--greyc-light-blue));
+      color: #055160;
+    }
+    
+    .emotion-btn[data-emotion="angry"] {
+      background: linear-gradient(135deg, #ff858d, var(--greyc-red));
+      color: #fff;
+    }
+    
+    .emotion-btn[data-emotion="fearful"] {
+      background: linear-gradient(135deg, var(--greyc-grey-light), var(--greyc-grey));
+      color: #fff;
+    }
+    
+    .emotion-btn[data-emotion="surprised"] {
+      background: linear-gradient(135deg, var(--greyc-light-green), var(--greyc-green));
+      color: #fff;
+    }
+    
+    .emotion-btn[data-emotion="neutral"] {
+      background: linear-gradient(135deg, #e9ecef, var(--greyc-dot));
+      color: #212529;
+    }
+    
+    /* Style for footer with logos */
+    footer {
+      width: 100%;
+      background-color: #f8f9fa;
+      margin-top: 80px;
+      padding: 0;
+    }
+    
+    .privacy-note {
+      text-align: center;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background-color: #f5f7ff;
+      font-size: 1rem;
+      color: #6c757d;
+      max-width: 100%;
+    }
+    
+    .privacy-note a {
+      color: var(--greyc-purple);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border-bottom: 1px dotted var(--greyc-purple);
+      padding-bottom: 2px;
+    }
+    
+    .privacy-note a:hover {
+      color: var(--greyc-blue);
+      border-bottom: 1px solid var(--greyc-blue);
+    }
+    
+    .footer-logos {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 60px 20px;
+      background-color: #fff;
+      width: 100%;
+      gap: 50px;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+    
+    .footer-logos::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+    }
+    
+    .footer-logos a {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    
+    .footer-logos a:hover {
+      transform: scale(1.08);
+    }
+    
+    .footer-logos img {
+      height: 70px;
+      margin: 0;
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      filter: grayscale(20%);
+      opacity: 0.9;
+    }
+    
+    .footer-logos img:hover {
+      filter: grayscale(0%);
+      opacity: 1;
+    }
+    
+    .copyright {
+      text-align: center;
+      padding: 25px 0;
+      font-size: 0.95rem;
+      color: #666;
+      background-color: #f5f7ff;
+      width: 100%;
+      font-weight: 500;
+    }
+    
+    /* Modal Styling */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .modal-content {
+      background-color: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transform: translateY(-30px);
+      transition: all 0.4s ease;
+      position: relative;
+    }
+    
+    .modal.show .modal-content {
+      transform: translateY(0);
+    }
+    
+    .modal h2 {
+      margin-top: 0;
+      color: var(--greyc-purple);
+      border-bottom: 2px solid #f1f3f9;
+      padding-bottom: 15px;
+    }
+    
+    .modal p {
+      line-height: 1.6;
+    }
+    
+    .modal ul {
+      margin-left: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .modal li {
+      margin: 8px 0;
+    }
+    
+    .modal button {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 15px;
+      font-size: 1.1rem;
+    }
+    
+    /* Responsive Improvements */
+    @media (max-width: 992px) {
+      .options {
+        flex-direction: column;
+      }
+      
+      .option-card {
+        margin-bottom: 20px;
+      }
+      
+      header h1 {
+        font-size: 2.5rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      main {
+        padding: 0 15px;
+      }
+      
+      header {
+        padding: 40px 15px 30px;
+      }
+      
+      header h1 {
+        font-size: 2rem;
+      }
+      
+      header p {
+        font-size: 1rem;
+      }
+      
+      .tracking-section {
+        padding: 25px 20px;
+        margin: 0 10px 30px;
+      }
+      
+      .emotion-buttons {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 15px;
+      }
+      
+      .footer-logos img {
+        height: 50px;
+        margin: 10px;
+      }
+      
+      .option-card {
+        padding: 25px;
+      }
+      
+      textarea {
+        min-height: 150px;
+        padding: 15px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .tracking-section {
+        padding: 20px 15px;
+      }
+      
+      .emotion-buttons {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .music-selection {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Music selection styling */
+    .music-selection {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 25px;
+      margin: 35px 0 25px;
+    }
+    
+    .music-item {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .music-item::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #fd7e14, #ffc107);
+    }
+    
+    .music-item:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .music-item p {
+      margin: 0 0 20px 0;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #495057;
+    }
+    
+    .play-button {
+      width: 100%;
+      padding: 12px 10px;
+      font-size: 1rem;
+      background: linear-gradient(135deg, var(--greyc-purple), var(--greyc-blue));
+      border-radius: 30px;
+    }
+    
+    .play-button:hover {
+      background: linear-gradient(135deg, var(--greyc-blue), var(--greyc-purple));
+    }
+    
+    .currently-playing {
+      margin: 25px 0;
+      padding: 15px 20px;
+      background-color: #f8f9fa;
+      border-left: 4px solid #4361ee;
+      font-weight: 500;
+      border-radius: 6px;
+      font-size: 1.05rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+    
+    /* Manual emotion selection styling */
+    .manual-emotions {
+      padding: 30px;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 16px;
+      margin: 30px 0 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+    }
+    
+    .manual-emotions h3 {
+      color: var(--greyc-purple);
+      margin-top: 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .manual-emotions h3:after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: var(--gradient-primary);
+      border-radius: 3px;
+    }
+    
+    .manual-emotion-status {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #e9ecef;
+      border-radius: 10px;
+      font-weight: 500;
+      text-align: center;
+      min-height: 24px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+    }
   </style>
 </head>
 <body>
@@ -125,19 +896,40 @@
     <main>
       <div class="options">
         <div class="option-card" id="manual-option">
+          <div class="card-icon">⌨️</div>
           <h2>Free Typing</h2>
           <p>Type freely to record your keystroke dynamics</p>
+          <div class="card-footer">
+            <div class="metrics">
+              <span class="dot free-dot"></span> Basic metrics
+            </div>
+            <span>No context</span>
+          </div>
         </div>
         
         <div class="option-card" id="music-option">
+          <div class="card-icon">🎵</div>
           <h2>Music Context Typing</h2>
           <p>Type while listening to different music styles</p>
+          <div class="card-footer">
+            <div class="metrics">
+              <span class="dot music-dot"></span> Music influenced
+            </div>
+            <span>Audio context</span>
+          </div>
         </div>
         
         <div class="option-card" id="webcam-option">
+          <div class="card-icon">📹</div>
           <h2>Camera Context Typing</h2>
           <p>Type with visible camera feed to correlate visual context</p>
           <span class="badge">With emotion detection</span>
+          <div class="card-footer">
+            <div class="metrics">
+              <span class="dot camera-dot"></span> Visual analysis
+            </div>
+            <span>Video context</span>
+          </div>
         </div>
       </div>
     </main>
@@ -224,15 +1016,15 @@
       <div class="webcam-typing-ui">
         <!-- Manual emotion selection section -->
       <div id="manual-emotions" class="manual-emotions">
-          <h3>Sélection Manuelle d'Émotion</h3>
-          <p>Si la détection automatique ne fonctionne pas, cliquez sur un bouton pour définir votre émotion :</p>
+          <h3>Manual Emotion Selection</h3>
+          <p>If automatic detection is not working, click a button to set your emotion:</p>
         <div class="emotion-buttons">
-          <button data-emotion="neutral" class="emotion-btn">Neutre</button>
-          <button data-emotion="happy" class="emotion-btn">Content</button>
-          <button data-emotion="sad" class="emotion-btn">Triste</button>
-          <button data-emotion="angry" class="emotion-btn">En colère</button>
-          <button data-emotion="fearful" class="emotion-btn">Effrayé</button>
-          <button data-emotion="surprised" class="emotion-btn">Surpris</button>
+          <button data-emotion="neutral" class="emotion-btn">Neutral</button>
+          <button data-emotion="happy" class="emotion-btn">Happy</button>
+          <button data-emotion="sad" class="emotion-btn">Sad</button>
+          <button data-emotion="angry" class="emotion-btn">Angry</button>
+          <button data-emotion="fearful" class="emotion-btn">Fearful</button>
+          <button data-emotion="surprised" class="emotion-btn">Surprised</button>
         </div>
           <div id="manual-emotion-status" class="manual-emotion-status"></div>
       </div>
@@ -247,60 +1039,90 @@
     </section>
 
     <footer>
-      <div class="privacy-note">Les données sont collectées de manière anonyme et ne sont utilisées qu'à des fins de recherche. Pour plus d'informations, veuillez consulter notre <a href="#" id="privacy-link">politique de confidentialité</a>.</div>
+      <div class="privacy-note">Data is collected anonymously and used only for research purposes. For more information, please consult our <a href="#" id="privacy-link">privacy policy</a>.</div>
+      
+      <!-- Logos section in footer -->
+      <div class="footer-logos">
+        <a href="https://www.greyc.fr" target="_blank" rel="noopener noreferrer">
+          <img src="/images/greyc.png" alt="GREYC Logo">
+        </a>
+        <a href="https://www.ensicaen.fr" target="_blank" rel="noopener noreferrer">
+          <img src="/images/ensicaen.png" alt="ENSICAEN Logo">
+        </a>
+        <a href="https://www.unimap.edu.my" target="_blank" rel="noopener noreferrer">
+          <img src="/images/unimap.png" alt="UniMap Logo">
+        </a>
+      </div>
+      
+      <div class="copyright">
+        © 2025 - Mohamed Amine Ben Lboukht
+      </div>
     </footer>
   </div>
 
   <!-- Using locally hosted face-api.js instead of CDN -->
   <script src="/js/lib/face-api.min.js"></script>
-  <!-- Attendre que face-api soit chargé avant d'initialiser les autres scripts -->
+  <!-- Face API loading script -->
   <script>
-    // Vérifier si face-api est correctement chargé
+    // Check if face-api is correctly loaded
     window.addEventListener('DOMContentLoaded', function() {
       if (typeof faceapi === 'undefined') {
-        console.error("ERREUR: face-api.js n'est pas chargé correctement!");
+        console.error("ERROR: face-api.js is not loaded correctly!");
         document.getElementById('detection-status').textContent = 
-          "Erreur: Bibliothèque de détection non chargée. Utilisez les boutons manuels.";
-      } else {
-        console.log("face-api.js chargé avec succès, version:", faceapi.version || "inconnue");
+          "Error: Detection library not loaded. Please use manual buttons.";
         
-        // Préchargement forcé des modèles
-        async function preloadModels() {
-          try {
-            const modelPath = window.location.origin + '/models/weights';
-            console.log("Préchargement des modèles depuis:", modelPath);
+        // Show manual controls prominently
+        enhanceManualControls();
+      } else {
+        console.log("face-api.js loaded successfully, version:", faceapi.version || "unknown");
+        
+        // Handle missing model files gracefully
+        // This informs the user but allows the app to function
+        const modelPath = '/models/face-api-models';
+        
+        // Try to load models from the correct path
+        try {
+          // Load models path
+          faceapi.nets.tinyFaceDetector.loadFromUri(modelPath);
+          faceapi.nets.faceExpressionNet.loadFromUri(modelPath);
+          console.log("Attempting to load face detection models from:", modelPath);
+          
+          // Update indicator
+          const indicator = document.getElementById('detection-indicator');
+          if (indicator) {
+            indicator.style.backgroundColor = '#FFC107'; // Yellow while loading
+          }
+          
+          document.getElementById('detection-status').textContent = 
+            "Loading face detection models...";
+        } catch(err) {
+          console.error("Error initiating model loading:", err);
+          document.getElementById('detection-status').textContent = 
+            "Face detection models could not be loaded. Using manual mode.";
+        }
+      }
+      
+      // Enhance manual control visibility in case face detection fails
+      function enhanceManualControls() {
+        setTimeout(() => {
+          const manualControls = document.getElementById('manual-emotions');
+          if (manualControls) {
+            manualControls.style.display = 'block';
+            manualControls.style.padding = '20px';
+            manualControls.style.backgroundColor = '#f8f9fa';
+            manualControls.style.border = '1px solid #dee2e6';
+            manualControls.style.borderRadius = '10px';
+            manualControls.style.boxShadow = '0 4px 10px rgba(0,0,0,0.1)';
+            manualControls.style.marginTop = '20px';
             
-            // Mettre à jour l'indicateur visuel
-            const indicator = document.getElementById('detection-indicator');
-            if (indicator) {
-              indicator.style.backgroundColor = '#FFC107'; // Jaune = chargement
-            }
-            
-            // Forcer le chargement des modèles avant tout
-            await faceapi.nets.tinyFaceDetector.load(modelPath);
-            await faceapi.nets.faceExpressionNet.load(modelPath);
-            
-            console.log("Modèles préchargés avec succès!");
-            document.getElementById('detection-status').textContent = 
-              "Modèles préchargés, initialisation de la détection...";
-              
-            // Mettre à jour l'indicateur visuel pour montrer que c'est prêt
-            if (indicator) {
-              indicator.style.backgroundColor = '#4CAF50'; // Vert = prêt
-            }
-          } catch (error) {
-            console.error("Erreur lors du préchargement des modèles:", error);
-            
-            // Mettre à jour l'indicateur visuel pour montrer l'erreur
-            const indicator = document.getElementById('detection-indicator');
-            if (indicator) {
-              indicator.style.backgroundColor = '#F44336'; // Rouge = erreur
+            // Add header styling
+            const heading = manualControls.querySelector('h3');
+            if (heading) {
+              heading.style.color = '#4361ee';
+              heading.style.marginBottom = '10px';
             }
           }
-        }
-        
-        // Lancer le préchargement
-        preloadModels();
+        }, 500);
       }
     });
   </script>

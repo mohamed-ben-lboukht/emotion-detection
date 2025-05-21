@@ -1,97 +1,112 @@
-# Emotion Detection - Application Dockerisée
+# Emotion Detection - Keystroke Dynamics Application
 
-Application web pour la détection d'émotions et la collecte de données de frappe au clavier.
+Web application for emotion detection and keystroke dynamics data collection.
 
-## Fonctionnalités
+## Features
 
-- Détection d'émotions via webcam
-- Interface utilisateur intuitive
-- Stockage sécurisé des données
-- Déploiement facile avec Docker
+- Emotion detection via webcam
+- Keystroke timing collection
+- Intuitive user interface
+- Secure data storage
+- Easy deployment with Docker
 
-## Installation et démarrage rapide
+## Installation and Quick Start
 
-### Avec Docker (Recommandé)
+### With Docker (Recommended)
 
-1. Assurez-vous d'avoir Docker et Docker Compose installés
-2. Clonez ce dépôt
-3. Exécutez le script de démarrage:
+1. Make sure you have Docker and Docker Compose installed
+2. Clone this repository
+3. Run the startup script:
 
 ```bash
 ./docker-start.sh
 ```
 
-L'application sera accessible à l'adresse: http://localhost:3001
+The application will be accessible at: http://localhost:3001
 
-### Sans Docker
+### Without Docker
 
-1. Assurez-vous d'avoir Node.js (version 14+) installé
-2. Clonez ce dépôt
-3. Installez les dépendances:
+1. Make sure you have Node.js (version 14+) and MongoDB installed
+2. Clone this repository
+3. Install dependencies:
 
 ```bash
 npm install
 ```
 
-4. Démarrez l'application:
+4. Start the application:
 
 ```bash
-npm start
+npm run dev
 ```
 
-L'application sera accessible à l'adresse: http://localhost:3001
+The application will be accessible at: http://localhost:3001
 
-## Structure du projet
+## Project Structure
 
 ```
 emotion-detection/
-├── app.js                  # Serveur Express principal
-├── package.json            # Configuration npm
-├── data/                   # Dossier de stockage des données
-│   └── sessions/           # Données de session stockées en JSON
-├── public/                 # Fichiers statiques
-│   ├── index.html          # Page principale
-│   ├── styles.css          # Styles CSS
-│   ├── js/                 # Scripts JavaScript 
-│   └── models/             # Modèles de détection d'émotions
-├── Dockerfile              # Configuration Docker
-├── docker-compose.yml      # Configuration Docker Compose
-└── admin/                  # Interface d'administration
+├── app.js                  # Main Express server
+├── package.json            # npm configuration
+├── config/                 # Configuration files
+│   └── database.js         # MongoDB connection
+├── middleware/             # Express middleware
+│   └── security.js         # Security headers middleware
+├── utils/                  # Utility functions
+│   ├── fileUtils.js        # File handling utilities
+│   └── sanitization.js     # Data sanitization utilities
+├── routes/                 # API routes
+│   ├── api.js              # Main API endpoints
+│   └── admin.js            # Admin dashboard endpoints
+├── models/                 # Database models
+│   └── Session.js          # MongoDB session schema
+├── data/                   # Data storage directory
+│   └── sessions/           # Session data stored as JSON
+├── public/                 # Static files
+│   ├── index.html          # Main page
+│   ├── css/                # CSS styles
+│   ├── js/                 # JavaScript files
+│   └── models/             # Emotion detection models
+├── admin/                  # Admin interface
+│   ├── dashboard.html      # Admin dashboard 
+│   └── login.html          # Admin login page
+├── Dockerfile              # Docker configuration
+└── docker-compose.yml      # Docker Compose configuration
 ```
 
-## Déploiement
+## Deployment
 
-### Sur Render.com
+### On Render.com
 
-Le fichier `render.yaml` permet un déploiement facile sur [Render.com](https://render.com).
+The `render.yaml` file allows for easy deployment on [Render.com](https://render.com).
 
-### Sur d'autres plateformes
+### On Other Platforms
 
-Suivez les instructions dans le fichier [DOCKER_README.md](DOCKER_README.md) pour les détails de déploiement sur d'autres plateformes.
+Follow the instructions in the [DOCKER_README.md](DOCKER_README.md) file for deployment details on other platforms.
 
 ## Maintenance
 
-Pour nettoyer le projet et supprimer les fichiers temporaires:
+To clean up the project and remove temporary files:
 
 ```bash
 ./clean.sh
 ```
 
-## Sécurité
+## Testing the Application
 
-L'application implémente plusieurs mesures de sécurité:
-- En-têtes de sécurité HTTP
-- Sanitization des données
+Run the test script to verify that the application is correctly set up:
+
+```bash
+npm test
+```
+
+## Security
+
+The application implements several security measures:
+- HTTP security headers
+- Data sanitization
 - CSP (Content Security Policy)
 - Rate limiting
-
-## Licence
-
-Ce projet est sous licence MIT.
-
-# Emotion Detection App
-
-This app captures and analyzes emotions during typing sessions, with data persistence in MongoDB.
 
 ## Setup for Data Persistence on Render
 
@@ -124,14 +139,9 @@ Replace the `MONGODB_URI` with your actual MongoDB connection string, and change
 
 #### From API Endpoints
 - `/api/sessions` - Get all sessions as JSON
-- `/api/json-files` - Browse and download JSON files
-- `/view-data` - View both MongoDB and JSON data
+- `/api/admin/sessions` - Browse and download JSON files
+- `/api/admin/extract-data` - Extract MongoDB data to JSON files
 
-### 4. Testing the MongoDB Connection
+## License
 
-To check if your MongoDB connection is working correctly:
-1. Go to `/admin/dashboard`
-2. Click "Load MongoDB Data"
-3. You should see your sessions listed in a table
-
-All typed data is now automatically saved to both local JSON files and MongoDB. The MongoDB data will persist even when Render restarts your application. 
+This project is licensed under the MIT License. 
