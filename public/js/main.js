@@ -64,7 +64,7 @@ ensureConsentAndUUID();
 
 // === PHRASES FIXES POUR LE MODE FIXED TEXT ===
 const FIXED_PHRASES = [
-  // Phrases sur les émotions en anglais
+  // English phrases about emotions
   "i feel happy when i listen to my favorite music in the morning",
   "sometimes i am sad when the sky is grey and it rains all day",
   "my heart beats fast when i am surprised by good news",
@@ -75,17 +75,16 @@ const FIXED_PHRASES = [
   "i feel peaceful when i read a book in silence",
   "i am proud when i finish a difficult task by myself",
   "i feel nervous before speaking in front of many people",
-  // Phrases sur les émotions en francais sans accents
-  "je ressens de la joie quand je vois mes amis sourire",
-  "parfois je me sens triste quand il fait sombre dehors",
-  "mon coeur bat vite quand je recois une bonne nouvelle",
-  "je suis calme quand j entends le chant des oiseaux le matin",
-  "j ai peur quand j entends un bruit etrange la nuit",
-  "je suis en colere quand rien ne se passe comme prevu",
-  "je suis surpris quand quelqu un me fait un cadeau",
-  "je me sens apaise quand je marche dans la foret tranquille",
-  "je suis fier quand je termine un travail difficile tout seul",
-  "je suis nerveux avant de parler devant beaucoup de gens"
+  "i am content when watching the sunset at the beach",
+  "i feel frustrated when stuck in traffic for hours",
+  "i am bored when there is nothing interesting to do",
+  "i feel hopeful about my future and new opportunities",
+  "i am grateful for all the good things in my life",
+  "i feel disappointed when my expectations are not met",
+  "i am amazed by beautiful works of art in museums",
+  "i feel confused when given too many options to choose from",
+  "i am embarrassed when i make a mistake in public",
+  "i feel curious about learning new and interesting facts"
 ];
 let currentFixedPhrase = '';
 let currentTypingMode = 'free';
@@ -126,12 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Initialize handlers
+  // Initialize trackers with display elements
   const manualKeystrokeTracker = new KeystrokeTracker('typing-area', 'typing-speed', 'keystroke-count');
   const musicKeystrokeTracker = new KeystrokeTracker('music-typing-area', 'music-typing-speed', 'music-keystroke-count');
   const webcamKeystrokeTracker = new KeystrokeTracker('webcam-typing-area', 'webcam-typing-speed', 'webcam-keystroke-count');
   const musicHandler = new MusicHandler();
-  const emotionsHandler = new EmotionsHandler();
   const webcamTracker = new WebcamTracker();
   
   // Get DOM elements
@@ -156,10 +154,23 @@ document.addEventListener('DOMContentLoaded', () => {
       // Show appropriate section based on option selected
       if (optionId === 'manual-option') {
         targetSection = document.getElementById('manual-tracking');
+        // Reset manual input and tracker
+        document.getElementById('typing-area').value = '';
+        manualKeystrokeTracker.reset();
+        // Set default typing mode
+        setTypingMode('free');
       } else if (optionId === 'music-option') {
         targetSection = document.getElementById('music-tracking');
+        // Reset music input and tracker
+        document.getElementById('music-typing-area').value = '';
+        musicKeystrokeTracker.reset();
+        // Set default music typing mode
+        setMusicTypingMode('free');
       } else if (optionId === 'webcam-option') {
         targetSection = document.getElementById('webcam-tracking');
+        // Reset webcam input and tracker
+        document.getElementById('webcam-typing-area').value = '';
+        webcamKeystrokeTracker.reset();
         // Initialize webcam for webcam mode only
         webcamTracker.initialize();
       }
@@ -186,6 +197,20 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Stop music if playing
       musicHandler.stopMusic();
+
+      // Reset all text input fields
+      document.getElementById('typing-area').value = '';
+      document.getElementById('music-typing-area').value = '';
+      document.getElementById('webcam-typing-area').value = '';
+
+      // Reset mode selections
+      setTypingMode('free');
+      setMusicTypingMode('free');
+
+      // Reset keystroke trackers
+      manualKeystrokeTracker.reset();
+      musicKeystrokeTracker.reset();
+      webcamKeystrokeTracker.reset();
     });
   });
   
@@ -198,25 +223,25 @@ document.addEventListener('DOMContentLoaded', () => {
       const privacyModalHtml = `
         <div id="privacy-modal" class="modal active">
           <div class="modal-content" style="max-width: 800px; padding: 30px; box-shadow: 0 0 20px rgba(0,0,0,0.3); background-color: #fff; border-radius: 10px;">
-            <h2 style="font-size: 26px; margin-bottom: 20px; color: #4361ee;">Politique de Confidentialité</h2>
+            <h2 style="font-size: 26px; margin-bottom: 20px; color: #4361ee;">Privacy Policy</h2>
             <div class="privacy-content" style="font-size: 16px; line-height: 1.6;">
-              <p style="margin-bottom: 15px; font-weight: bold;">Cette application collecte :</p>
+              <p style="margin-bottom: 15px; font-weight: bold;">This application collects:</p>
               <ul style="margin-bottom: 20px; padding-left: 25px;">
-                <li style="margin-bottom: 10px;">Les temps de frappe au clavier (moments d'appui et de relâchement)</li>
-                <li style="margin-bottom: 10px;">Le texte que vous saisissez dans les zones de saisie</li>
-                <li style="margin-bottom: 10px;">Les informations de contexte (musique jouée ou statut de la webcam)</li>
-                <li style="margin-bottom: 10px;">Les données émotionnelles (rapportées manuellement ou détectées via webcam)</li>
+                <li style="margin-bottom: 10px;">Keyboard keystroke timing (press and release moments)</li>
+                <li style="margin-bottom: 10px;">The text you type in the input areas</li>
+                <li style="margin-bottom: 10px;">Context information (music played or webcam status)</li>
+                <li style="margin-bottom: 10px;">Emotional data (manually reported or detected via webcam)</li>
               </ul>
               
-              <p style="margin-bottom: 15px;">Toutes les données sont stockées sur le serveur au format JSON et ne sont pas partagées avec des tiers.</p>
-              <p style="margin-bottom: 15px;">Les données sont collectées à des fins de recherche pour analyser les schémas de frappe et les états émotionnels.</p>
+              <p style="margin-bottom: 15px;">All data is stored on the server in JSON format and is not shared with third parties.</p>
+              <p style="margin-bottom: 15px;">Data is collected for research purposes to analyze typing patterns and emotional states.</p>
               
-              <p style="margin-bottom: 15px;">Vos données sont identifiées uniquement par un ID généré aléatoirement, et non par des informations personnelles.</p>
-              <p style="margin-bottom: 15px;">Le flux de la webcam est utilisé uniquement lorsque vous choisissez explicitement le mode caméra.</p>
+              <p style="margin-bottom: 15px;">Your data is identified only by a randomly generated ID, not by personal information.</p>
+              <p style="margin-bottom: 15px;">The webcam feed is used only when you explicitly choose the camera mode.</p>
               
-              <p style="margin-bottom: 15px;">Les données collectées ne sont accessibles qu'aux administrateurs.</p>
+              <p style="margin-bottom: 15px;">The collected data is accessible only to administrators.</p>
             </div>
-            <button id="close-privacy-modal" class="btn-primary" style="padding: 12px 25px; font-size: 16px; margin-top: 15px; background: linear-gradient(to right, #4361ee, #3a0ca3); color: white; border: none; border-radius: 5px; cursor: pointer;">Fermer</button>
+            <button id="close-privacy-modal" class="btn-primary" style="padding: 12px 25px; font-size: 16px; margin-top: 15px; background: linear-gradient(to right, #4361ee, #3a0ca3); color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
           </div>
         </div>
       `;
@@ -240,32 +265,32 @@ document.addEventListener('DOMContentLoaded', () => {
         <form id="emotion-form">
           <div class="emotion-sliders" style="margin: 20px 0;">
             <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
-              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😊 Happy</div>
+              <div style="width: 120px; font-size: 18px; margin-right: 10px;">😊 Happy</div>
               <input type="range" min="0" max="100" value="0" name="happy" id="happy" style="flex-grow: 1; margin: 0 10px;">
               <span id="happy-val" style="width: 40px; text-align: right;">0</span>%
             </div>
             <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
-              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😢 Sad</div>
+              <div style="width: 120px; font-size: 18px; margin-right: 10px;">😢 Sad</div>
               <input type="range" min="0" max="100" value="0" name="sad" id="sad" style="flex-grow: 1; margin: 0 10px;">
               <span id="sad-val" style="width: 40px; text-align: right;">0</span>%
             </div>
             <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
-              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😠 Angry</div>
+              <div style="width: 120px; font-size: 18px; margin-right: 10px;">😠 Angry</div>
               <input type="range" min="0" max="100" value="0" name="anger" id="anger" style="flex-grow: 1; margin: 0 10px;">
               <span id="anger-val" style="width: 40px; text-align: right;">0</span>%
             </div>
             <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
-              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😨 Fearful</div>
+              <div style="width: 120px; font-size: 18px; margin-right: 10px;">😨 Fearful</div>
               <input type="range" min="0" max="100" value="0" name="fear" id="fear" style="flex-grow: 1; margin: 0 10px;">
               <span id="fear-val" style="width: 40px; text-align: right;">0</span>%
             </div>
             <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
-              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😲 Surprised</div>
+              <div style="width: 120px; font-size: 18px; margin-right: 10px;">😲 Surprised</div>
               <input type="range" min="0" max="100" value="0" name="surprise" id="surprise" style="flex-grow: 1; margin: 0 10px;">
               <span id="surprise-val" style="width: 40px; text-align: right;">0</span>%
             </div>
             <div class="emotion-slider-item" style="display: flex; align-items: center; margin-bottom: 15px;">
-              <div style="width: 90px; font-size: 18px; margin-right: 10px;">😐 Neutral</div>
+              <div style="width: 120px; font-size: 18px; margin-right: 10px;">😐 Neutral</div>
               <input type="range" min="0" max="100" value="0" name="neutral" id="neutral" style="flex-grow: 1; margin: 0 10px;">
               <span id="neutral-val" style="width: 40px; text-align: right;">0</span>%
             </div>
@@ -320,42 +345,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Modifier la fonction askEmotions pour retourner la nouvelle structure
   function askEmotions() {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const modal = document.getElementById('emotion-modal');
-      if (!modal) {
-        console.error('Emotion modal not found');
-        resolve({});
-        return;
-      }
-
       modal.classList.remove('hidden');
+      modal.classList.add('active');
+      const form = document.getElementById('emotion-form');
       
-      // Reset all sliders
-      document.querySelectorAll('.emotion-slider input[type="range"]').forEach(slider => {
-        slider.value = 0;
-        const valueDisplay = document.getElementById(`${slider.name}-val`);
-        if (valueDisplay) {
-          valueDisplay.textContent = '0';
-        }
+      // Reset previous selections
+      ['happy', 'sad', 'anger', 'fear', 'surprise', 'neutral'].forEach(emotion => {
+        const input = document.querySelector(`input[name='${emotion}']`);
+        if (input) input.value = 0;
+        const valueDisplay = document.getElementById(`${emotion}-val`);
+        if (valueDisplay) valueDisplay.textContent = '0';
       });
-
-      document.getElementById('emotion-form').onsubmit = (e) => {
+      
+      // Nettoyage : supprimer tout bouton Cancel déjà présent
+      const oldCancel = form.querySelector('button.cancel-emotion');
+      if (oldCancel) oldCancel.remove();
+      
+      form.onsubmit = e => {
         e.preventDefault();
         
-        // Get all emotion values
-        const emotions = {};
-        document.querySelectorAll('.emotion-slider input[type="range"]').forEach(slider => {
-          emotions[slider.name] = parseInt(slider.value);
-        });
-        
-        // Update emotions handler
-        Object.entries(emotions).forEach(([emotion, value]) => {
-          emotionsHandler.updateEmotion(emotion, value);
-        });
+        const emotions = {
+          happy: parseInt(document.querySelector('input[name="happy"]').value) || 0,
+          sad: parseInt(document.querySelector('input[name="sad"]').value) || 0,
+          anger: parseInt(document.querySelector('input[name="anger"]').value) || 0,
+          fear: parseInt(document.querySelector('input[name="fear"]').value) || 0,
+          surprise: parseInt(document.querySelector('input[name="surprise"]').value) || 0,
+          neutral: parseInt(document.querySelector('input[name="neutral"]').value) || 0
+        };
         
         modal.classList.add('hidden');
-        resolve(emotionsHandler.getData());
+        modal.classList.remove('active');
+        resolve(emotions);
       };
+      
+      // Add Cancel button
+      const cancelButton = document.createElement('button');
+      cancelButton.textContent = 'Cancel';
+      cancelButton.type = 'button';
+      cancelButton.className = 'cancel-emotion';
+      cancelButton.style = 'margin: 0 10px; padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;';
+      
+      cancelButton.onclick = () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('active');
+        // Reset textarea if present
+        const textarea = form.closest('.tracking-section')?.querySelector('textarea');
+        if (textarea) textarea.value = '';
+        resolve(false); // Return false to indicate cancellation
+      };
+      
+      const submitButton = form.querySelector('button[type="submit"]');
+      const buttonContainer = submitButton.parentNode;
+      
+      if (buttonContainer && !form.querySelector('button.cancel-emotion')) {
+        buttonContainer.insertBefore(cancelButton, submitButton);
+      }
     });
   }
 
