@@ -120,12 +120,6 @@ The application implements several security measures:
 ### 2. Configure Environment Variables on Render
 Add the following environment variables to your Render deployment:
 
-```
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/emotion-detection?retryWrites=true&w=majority
-PORT=3000
-ADMIN_PASSWORD=admin123
-```
-
 Replace the `MONGODB_URI` with your actual MongoDB connection string, and change the admin password.
 
 ### 3. How to Access Your Data
@@ -141,7 +135,3 @@ Replace the `MONGODB_URI` with your actual MongoDB connection string, and change
 - `/api/sessions` - Get all sessions as JSON
 - `/api/admin/sessions` - Browse and download JSON files
 - `/api/admin/extract-data` - Extract MongoDB data to JSON files
-
-## License
-
-This project is licensed under the MIT License. 
